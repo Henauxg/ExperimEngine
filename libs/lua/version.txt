@@ -1,0 +1,2 @@
+LuaJIT-2.0.5	2017-05-01
+http://luajit.org/download.html
