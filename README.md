@@ -69,5 +69,6 @@ Some of the dependencies may become git submodule.
 + [Learning Modern 3D Graphics Programming](http://opengl.datenwolf.net/gltut/html/index.html), by Jason L.McKesson
 + [EDX course, Computer Graphics](https://www.edx.org/course/computer-graphics-2)
 
-##License:
-MIT. See [LICENSE.txt](TODO)
+## License:
+
+MIT. See [LICENSE](LICENSE)
