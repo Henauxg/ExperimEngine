@@ -1,16 +1,19 @@
 #pragma once
 
-namespace experimengine::render {
-	class Window
-	{
-	public:
-		Window(int width, int height, const char* title);
-		~Window();
+namespace experimengine {
+namespace render {
 
-		bool shouldClose() const;
-		void pollEvents();
-		void waitEvents() const;
-	private:
+class Window {
+public:
+	Window(int width, int height, const char* title);
+	~Window();
 
-	};
-}
+	bool shouldClose() const;
+	void pollEvents();
+	void waitEvents() const;
+
+private:
+};
+
+} // namespace render
+} // namespace experimengine

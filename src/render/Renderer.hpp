@@ -1,21 +1,24 @@
 #pragma once
 
-#include "Window.hpp"
 #include "EngineParameters.hpp"
+#include "Window.hpp"
 
-namespace experimengine::render {
-	class Renderer
-	{
-	public:
-		Renderer(const Window& window, EngineParameters& engineParams);
-		~Renderer();
+namespace experimengine {
+namespace render {
 
-		void render();
-		void rendererWaitIdle();
+class Renderer {
+public:
+	Renderer(const Window& window, EngineParameters& engineParams);
+	~Renderer();
 
-	private:
-		/**  @brief Given to the constructor. Used to create the rendering surface. */
-		const Window& window;
-		EngineParameters& engineParams;
-	};
-}
+	void render();
+	void rendererWaitIdle();
+
+private:
+	/**  @brief Given to the constructor. Used to create the rendering surface. */
+	const Window& window;
+	EngineParameters& engineParams;
+};
+
+} // namespace render
+} // namespace experimengine

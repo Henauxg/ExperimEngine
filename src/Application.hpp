@@ -1,25 +1,25 @@
 #pragma once
 
-#include <Window.hpp>
-#include <Renderer.hpp>
 #include <EngineParameters.hpp>
+#include <Renderer.hpp>
+#include <Window.hpp>
 #include <memory>
 
 namespace experimengine {
-	class Application {
-	public:
-		void run();
+class Application {
+public:
+	void run();
 
-	private:
-		std::unique_ptr<render::Window> window;
-		std::unique_ptr<render::Renderer> renderer;
+private:
+	std::unique_ptr<render::Window> window;
+	std::unique_ptr<render::Renderer> renderer;
 
-		EngineParameters engineParams;
+	EngineParameters engineParams;
 
-		void mainLoop();
-		void renderFrame();
-		void cleanup();
-		void initWindow();
-		void initRenderer();
-	};
-}
+	void mainLoop();
+	void renderFrame();
+	void cleanup();
+	void initWindow();
+	void initRenderer();
+};
+} // namespace experimengine

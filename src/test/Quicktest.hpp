@@ -1,7 +1,9 @@
 #pragma once
 
-namespace experimengine::quicktest {
-	void testCMake();
-	void testLuaJit();
-	void testSol();
-}
+namespace experimengine {
+namespace quicktest {
+void testCMake();
+void testLuaJit();
+void testSol();
+} // namespace quicktest
+} // namespace experimengine
