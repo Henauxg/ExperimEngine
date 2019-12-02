@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SDL2/SDL.h"
+
 namespace experimengine {
 namespace render {
 
@@ -13,6 +15,7 @@ public:
 	void waitEvents() const;
 
 private:
+	struct SDL_Window* sdlWindow_;
 };
 
 } // namespace render

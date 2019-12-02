@@ -11,10 +11,9 @@ public:
 	void run();
 
 private:
-	std::unique_ptr<render::Window> window;
-	std::unique_ptr<render::Renderer> renderer;
-
-	EngineParameters engineParams;
+	std::unique_ptr<render::Window> window_;
+	std::unique_ptr<render::Renderer> renderer_;
+	EngineParameters engineParams_;
 
 	void mainLoop();
 	void renderFrame();

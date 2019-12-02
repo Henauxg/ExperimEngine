@@ -16,8 +16,8 @@ public:
 
 private:
 	/**  @brief Given to the constructor. Used to create the rendering surface. */
-	const Window& window;
-	EngineParameters& engineParams;
+	const Window& window_;
+	EngineParameters& engineParams_;
 };
 
 } // namespace render

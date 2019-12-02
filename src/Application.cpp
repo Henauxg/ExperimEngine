@@ -48,18 +48,18 @@ void Application::run()
 
 void Application::mainLoop()
 {
-	while (!(window->shouldClose())) {
-		window->pollEvents();
+	while (!(window_->shouldClose())) {
+		window_->pollEvents();
 		renderFrame();
 	}
-	renderer->rendererWaitIdle();
+	renderer_->rendererWaitIdle();
 }
 
 void Application::renderFrame()
 {
 	auto timeStart = std::chrono::high_resolution_clock::now();
 
-	renderer->render();
+	renderer_->render();
 
 	/* Temporary */
 	std::mt19937_64 eng { std::random_device {}() };
@@ -69,7 +69,7 @@ void Application::renderFrame()
 	auto timeEnd = std::chrono::high_resolution_clock::now();
 	auto msTimeDiff = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
 
-	EngineTimings* timings = &engineParams.timings;
+	EngineTimings* timings = &engineParams_.timings;
 	timings->frameDuration = (float) msTimeDiff / ONE_SEC_IN_MILLI_F;
 	if (!timings->paused) {
 		timings->timer += timings->timerSpeed * timings->frameDuration;
@@ -78,7 +78,7 @@ void Application::renderFrame()
 		}
 	}
 
-	EngineStatistics* stats = &engineParams.statistics;
+	EngineStatistics* stats = &engineParams_.statistics;
 	stats->frameCounter++;
 	stats->fpsTimer += (float) msTimeDiff;
 	if (stats->fpsTimer > stats->fpsRefreshPeriod) {
@@ -97,17 +97,17 @@ void Application::renderFrame()
 
 void Application::cleanup()
 {
-	renderer.reset();
-	window.reset();
+	renderer_.reset();
+	window_.reset();
 }
 
 void Application::initWindow()
 {
-	window = std::make_unique<render::Window>(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITILE);
+	window_ = std::make_unique<render::Window>(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITILE);
 }
 
 void Application::initRenderer()
 {
-	renderer = std::make_unique<render::Renderer>(*window, engineParams);
+	renderer_ = std::make_unique<render::Renderer>(*window_, engineParams_);
 }
 } // namespace experimengine

@@ -4,8 +4,8 @@ namespace experimengine {
 namespace render {
 
 Renderer::Renderer(const Window& window, EngineParameters& engineParams)
-	: window(window)
-	, engineParams(engineParams)
+	: window_(window)
+	, engineParams_(engineParams)
 {
 	/* TODO Implement */
 }
