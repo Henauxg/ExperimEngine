@@ -13,13 +13,17 @@ Renderer::Renderer(const char* appName, const Window& window, EngineParameters& 
 	, engineParams_(engineParams)
 {
 	vkInstance_ = createVulkanInstance(appName, window);
+	vkDebugMessenger_ = setupDebugMessenger(*vkInstance_, vlk::ENABLE_VALIDATION_LAYERS);
 
 	/* TODO Implement */
 }
 
 Renderer::~Renderer()
 { /* TODO Implement */
-	// vkInstance_.destroy();
+
+	if (vlk::ENABLE_VALIDATION_LAYERS) {
+		vlk::destroyDebugUtilsMessengerEXT(*vkInstance_, vkDebugMessenger_);
+	}
 }
 
 void Renderer::render()
@@ -64,6 +68,15 @@ vk::UniqueInstance Renderer::createVulkanInstance(const char* appName, const Win
 	vk::UniqueInstance createdVkInstance = vk::createInstanceUnique(createInfo);
 
 	return createdVkInstance;
+}
+
+vk::DebugUtilsMessengerEXT Renderer::setupDebugMessenger(vk::Instance instance,
+														 bool enableValidationLayers) const
+{
+	if (!enableValidationLayers)
+		return nullptr;
+
+	return vlk::createDebugUtilsMessengerEXT(instance);
 }
 
 } // namespace render

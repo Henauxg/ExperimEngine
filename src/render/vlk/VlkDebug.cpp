@@ -9,6 +9,41 @@ namespace render {
 namespace vlk {
 
 /* TODO : log */
+static VKAPI_ATTR VkBool32 VKAPI_CALL
+debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+			  VkDebugUtilsMessageSeverityFlagsEXT messageType,
+			  const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
+{
+	std::cerr << "Validation layer : " << pCallbackData->pMessage << std::endl;
+
+	return VK_FALSE;
+}
+
+vk::DebugUtilsMessengerEXT createDebugUtilsMessengerEXT(vk::Instance instance)
+{
+	/* https://github.com/dokipen3d/vulkanHppMinimalExample/blob/master/main.cpp */
+	/*auto debugMessenger = vkInstance_->createDebugUtilsMessengerEXTUnique(
+	createInfo, nullptr, vk::DispatchLoaderDynamic { *vkInstance_ });*/
+	/* https://github.com/KhronosGroup/Vulkan-Hpp/issues/443 */
+	/* 	vk::UniqueHandle<vk::DebugUtilsMessengerEXT, vk::DispatchLoaderStatic> vkDebugMessenger_
+		= vkInstance_->createDebugUtilsMessengerEXTUnique(createInfo); */
+
+	vk::DebugUtilsMessengerCreateInfoEXT createInfo({}, vlk::debugCallbackMessageSeverity,
+													vlk::debugCallbackMessageType, debugCallback);
+
+	auto vkDebugMessenger = instance.createDebugUtilsMessengerEXT(
+		createInfo, nullptr, vk::DispatchLoaderDynamic { instance, &vkGetInstanceProcAddr });
+
+	return vkDebugMessenger;
+}
+
+void destroyDebugUtilsMessengerEXT(vk::Instance instance, vk::DebugUtilsMessengerEXT debugMessenger)
+{
+	instance.destroyDebugUtilsMessengerEXT(
+		debugMessenger, nullptr, vk::DispatchLoaderDynamic { instance, &vkGetInstanceProcAddr });
+}
+
+/* TODO : log */
 bool hasValidationLayerSupport(const std::vector<const char*> validationLayers)
 {
 	uint32_t layerCount;
