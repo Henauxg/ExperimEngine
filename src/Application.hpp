@@ -5,7 +5,7 @@
 #include <Window.hpp>
 #include <memory>
 
-namespace experimengine {
+namespace expengine {
 class Application {
 public:
 	void run();
@@ -21,4 +21,4 @@ private:
 	void initWindow();
 	void initRenderer();
 };
-} // namespace experimengine
+} // namespace expengine

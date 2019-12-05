@@ -10,6 +10,7 @@ configure_file(ExperimEngineConfig.h.in ExperimEngineConfig.h)
 add_executable(ExperimEngine "")
 add_subdirectory(src)
 add_subdirectory(src/render)
+add_subdirectory(src/render/vlk)
 add_subdirectory(src/test)
 
 set(LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)

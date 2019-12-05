@@ -1,6 +1,6 @@
 # ExperimEngine
 
-ExperimEngine is a personal project made to _experiment_ (hence the name) with various tech pieces in order to make a tiny _C++ game engine_. 
+ExperimEngine is a personal side project made to _experiment_ (hence the name) with various tech pieces in order to make a tiny _C++ game engine_. 
 
 Along the way, I aim to learn many things such as 3D graphics with [Vulkan](https://www.khronos.org/vulkan/), some shader fun, and to embed [Lua](https://www.lua.org/) as a scripting/modding language.
 
@@ -42,9 +42,9 @@ Some of the dependencies may become git submodule.
 + [LuaJIT](http://luajit.org/luajit.html) V2.0.5
 + [sol](https://github.com/ThePhD/sol2) V3.0.3
 + [Vulkan](https://www.khronos.org/vulkan/) V1.1.126.0
++ [Vulkan-Hpp](https://github.com/KhronosGroup/Vulkan-Hpp)
 
 ### May be used in the future :
-+ [Vulkan-Hpp](https://github.com/KhronosGroup/Vulkan-Hpp)
 + [Vulkan Memory Allocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator)
 + [Dear ImGui](https://github.com/ocornut/imgui)
 + [Bullet Physics](https://github.com/bulletphysics/bullet3)

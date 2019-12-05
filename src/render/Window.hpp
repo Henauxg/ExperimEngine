@@ -1,8 +1,9 @@
 #pragma once
 
 #include "SDL2/SDL.h"
+#include <vector>
 
-namespace experimengine {
+namespace expengine {
 namespace render {
 
 class Window {
@@ -14,9 +15,11 @@ public:
 	void pollEvents();
 	void waitEvents() const;
 
+	std::vector<const char*> Window::getRequiredVkExtensions() const;
+
 private:
 	struct SDL_Window* sdlWindow_;
 };
 
 } // namespace render
-} // namespace experimengine
+} // namespace expengine

@@ -7,7 +7,7 @@
 
 #include "Quicktest.hpp"
 
-namespace experimengine {
+namespace expengine {
 namespace quicktest {
 
 void testSol()
@@ -96,4 +96,4 @@ void testLuaJit()
 	lua_close(L); /* Cya, Lua */
 }
 } // namespace quicktest
-} // namespace experimengine
+} // namespace expengine

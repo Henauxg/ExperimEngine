@@ -2,23 +2,29 @@
 
 #include "EngineParameters.hpp"
 #include "Window.hpp"
+#include "vlk/VlkInclude.hpp"
 
-namespace experimengine {
+namespace expengine {
 namespace render {
 
 class Renderer {
 public:
-	Renderer(const Window& window, EngineParameters& engineParams);
+	Renderer(const char* appName, const Window& window, EngineParameters& engineParams);
 	~Renderer();
 
 	void render();
 	void rendererWaitIdle();
 
 private:
-	/**  @brief Given to the constructor. Used to create the rendering surface. */
+	/**  @brief Given to the constructor. Used to create the rendering surface, access the needed
+	 * extensions, query for resize, ... . */
 	const Window& window_;
 	EngineParameters& engineParams_;
+
+	vk::UniqueInstance vkInstance_;
+
+	vk::UniqueInstance createVulkanInstance(const char* appName, const Window& window) const;
 };
 
 } // namespace render
-} // namespace experimengine
+} // namespace expengine

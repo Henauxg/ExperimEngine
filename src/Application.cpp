@@ -12,13 +12,14 @@
 namespace {
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
-const char* WINDOW_TITILE = "ExperimEngine";
+const char* APPLICATION_NAME = "expengine";
+const char* WINDOW_TITLE = APPLICATION_NAME;
 const float ONE_SEC_IN_MILLI_F = 1000.0f;
 } // namespace
 
 int main(int argc, char* argv[])
 {
-	experimengine::Application app;
+	expengine::Application app;
 
 	try {
 		app.run();
@@ -30,7 +31,7 @@ int main(int argc, char* argv[])
 	return EXIT_SUCCESS;
 }
 
-namespace experimengine {
+namespace expengine {
 
 void Application::run()
 {
@@ -95,19 +96,15 @@ void Application::renderFrame()
 	}
 }
 
-void Application::cleanup()
-{
-	renderer_.reset();
-	window_.reset();
-}
+void Application::cleanup() {}
 
 void Application::initWindow()
 {
-	window_ = std::make_unique<render::Window>(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITILE);
+	window_ = std::make_unique<render::Window>(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE);
 }
 
 void Application::initRenderer()
 {
-	renderer_ = std::make_unique<render::Renderer>(*window_, engineParams_);
+	renderer_ = std::make_unique<render::Renderer>(APPLICATION_NAME, *window_, engineParams_);
 }
-} // namespace experimengine
+} // namespace expengine
