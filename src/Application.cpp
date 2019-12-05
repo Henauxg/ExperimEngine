@@ -12,7 +12,7 @@
 namespace {
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
-const char* APPLICATION_NAME = "expengine";
+const char* APPLICATION_NAME = "ExperimEngine";
 const char* WINDOW_TITLE = APPLICATION_NAME;
 const float ONE_SEC_IN_MILLI_F = 1000.0f;
 } // namespace
