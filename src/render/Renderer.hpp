@@ -22,6 +22,7 @@ private:
 	EngineParameters& engineParams_;
 
 	vk::UniqueInstance vkInstance_;
+	vk::UniqueSurfaceKHR vkSurface_;
 	/* TODO : vk::UniqueDebugUtilsMessengerEXT. See links in createDebugUtilsMessengerEXT
 	 * implementation. */
 	vk::DebugUtilsMessengerEXT vkDebugMessenger_;

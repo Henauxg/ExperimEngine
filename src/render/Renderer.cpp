@@ -14,7 +14,8 @@ Renderer::Renderer(const char* appName, const Window& window, EngineParameters& 
 {
 	vkInstance_ = createVulkanInstance(appName, window);
 	vkDebugMessenger_ = setupDebugMessenger(*vkInstance_, vlk::ENABLE_VALIDATION_LAYERS);
-
+	// vkSurface_ = window_.createSurface(*vkInstance_);
+	vkSurface_ = vk::UniqueSurfaceKHR(window_.createSurface(*vkInstance_), *vkInstance_);
 	/* TODO Implement */
 }
 

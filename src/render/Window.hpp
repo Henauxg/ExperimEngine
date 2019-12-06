@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SDL2/SDL.h"
+#include "vlk/VlkInclude.hpp"
 #include <vector>
 
 namespace expengine {
@@ -16,6 +17,7 @@ public:
 	void waitEvents() const;
 
 	std::vector<const char*> Window::getRequiredVkExtensions() const;
+	vk::SurfaceKHR createSurface(vk::Instance vkInstance) const;
 
 private:
 	struct SDL_Window* sdlWindow_;

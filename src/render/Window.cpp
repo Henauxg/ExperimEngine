@@ -35,6 +35,15 @@ bool Window::shouldClose() const
 	return tmpTimeout > TMP_TIMEOUT_COUNT;
 }
 
+vk::SurfaceKHR Window::createSurface(vk::Instance vkInstance) const
+{
+	VkSurfaceKHR surface;
+	if (!SDL_Vulkan_CreateSurface(sdlWindow_, vkInstance, &surface))
+		throw std::runtime_error("Failed to create an a surface");
+
+	return surface;
+}
+
 void Window::pollEvents()
 { /* TODO Implement */
 }
