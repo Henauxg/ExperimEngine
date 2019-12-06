@@ -19,6 +19,14 @@ debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 	return VK_FALSE;
 }
 
+vk::DebugUtilsMessengerCreateInfoEXT
+getDebugUtilsCreateInfo(vk::DebugUtilsMessengerCreateInfoEXT& createInfo)
+{
+	createInfo = vk::DebugUtilsMessengerCreateInfoEXT({}, vlk::debugCallbackMessageSeverity,
+													  vlk::debugCallbackMessageType, debugCallback);
+	return createInfo;
+}
+
 vk::DebugUtilsMessengerEXT createDebugUtilsMessengerEXT(vk::Instance instance)
 {
 	/* https://github.com/dokipen3d/vulkanHppMinimalExample/blob/master/main.cpp */
@@ -28,11 +36,10 @@ vk::DebugUtilsMessengerEXT createDebugUtilsMessengerEXT(vk::Instance instance)
 	/* 	vk::UniqueHandle<vk::DebugUtilsMessengerEXT, vk::DispatchLoaderStatic> vkDebugMessenger_
 		= vkInstance_->createDebugUtilsMessengerEXTUnique(createInfo); */
 
-	vk::DebugUtilsMessengerCreateInfoEXT createInfo({}, vlk::debugCallbackMessageSeverity,
-													vlk::debugCallbackMessageType, debugCallback);
-
+	vk::DebugUtilsMessengerCreateInfoEXT createInfo;
 	auto vkDebugMessenger = instance.createDebugUtilsMessengerEXT(
-		createInfo, nullptr, vk::DispatchLoaderDynamic { instance, &vkGetInstanceProcAddr });
+		getDebugUtilsCreateInfo(createInfo), nullptr,
+		vk::DispatchLoaderDynamic { instance, &vkGetInstanceProcAddr });
 
 	return vkDebugMessenger;
 }

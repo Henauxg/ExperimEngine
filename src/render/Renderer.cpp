@@ -60,9 +60,12 @@ vk::UniqueInstance Renderer::createVulkanInstance(const char* appName, const Win
 	vk::InstanceCreateInfo createInfo(vk::InstanceCreateFlags(), &appInfo, 0, nullptr,
 									  static_cast<uint32_t>(extensions.size()), extensions.data());
 
+	vk::DebugUtilsMessengerCreateInfoEXT debugCreateInfo;
 	if (vlk::ENABLE_VALIDATION_LAYERS) {
 		createInfo.enabledLayerCount = static_cast<uint32_t>(vlk::validationLayers.size());
 		createInfo.ppEnabledLayerNames = vlk::validationLayers.data();
+		createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) (&vlk::getDebugUtilsCreateInfo(
+			debugCreateInfo));
 	}
 
 	vk::UniqueInstance createdVkInstance = vk::createInstanceUnique(createInfo);

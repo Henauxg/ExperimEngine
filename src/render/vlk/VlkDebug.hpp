@@ -7,10 +7,10 @@ namespace expengine {
 namespace render {
 namespace vlk {
 
+/* vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose */
+/* vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo */
 static vk::DebugUtilsMessageSeverityFlagsEXT debugCallbackMessageSeverity
-	= vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose
-	| vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo
-	| vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning
+	= vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning
 	| vk::DebugUtilsMessageSeverityFlagBitsEXT::eError;
 
 static vk::DebugUtilsMessageTypeFlagsEXT debugCallbackMessageType
@@ -27,6 +27,9 @@ const bool ENABLE_VALIDATION_LAYERS = true;
 const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
 
 bool hasValidationLayerSupport(const std::vector<const char*> validationLayers);
+
+vk::DebugUtilsMessengerCreateInfoEXT
+getDebugUtilsCreateInfo(vk::DebugUtilsMessengerCreateInfoEXT& createInfo);
 vk::DebugUtilsMessengerEXT createDebugUtilsMessengerEXT(vk::Instance instance);
 void destroyDebugUtilsMessengerEXT(vk::Instance instance,
 								   vk::DebugUtilsMessengerEXT debugMessenger);
