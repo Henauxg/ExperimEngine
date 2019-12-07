@@ -39,7 +39,7 @@ vk::SurfaceKHR Window::createSurface(vk::Instance vkInstance) const
 {
 	VkSurfaceKHR surface;
 	if (!SDL_Vulkan_CreateSurface(sdlWindow_, vkInstance, &surface))
-		throw std::runtime_error("Failed to create an a surface");
+		throw std::runtime_error("Failed to create a surface");
 
 	return surface;
 }
