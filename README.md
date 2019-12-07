@@ -46,6 +46,7 @@ Some of the dependencies may become git submodule.
 
 ### May be used in the future :
 + [Vulkan Memory Allocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator)
++ [spdlog](https://github.com/gabime/spdlog)
 + [Dear ImGui](https://github.com/ocornut/imgui)
 + [Bullet Physics](https://github.com/bulletphysics/bullet3)
 + [Doxygen](http://www.doxygen.nl/)
