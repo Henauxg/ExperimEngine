@@ -12,7 +12,7 @@ Both _modding_ and _scripting_ have similar needs : there needs to be a _clear, 
 I chose Lua as a scripting language for the following reasons :
 
 + Blazing fast [perfomances](http://luajit.org/performance.html), thanks to LuaJIT
-+ Awesome C++ interop (with ([sol](https://github.com/ThePhD/sol2), although [others](https://sol2.readthedocs.io/en/latest/features.html) exist)
++ Awesome C++ interop (with [sol](https://github.com/ThePhD/sol2), although [others](https://sol2.readthedocs.io/en/latest/features.html) exist)
 + Large community
 + Open-source
 + Learning experience
