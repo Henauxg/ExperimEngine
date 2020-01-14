@@ -2,7 +2,6 @@
 
 #include "vlk/VlkInclude.hpp"
 #include <cstdint>
-#include <iostream>
 
 namespace expengine {
 namespace render {
@@ -22,32 +21,39 @@ debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 vk::DebugUtilsMessengerCreateInfoEXT
 getDebugUtilsCreateInfo(vk::DebugUtilsMessengerCreateInfoEXT& createInfo)
 {
-	createInfo = vk::DebugUtilsMessengerCreateInfoEXT({}, vlk::debugCallbackMessageSeverity,
-													  vlk::debugCallbackMessageType, debugCallback);
+	createInfo = vk::DebugUtilsMessengerCreateInfoEXT(
+		{}, vlk::debugCallbackMessageSeverity, vlk::debugCallbackMessageType,
+		debugCallback);
 	return createInfo;
 }
 
 vk::DebugUtilsMessengerEXT createDebugUtilsMessengerEXT(vk::Instance instance)
 {
-	/* https://github.com/dokipen3d/vulkanHppMinimalExample/blob/master/main.cpp */
+	/* https://github.com/dokipen3d/vulkanHppMinimalExample/blob/master/main.cpp
+	 */
 	/*auto debugMessenger = vkInstance_->createDebugUtilsMessengerEXTUnique(
 	createInfo, nullptr, vk::DispatchLoaderDynamic { *vkInstance_ });*/
 	/* https://github.com/KhronosGroup/Vulkan-Hpp/issues/443 */
-	/* 	vk::UniqueHandle<vk::DebugUtilsMessengerEXT, vk::DispatchLoaderStatic> vkDebugMessenger_
-		= vkInstance_->createDebugUtilsMessengerEXTUnique(createInfo); */
+	/* 	vk::UniqueHandle<vk::DebugUtilsMessengerEXT, vk::DispatchLoaderStatic>
+	   vkDebugMessenger_ =
+	   vkInstance_->createDebugUtilsMessengerEXTUnique(createInfo); */
 
 	vk::DebugUtilsMessengerCreateInfoEXT createInfo;
-	auto vkDebugMessenger = instance.createDebugUtilsMessengerEXT(
+	auto [result, vkDebugMessenger] = instance.createDebugUtilsMessengerEXT(
 		getDebugUtilsCreateInfo(createInfo), nullptr,
 		vk::DispatchLoaderDynamic { instance, &vkGetInstanceProcAddr });
+
+	ASSERT_VK_RESULT(result, "Debug Utils Messenger could not be created.");
 
 	return vkDebugMessenger;
 }
 
-void destroyDebugUtilsMessengerEXT(vk::Instance instance, vk::DebugUtilsMessengerEXT debugMessenger)
+void destroyDebugUtilsMessengerEXT(vk::Instance instance,
+								   vk::DebugUtilsMessengerEXT debugMessenger)
 {
 	instance.destroyDebugUtilsMessengerEXT(
-		debugMessenger, nullptr, vk::DispatchLoaderDynamic { instance, &vkGetInstanceProcAddr });
+		debugMessenger, nullptr,
+		vk::DispatchLoaderDynamic { instance, &vkGetInstanceProcAddr });
 }
 
 /* TODO : log */
@@ -80,6 +86,46 @@ bool hasValidationLayerSupport(const std::vector<const char*> validationLayers)
 		}
 	}
 	return true;
+}
+
+std::string vkResultToString(vk::Result errorCode)
+{
+	switch (errorCode) {
+#define STR(r)                                                                           \
+	case r:                                                                              \
+		return #r
+		STR(vk::Result::eNotReady);
+		STR(vk::Result::eTimeout);
+		STR(vk::Result::eEventSet);
+		STR(vk::Result::eEventReset);
+		STR(vk::Result::eIncomplete);
+		STR(vk::Result::eErrorOutOfHostMemory);
+		STR(vk::Result::eErrorOutOfDeviceMemory);
+		STR(vk::Result::eErrorInitializationFailed);
+		STR(vk::Result::eErrorDeviceLost);
+		STR(vk::Result::eErrorMemoryMapFailed);
+		STR(vk::Result::eErrorLayerNotPresent);
+		STR(vk::Result::eErrorExtensionNotPresent);
+		STR(vk::Result::eErrorFeatureNotPresent);
+		STR(vk::Result::eErrorIncompatibleDriver);
+		STR(vk::Result::eErrorTooManyObjects);
+		STR(vk::Result::eErrorFormatNotSupported);
+		STR(vk::Result::eErrorFragmentedPool);
+		STR(vk::Result::eErrorOutOfPoolMemory);
+		STR(vk::Result::eErrorInvalidExternalHandle);
+		STR(vk::Result::eErrorSurfaceLostKHR);
+		STR(vk::Result::eErrorNativeWindowInUseKHR);
+		STR(vk::Result::eSuboptimalKHR);
+		STR(vk::Result::eErrorOutOfDateKHR);
+		STR(vk::Result::eErrorIncompatibleDisplayKHR);
+		STR(vk::Result::eErrorValidationFailedEXT);
+		STR(vk::Result::eErrorInvalidShaderNV);
+		STR(vk::Result::eErrorFragmentationEXT);
+		STR(vk::Result::eErrorNotPermittedEXT);
+#undef STR
+	default:
+		return "UNKNOWN_ERROR";
+	}
 }
 
 } // namespace vlk

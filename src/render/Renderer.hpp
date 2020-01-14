@@ -23,9 +23,9 @@ private:
 
 	vk::UniqueInstance vkInstance_;
 	vk::UniqueSurfaceKHR vkSurface_;
-	/* TODO : vk::UniqueDebugUtilsMessengerEXT. See links in createDebugUtilsMessengerEXT
-	 * implementation. */
-	vk::DebugUtilsMessengerEXT vkDebugMessenger_;
+	vk::PhysicalDevice vkPhysicalDevice_;
+	/**  @brief Only used in debug mode. */
+	vk::DebugUtilsMessengerEXT vkDebugMessenger_; /* TODO : vk::UniqueDebugUtilsMessengerEXT */
 
 	vk::UniqueInstance createVulkanInstance(const char* appName, const Window& window) const;
 	vk::DebugUtilsMessengerEXT Renderer::setupDebugMessenger(vk::Instance instance,
