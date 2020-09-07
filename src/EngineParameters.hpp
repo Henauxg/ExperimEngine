@@ -7,12 +7,14 @@ struct GraphicSettings {
 };
 
 struct EngineTimings {
-	/** @brief Last frame duration (in seconds) measured using a high performance timer (if
-	 * available) */
+	/** @brief Last frame duration (in seconds) measured using a high
+	 * performance timer (if available) */
 	float frameDuration = 0.0f;
-	/** @brief Defines a frame rate independent timer value clamped from 0 to 1.0. */
+	/** @brief Defines a frame rate independent timer value clamped from 0
+	 * to 1.0. */
 	float timer = 0.0f;
-	/** @brief Multiplier for speeding up (or slowing down) the global timer */
+	/** @brief Multiplier for speeding up (or slowing down) the global
+	 * timer */
 	float timerSpeed = 1.0f;
 	/** @brief Used to pause the global timer */
 	bool paused = false;

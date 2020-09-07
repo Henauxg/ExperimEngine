@@ -3,8 +3,13 @@ BasedOnStyle: WebKit
 AlignAfterOpenBracket: Align
 TabWidth: '4'
 UseTab: Always
-ColumnLimit: 90
+ColumnLimit: 75
 FixNamespaceComments: true
 NamespaceIndentation: None
 SpaceAfterCStyleCast : true
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterControlStatement: true
+  AfterFunction:   true
+  BeforeElse:      true
 ...

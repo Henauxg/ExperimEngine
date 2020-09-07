@@ -22,8 +22,9 @@ void testSol()
 
 void testCMake()
 {
-	std::cout << "Version " << ExperimEngine_VERSION_MAJOR << "." << ExperimEngine_VERSION_MINOR
-			  << "." << ExperimEngine_VERSION_PATCH << std::endl;
+	std::cout << "Version " << ExperimEngine_VERSION_MAJOR << "."
+			  << ExperimEngine_VERSION_MINOR << "."
+			  << ExperimEngine_VERSION_PATCH << std::endl;
 }
 
 void testLuaJit()
@@ -42,7 +43,8 @@ void testLuaJit()
 
 	/* Load the file containing the script we are going to run */
 	status = luaL_loadfile(L, "scripts/BasicScript.lua");
-	if (status) {
+	if (status)
+	{
 		/* If something went wrong, error message is at the top of */
 		/* the stack */
 		fprintf(stderr, "Couldn't load file: %s\n", lua_tostring(L, -1));
@@ -71,7 +73,8 @@ void testLuaJit()
 	 * of the stack, so that after it has been called, the table is at the
 	 * top of the stack.
 	 */
-	for (i = 1; i <= 5; i++) {
+	for (i = 1; i <= 5; i++)
+	{
 		lua_pushnumber(L, i); /* Push the table index */
 		lua_pushnumber(L, i * 2); /* Push the cell value */
 		lua_rawset(L, -3); /* Stores the pair in the table */
@@ -82,7 +85,8 @@ void testLuaJit()
 
 	/* Ask Lua to run our little script */
 	result = lua_pcall(L, 0, LUA_MULTRET, 0);
-	if (result) {
+	if (result)
+	{
 		fprintf(stderr, "Failed to run script: %s\n", lua_tostring(L, -1));
 		exit(1);
 	}

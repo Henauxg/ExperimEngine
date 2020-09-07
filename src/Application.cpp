@@ -21,9 +21,11 @@ int main(int argc, char* argv[])
 {
 	expengine::Application app;
 
-	try {
+	try
+	{
 		app.run();
-	} catch (const std::exception& e) {
+	} catch (const std::exception& e)
+	{
 		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
@@ -49,7 +51,8 @@ void Application::run()
 
 void Application::mainLoop()
 {
-	while (!(window_->shouldClose())) {
+	while (!(window_->shouldClose()))
+	{
 		window_->pollEvents();
 		renderFrame();
 	}
@@ -68,13 +71,17 @@ void Application::renderFrame()
 	std::this_thread::sleep_for(std::chrono::milliseconds { dist(eng) });
 
 	auto timeEnd = std::chrono::high_resolution_clock::now();
-	auto msTimeDiff = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
+	auto msTimeDiff
+		= std::chrono::duration<double, std::milli>(timeEnd - timeStart)
+			  .count();
 
 	EngineTimings* timings = &engineParams_.timings;
 	timings->frameDuration = (float) msTimeDiff / ONE_SEC_IN_MILLI_F;
-	if (!timings->paused) {
+	if (!timings->paused)
+	{
 		timings->timer += timings->timerSpeed * timings->frameDuration;
-		if (timings->timer > 1.0) {
+		if (timings->timer > 1.0)
+		{
 			timings->timer -= 1.0f;
 		}
 	}
@@ -82,29 +89,33 @@ void Application::renderFrame()
 	EngineStatistics* stats = &engineParams_.statistics;
 	stats->frameCounter++;
 	stats->fpsTimer += (float) msTimeDiff;
-	if (stats->fpsTimer > stats->fpsRefreshPeriod) {
-		stats->fpsValue = static_cast<uint32_t>((float) stats->frameCounter
-												* (ONE_SEC_IN_MILLI_F / stats->fpsRefreshPeriod)
-												* (stats->fpsTimer / stats->fpsRefreshPeriod));
+	if (stats->fpsTimer > stats->fpsRefreshPeriod)
+	{
+		stats->fpsValue = static_cast<uint32_t>(
+			(float) stats->frameCounter
+			* (ONE_SEC_IN_MILLI_F / stats->fpsRefreshPeriod)
+			* (stats->fpsTimer / stats->fpsRefreshPeriod));
 
 		std::cout << "Update FPS value : " << stats->fpsValue
-				  << " ; frames : " << stats->frameCounter << " ; timer : " << timings->timer
-				  << std::endl;
+				  << " ; frames : " << stats->frameCounter
+				  << " ; timer : " << timings->timer << std::endl;
 
 		stats->fpsTimer = 0.0f;
 		stats->frameCounter = 0;
 	}
 }
 
-void Application::cleanup() {}
+void Application::cleanup() { }
 
 void Application::initWindow()
 {
-	window_ = std::make_unique<render::Window>(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE);
+	window_ = std::make_unique<render::Window>(WINDOW_WIDTH, WINDOW_HEIGHT,
+											   WINDOW_TITLE);
 }
 
 void Application::initRenderer()
 {
-	renderer_ = std::make_unique<render::Renderer>(APPLICATION_NAME, *window_, engineParams_);
+	renderer_ = std::make_unique<render::Renderer>(
+		APPLICATION_NAME, *window_, engineParams_);
 }
 } // namespace expengine

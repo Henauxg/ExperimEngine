@@ -22,8 +22,7 @@ vk::DebugUtilsMessengerCreateInfoEXT
 getDebugUtilsCreateInfo(vk::DebugUtilsMessengerCreateInfoEXT& createInfo)
 {
 	createInfo = vk::DebugUtilsMessengerCreateInfoEXT(
-		{}, vlk::debugCallbackMessageSeverity, vlk::debugCallbackMessageType,
-		debugCallback);
+		{}, vlk::debugCallbackMessageSeverity, vlk::debugCallbackMessageType, debugCallback);
 	return createInfo;
 }
 
@@ -91,8 +90,8 @@ bool hasValidationLayerSupport(const std::vector<const char*> validationLayers)
 std::string vkResultToString(vk::Result errorCode)
 {
 	switch (errorCode) {
-#define STR(r)                                                                           \
-	case r:                                                                              \
+#define STR(r)                                                                                \
+	case r:                                                                                   \
 		return #r
 		STR(vk::Result::eNotReady);
 		STR(vk::Result::eTimeout);
