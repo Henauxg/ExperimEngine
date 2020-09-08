@@ -3,7 +3,6 @@
 namespace expengine {
 namespace quicktest {
 
-void testCMake();
 void testLuaJit();
 void testSol();
 

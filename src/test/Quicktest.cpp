@@ -20,13 +20,6 @@ void testSol()
 	lua.script_file("scripts/BasicScript.lua");
 }
 
-void testCMake()
-{
-	std::cout << "Version " << ExperimEngine_VERSION_MAJOR << "."
-			  << ExperimEngine_VERSION_MINOR << "."
-			  << ExperimEngine_VERSION_PATCH << std::endl;
-}
-
 void testLuaJit()
 {
 	int status, result, i;
