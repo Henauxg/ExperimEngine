@@ -1,3 +1,3 @@
-v3.0.3
-230928c
+v3.2.1
+874c8e5
 https://github.com/ThePhD/sol2/releases
