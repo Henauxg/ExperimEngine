@@ -20,16 +20,6 @@ set(LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
 
 # Find installed Vulkan lib. Available in CMake 3.7 and later
 find_package(Vulkan REQUIRED)
-# Else use the packaged one
-if (NOT Vulkan_FOUND)
-	find_library(Vulkan_LIBRARIES NAMES vulkan vulkan-1 PATHS ${LIBS_DIR}/vulkan)
-	if (Vulkan_LIBRARIES)
-		set(Vulkan_FOUND ON)
-		message("Using packaged Vulkan library")
-	else()
-		message(FATAL_ERROR "Could not find Vulkan library")
-	endif()
-endif()
 
 # Libraries.
 # TODO : x64/x86 flags
@@ -44,6 +34,7 @@ target_link_libraries(ExperimEngine PUBLIC
 target_include_directories(ExperimEngine PUBLIC
     ${PROJECT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/includes
+	${PROJECT_SOURCE_DIR}/includes/lua
 	${PROJECT_SOURCE_DIR}/src
 )
 
