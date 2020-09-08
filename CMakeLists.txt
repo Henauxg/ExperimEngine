@@ -10,6 +10,8 @@ configure_file(ExperimEngineConfig.h.in ExperimEngineConfig.h)
 add_executable(ExperimEngine "")
 add_subdirectory(src)
 add_subdirectory(src/render)
+add_subdirectory(src/render/imgui)
+add_subdirectory(src/render/imgui/lib)
 add_subdirectory(src/render/vlk)
 add_subdirectory(src/test)
 
@@ -41,9 +43,6 @@ target_link_libraries(ExperimEngine PUBLIC
 target_include_directories(ExperimEngine PUBLIC
     ${PROJECT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/includes
-	${PROJECT_SOURCE_DIR}/src
-	${PROJECT_SOURCE_DIR}/src/render
-	${PROJECT_SOURCE_DIR}/src/test
 )
 
 # Commands after each build
