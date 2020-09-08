@@ -41,7 +41,7 @@ void ImguiLog::addLog(const char* fmt, ...)
 void ImguiLog::addFormattedLog(const char* msg)
 {
 	/* Msg already formatted */
-	size_t old_size = buffers_[bufferIndex_].size();
+	int old_size = buffers_[bufferIndex_].size();
 	buffers_[bufferIndex_].append(msg);
 
 	updateLineOffsets(old_size);
@@ -57,12 +57,12 @@ void ImguiLog::updateBufferSwap()
 	}
 }
 
-void ImguiLog::updateLineOffsets(size_t old_size)
+void ImguiLog::updateLineOffsets(int oldSize)
 {
-	for (int new_size = buffers_[bufferIndex_].size(); old_size < new_size;
-		 old_size++)
-		if (buffers_[bufferIndex_][old_size] == '\n')
-			lineOffsetVectors_[bufferIndex_].push_back(old_size + 1);
+	for (int newSize = buffers_[bufferIndex_].size(); oldSize < newSize;
+		 oldSize++)
+		if (buffers_[bufferIndex_][oldSize] == '\n')
+			lineOffsetVectors_[bufferIndex_].push_back(oldSize + 1);
 }
 
 void ImguiLog::swapBuffers()

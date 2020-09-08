@@ -24,7 +24,7 @@ private:
 	void drawBuffer(int bufferIndex);
 
 	inline void updateBufferSwap();
-	inline void updateLineOffsets(size_t old_size);
+	inline void updateLineOffsets(int oldSize);
 
 	ImGuiTextBuffer buffers_[2];
 	ImVector<int> lineOffsetVectors_[2];
