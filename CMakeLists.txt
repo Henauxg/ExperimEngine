@@ -5,6 +5,15 @@ project(ExperimEngine VERSION 0.0.1)
  set(CMAKE_CXX_STANDARD 17)
  set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Disable console in release
+if(CMAKE_BUILD_TYPE STREQUAL Debug)
+	add_compile_definitions(DEBUG)
+elseif(CMAKE_BUILD_TYPE STREQUAL Release)
+	IF(WIN32)
+		SET(GUI_TYPE WIN32)
+	ENDIF(WIN32)
+endif()
+
 configure_file(ExperimEngineConfig.h.in ExperimEngineConfig.h)
 
 add_executable(ExperimEngine "")
