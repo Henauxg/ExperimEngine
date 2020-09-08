@@ -1,9 +1,10 @@
 #pragma once
 
-#include <EngineParameters.hpp>
-#include <Renderer.hpp>
-#include <Window.hpp>
 #include <memory>
+
+#include <engine/EngineParameters.hpp>
+#include <engine/render/Renderer.hpp>
+#include <engine/render/Window.hpp>
 
 namespace expengine {
 class Application {

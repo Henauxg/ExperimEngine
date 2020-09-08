@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 project(ExperimEngine VERSION 0.0.1)
 
@@ -9,10 +9,11 @@ configure_file(ExperimEngineConfig.h.in ExperimEngineConfig.h)
 
 add_executable(ExperimEngine "")
 add_subdirectory(src)
-add_subdirectory(src/render)
-add_subdirectory(src/render/imgui)
-add_subdirectory(src/render/imgui/lib)
-add_subdirectory(src/render/vlk)
+add_subdirectory(src/engine)
+add_subdirectory(src/engine/render)
+add_subdirectory(src/engine/render/imgui)
+add_subdirectory(src/engine/render/imgui/lib)
+add_subdirectory(src/engine/render/vlk)
 add_subdirectory(src/test)
 
 set(LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
@@ -39,10 +40,11 @@ target_link_libraries(ExperimEngine PUBLIC
 	${Vulkan_LIBRARIES}
 )
 
-# Includes.  ${PROJECT_BINARY_DIR} for CMake generated headers
+# Includes : ${PROJECT_BINARY_DIR} for CMake generated headers
 target_include_directories(ExperimEngine PUBLIC
     ${PROJECT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/includes
+	${PROJECT_SOURCE_DIR}/src
 )
 
 # Commands after each build
