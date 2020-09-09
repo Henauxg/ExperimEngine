@@ -53,9 +53,11 @@ const std::vector<const char*> validationLayers
 bool hasValidationLayerSupport(
 	const std::vector<const char*> validationLayers);
 vk::DebugUtilsMessengerCreateInfoEXT
-getDebugUtilsCreateInfo(vk::DebugUtilsMessengerCreateInfoEXT& createInfo);
+getDebugUtilsCreateInfo(vk::DebugUtilsMessengerCreateInfoEXT& createInfo,
+						spdlog::logger* logger);
 vk::DebugUtilsMessengerEXT
-createDebugUtilsMessengerEXT(vk::Instance instance);
+createDebugUtilsMessengerEXT(vk::Instance instance,
+							 spdlog::logger* logger);
 void destroyDebugUtilsMessengerEXT(
 	vk::Instance instance, vk::DebugUtilsMessengerEXT debugMessenger);
 

@@ -118,10 +118,10 @@ vk::UniqueDevice Device::createLogicalDevice(
 		createInfo.ppEnabledLayerNames = vlk::validationLayers.data();
 	}
 
-	auto [result, device] = physicalDevice.createDevice(createInfo);
+	auto [result, device] = physicalDevice.createDeviceUnique(createInfo);
 	EXPENGINE_VK_ASSERT(result, "Failed to create a logical device");
 
-	return vk::UniqueDevice(device);
+	return std::move(device);
 }
 
 } // namespace vlk

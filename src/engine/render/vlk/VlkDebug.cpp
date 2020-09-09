@@ -3,7 +3,6 @@
 #include <cstdint>
 
 #include <engine/render/vlk/VlkInclude.hpp>
-#include <iostream>
 
 namespace expengine {
 namespace render {
@@ -41,19 +40,20 @@ debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 }
 
 vk::DebugUtilsMessengerCreateInfoEXT
-getDebugUtilsCreateInfo(vk::DebugUtilsMessengerCreateInfoEXT& createInfo)
+getDebugUtilsCreateInfo(vk::DebugUtilsMessengerCreateInfoEXT& createInfo,
+						spdlog::logger* logger)
 {
 	createInfo = vk::DebugUtilsMessengerCreateInfoEXT {
 		.messageSeverity = vlk::debugCallbackMessageSeverity,
 		.messageType = vlk::debugCallbackMessageType,
 		.pfnUserCallback = debugCallback,
-		.pUserData = spdlog::get(LOGGER_NAME).get()
+		.pUserData = logger
 	};
 	return createInfo;
 }
 
 vk::DebugUtilsMessengerEXT
-createDebugUtilsMessengerEXT(vk::Instance instance)
+createDebugUtilsMessengerEXT(vk::Instance instance, spdlog::logger* logger)
 {
 	/* https://github.com/dokipen3d/vulkanHppMinimalExample/blob/master/main.cpp
 	 */
@@ -68,7 +68,7 @@ createDebugUtilsMessengerEXT(vk::Instance instance)
 	vk::DebugUtilsMessengerCreateInfoEXT createInfo;
 	auto [result, vkDebugMessenger]
 		= instance.createDebugUtilsMessengerEXT(
-			getDebugUtilsCreateInfo(createInfo), nullptr,
+			getDebugUtilsCreateInfo(createInfo, logger), nullptr,
 			vk::DispatchLoaderDynamic { instance,
 										&vkGetInstanceProcAddr });
 

@@ -26,7 +26,8 @@ Renderer::Renderer(const char* appName, const Window& window,
 		*vkInstance_, std::vector<vk::SurfaceKHR> { *vkSurface_ },
 		logger_);
 
-	vkDescriptorPool_ = createDescriptorPool(vlkDevice_->getDeviceHande());
+	vkDescriptorPool_ = vk::UniqueDescriptorPool(
+		createDescriptorPool(vlkDevice_->getDeviceHande()));
 }
 
 Renderer::~Renderer()
@@ -92,15 +93,15 @@ Renderer::createVulkanInstance(const char* appName,
 			= static_cast<uint32_t>(vlk::validationLayers.size());
 		createInfo.ppEnabledLayerNames = vlk::validationLayers.data();
 		/* Give logger access to Debug Messenger */
-		debugCreateInfo = vlk::getDebugUtilsCreateInfo(debugCreateInfo);
-		debugCreateInfo.pUserData = logger_.get();
+		debugCreateInfo
+			= vlk::getDebugUtilsCreateInfo(debugCreateInfo, logger_.get());
 		createInfo.pNext = &debugCreateInfo;
 	}
 
-	auto [result, instance] = vk::createInstance(createInfo);
+	auto [result, instance] = vk::createInstanceUnique(createInfo);
 	EXPENGINE_VK_ASSERT(result, "Failed to create Vulkan instance.");
 
-	return vk::UniqueInstance(instance);
+	return std::move(instance);
 }
 
 vk::DebugUtilsMessengerEXT
@@ -112,7 +113,7 @@ Renderer::setupDebugMessenger(vk::Instance instance,
 		return nullptr;
 	}
 
-	return vlk::createDebugUtilsMessengerEXT(instance);
+	return vlk::createDebugUtilsMessengerEXT(instance, logger_.get());
 }
 
 vk::UniqueDescriptorPool
@@ -133,12 +134,13 @@ Renderer::createDescriptorPool(vk::Device device) const
 		.pPoolSizes = descriptorPoolSizes.data(),
 	};
 	auto [result, descriptorPool]
-		= vlkDevice_->getDeviceHande().createDescriptorPool(
+		= vlkDevice_->getDeviceHande().createDescriptorPoolUnique(
 			descriptorPoolInfo);
 
 	EXPENGINE_VK_ASSERT(result, "Failed to create the descriptor pool");
 
-	return vk::UniqueDescriptorPool(descriptorPool);
+	// return vk::UniqueDescriptorPool(descriptorPool);
+	return std::move(descriptorPool);
 }
 
 } // namespace render
