@@ -67,16 +67,21 @@ Renderer::createVulkanInstance(const char* appName,
 					 "Vulkan extension(s) not supported.");
 
 	/* Instance structs */
-	vk::ApplicationInfo appInfo(
-		appName,
-		VK_MAKE_VERSION(ExperimEngine_VERSION_MAJOR,
-						ExperimEngine_VERSION_MINOR,
-						ExperimEngine_VERSION_PATCH),
-		"No Engine", VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0);
+	vk::ApplicationInfo applicationInfo {
+		.pApplicationName = appName,
+		.applicationVersion = VK_MAKE_VERSION(ExperimEngine_VERSION_MAJOR,
+											  ExperimEngine_VERSION_MINOR,
+											  ExperimEngine_VERSION_PATCH),
+		.pEngineName = "No Engine",
+		.engineVersion = VK_MAKE_VERSION(1, 0, 0),
+		.apiVersion = VK_API_VERSION_1_0
+	};
 
-	vk::InstanceCreateInfo createInfo(
-		vk::InstanceCreateFlags(), &appInfo, 0, nullptr,
-		static_cast<uint32_t>(extensions.size()), extensions.data());
+	vk::InstanceCreateInfo createInfo {
+		.pApplicationInfo = &applicationInfo,
+		.enabledExtensionCount = static_cast<uint32_t>(extensions.size()),
+		.ppEnabledExtensionNames = extensions.data()
+	};
 
 	vk::DebugUtilsMessengerCreateInfoEXT debugCreateInfo;
 	if (vlk::ENABLE_VALIDATION_LAYERS)

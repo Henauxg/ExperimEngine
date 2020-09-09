@@ -42,9 +42,11 @@ debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 vk::DebugUtilsMessengerCreateInfoEXT
 getDebugUtilsCreateInfo(vk::DebugUtilsMessengerCreateInfoEXT& createInfo)
 {
-	createInfo = vk::DebugUtilsMessengerCreateInfoEXT(
-		{}, vlk::debugCallbackMessageSeverity,
-		vlk::debugCallbackMessageType, debugCallback);
+	createInfo = vk::DebugUtilsMessengerCreateInfoEXT {
+		.messageSeverity = vlk::debugCallbackMessageSeverity,
+		.messageType = vlk::debugCallbackMessageType,
+		.pfnUserCallback = debugCallback
+	};
 	return createInfo;
 }
 
