@@ -3,6 +3,7 @@
 #include <engine/EngineParameters.hpp>
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/Window.hpp>
+#include <engine/render/vlk/VlkDevice.hpp>
 #include <engine/render/vlk/VlkInclude.hpp>
 
 namespace expengine {
@@ -23,9 +24,11 @@ private:
 	const Window& window_;
 	EngineParameters& engineParams_;
 
+	/* Vulkan objects */
 	vk::UniqueInstance vkInstance_;
 	vk::UniqueSurfaceKHR vkSurface_;
-	vk::PhysicalDevice vkPhysicalDevice_;
+	std::unique_ptr<vlk::Device> vlkDevice_;
+
 	/**  @brief Only used in debug mode. */
 	vk::DebugUtilsMessengerEXT
 		vkDebugMessenger_; /* TODO : vk::UniqueDebugUtilsMessengerEXT */

@@ -16,20 +16,22 @@ Renderer::Renderer(const char* appName, const Window& window,
 	, logger_(spdlog::get(LOGGER_NAME))
 {
 	vkInstance_ = createVulkanInstance(appName, window);
+
 	vkDebugMessenger_
 		= setupDebugMessenger(*vkInstance_, vlk::ENABLE_VALIDATION_LAYERS);
 	vkSurface_ = vk::UniqueSurfaceKHR(window_.createSurface(*vkInstance_),
 									  *vkInstance_);
-	// vkPhysicalDevice_ = pickPhysicalDevice(vkInstance_, vkSurface_,
-	// deviceExtensions); auto device =
-	// testDevice.createDevice(vk::DeviceCreateInfo());
+
+	vlkDevice_ = std::make_unique<vlk::Device>(
+		*vkInstance_, std::vector<vk::SurfaceKHR> { *vkSurface_ },
+		logger_);
 
 	/* TODO Implement */
 }
 
 Renderer::~Renderer()
-{ /* TODO Implement */
-
+{
+	/* TODO Implement */
 	if (vlk::ENABLE_VALIDATION_LAYERS)
 	{
 		vlk::destroyDebugUtilsMessengerEXT(*vkInstance_,
