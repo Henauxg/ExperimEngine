@@ -17,6 +17,12 @@ public:
 	bool shouldClose() const;
 	void pollEvents();
 	void waitEvents() const;
+	void setOpacity(float opacity);
+	void setBordered(bool bordered);
+	void setSize(int w, int h);
+	void setPosition(int x, int y);
+	void hide();
+	void show();
 
 	std::vector<const char*> Window::getRequiredVkExtensions() const;
 	vk::SurfaceKHR createSurface(vk::Instance vkInstance) const;
