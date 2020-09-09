@@ -76,7 +76,7 @@ Application::Application()
 	{
 		std::cout << "Log initialization failed : " << ex.what()
 				  << std::endl;
-		// TODO Abort ?
+		throw ex;
 	}
 
 	/* ------------------------------------------- */
