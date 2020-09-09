@@ -40,21 +40,21 @@ Some of the dependencies may become git submodule.
 + [OpenGL Mathematics (GLM)](https://glm.g-truc.net/0.9.9/index.html) V0.9.9.6
 + [Simple DirectMedia Layer (SDL2)](https://www.libsdl.org/index.php) V2.0.10
 + [LuaJIT](http://luajit.org/luajit.html) V2.0.5
-+ [sol](https://github.com/ThePhD/sol2) V3.0.3
-+ [Vulkan](https://www.khronos.org/vulkan/) V1.1.126.0
-+ [Vulkan-Hpp](https://github.com/KhronosGroup/Vulkan-Hpp)
++ [sol](https://github.com/ThePhD/sol2) v3.2.1
++ [Vulkan](https://www.khronos.org/vulkan/) 1.2.148.1
++ [Vulkan-Hpp](https://github.com/KhronosGroup/Vulkan-Hpp) (now included in Vulkan SDK)
++ [spdlog](https://github.com/gabime/spdlog) (V1.8.0)
++ [Dear ImGui](https://github.com/ocornut/imgui) (Docking branch, 770c99536533923d2cf07fc5004c752ef2c63f5c)
 
 ### May be used in the future :
 + [Vulkan Memory Allocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator)
-+ [spdlog](https://github.com/gabime/spdlog)
-+ [Dear ImGui](https://github.com/ocornut/imgui)
 + [Bullet Physics](https://github.com/bulletphysics/bullet3)
 + [Doxygen](http://www.doxygen.nl/)
 + ENet, RakNet
 
 ## Tooling
 
-+ [CMake](https://cmake.org/) V3.16.0
++ [CMake](https://cmake.org/) V3.17.2
 + [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html)
 
 ## Credits and useful resources

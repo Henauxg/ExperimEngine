@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+message("CMAKE version is : ${CMAKE_VERSION}")
 
 project(ExperimEngine VERSION 0.0.1)
 
