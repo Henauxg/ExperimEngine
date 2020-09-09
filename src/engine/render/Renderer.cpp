@@ -26,7 +26,7 @@ Renderer::Renderer(const char* appName, const Window& window,
 		*vkInstance_, std::vector<vk::SurfaceKHR> { *vkSurface_ },
 		logger_);
 
-	/* TODO Implement */
+	vkDescriptorPool_ = createDescriptorPool(vlkDevice_->getDeviceHande());
 }
 
 Renderer::~Renderer()
@@ -113,6 +113,32 @@ Renderer::setupDebugMessenger(vk::Instance instance,
 	}
 
 	return vlk::createDebugUtilsMessengerEXT(instance);
+}
+
+vk::UniqueDescriptorPool
+Renderer::createDescriptorPool(vk::Device device) const
+{
+	/* TODO what's the right count ? All the different VK_DESCRIPTOR_TYPE
+	 * allocated in the ImGui example do not seem necessary here */
+	const uint32_t descriptorCount = 100;
+	std::vector<vk::DescriptorPoolSize> descriptorPoolSizes {
+		{ .type = vk::DescriptorType::eCombinedImageSampler,
+		  .descriptorCount = descriptorCount }
+	};
+
+	vk::DescriptorPoolCreateInfo descriptorPoolInfo {
+		.maxSets = static_cast<uint32_t>(descriptorCount
+										 * descriptorPoolSizes.size()),
+		.poolSizeCount = static_cast<uint32_t>(descriptorPoolSizes.size()),
+		.pPoolSizes = descriptorPoolSizes.data(),
+	};
+	auto [result, descriptorPool]
+		= vlkDevice_->getDeviceHande().createDescriptorPool(
+			descriptorPoolInfo);
+
+	EXPENGINE_VK_ASSERT(result, "Failed to create the descriptor pool");
+
+	return vk::UniqueDescriptorPool(descriptorPool);
 }
 
 } // namespace render

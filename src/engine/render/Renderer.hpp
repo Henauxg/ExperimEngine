@@ -28,6 +28,7 @@ private:
 	vk::UniqueInstance vkInstance_;
 	vk::UniqueSurfaceKHR vkSurface_;
 	std::unique_ptr<vlk::Device> vlkDevice_;
+	vk::UniqueDescriptorPool vkDescriptorPool_;
 
 	/**  @brief Only used in debug mode. */
 	vk::DebugUtilsMessengerEXT
@@ -41,6 +42,8 @@ private:
 	vk::DebugUtilsMessengerEXT
 	Renderer::setupDebugMessenger(vk::Instance instance,
 								  bool enableValidationLayers) const;
+
+	vk::UniqueDescriptorPool createDescriptorPool(vk::Device device) const;
 };
 
 } // namespace render
