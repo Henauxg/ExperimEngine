@@ -18,7 +18,8 @@ Window::Window(int width, int height, const char* title)
 		title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width,
 		height, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 
-	ASSERT_RESULT(sdlWindow_, "Failed to create an SDL window");
+	/* TODO Error handling since we will create windows on the fly */
+	EXPENGINE_ASSERT(sdlWindow_, "Failed to create an SDL window");
 }
 
 Window::~Window()
@@ -41,7 +42,8 @@ bool Window::shouldClose() const
 vk::SurfaceKHR Window::createSurface(vk::Instance vkInstance) const
 {
 	VkSurfaceKHR surface;
-	ASSERT_RESULT(
+	/* TODO Error handling since we will create windows on the fly */
+	EXPENGINE_ASSERT(
 		SDL_Vulkan_CreateSurface(sdlWindow_, vkInstance, &surface),
 		"Failed to create a surface");
 
@@ -59,13 +61,16 @@ void Window::waitEvents() const
 std::vector<const char*> Window::getRequiredVkExtensions() const
 {
 	uint32_t extensionCount;
-	ASSERT_RESULT(SDL_Vulkan_GetInstanceExtensions(
-					  sdlWindow_, &extensionCount, nullptr),
-				  "Failed to get the count of required Vulkan extensions "
-				  "by the SDL window");
+	/* TODO Error handling since we will create windows on the fly */
+	EXPENGINE_ASSERT(
+		SDL_Vulkan_GetInstanceExtensions(sdlWindow_, &extensionCount,
+										 nullptr),
+		"Failed to get the count of required Vulkan extensions "
+		"by the SDL window");
 
 	std::vector<const char*> windowExtensions(extensionCount);
-	ASSERT_RESULT(
+	/* TODO Error handling since we will create windows on the fly */
+	EXPENGINE_ASSERT(
 		SDL_Vulkan_GetInstanceExtensions(sdlWindow_, &extensionCount,
 										 windowExtensions.data()),
 		"Failed to get the names of the Vulkan extensions required by the "
