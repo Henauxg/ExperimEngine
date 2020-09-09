@@ -1,6 +1,7 @@
 #pragma once
 
 #include <engine/EngineParameters.hpp>
+#include <engine/log/ExpengineLog.hpp>
 #include <engine/render/Window.hpp>
 #include <engine/render/vlk/VlkInclude.hpp>
 
@@ -28,6 +29,9 @@ private:
 	/**  @brief Only used in debug mode. */
 	vk::DebugUtilsMessengerEXT
 		vkDebugMessenger_; /* TODO : vk::UniqueDebugUtilsMessengerEXT */
+
+	/* Logging */
+	std::shared_ptr<spdlog::logger> logger_;
 
 	vk::UniqueInstance createVulkanInstance(const char* appName,
 											const Window& window) const;

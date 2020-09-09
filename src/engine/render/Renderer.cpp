@@ -13,6 +13,7 @@ Renderer::Renderer(const char* appName, const Window& window,
 				   EngineParameters& engineParams)
 	: window_(window)
 	, engineParams_(engineParams)
+	, logger_(spdlog::get(LOGGER_NAME))
 {
 	vkInstance_ = createVulkanInstance(appName, window);
 	vkDebugMessenger_
@@ -49,7 +50,7 @@ Renderer::createVulkanInstance(const char* appName,
 							   const Window& window) const
 {
 	/* Check layer support */
-	ASSERT_RESULT(
+	EXPENGINE_ASSERT(
 		!vlk::ENABLE_VALIDATION_LAYERS
 			|| vlk::hasValidationLayerSupport(vlk::validationLayers),
 		"Validation layer(s) requested, but not available.");
@@ -62,8 +63,8 @@ Renderer::createVulkanInstance(const char* appName,
 	}
 
 	/* Check extension support */
-	ASSERT_RESULT(vlk::hasInstanceExtensionsSupport(extensions),
-				  "Vulkan extension(s) not supported.");
+	EXPENGINE_ASSERT(vlk::hasInstanceExtensionsSupport(extensions),
+					 "Vulkan extension(s) not supported.");
 
 	/* Instance structs */
 	vk::ApplicationInfo appInfo(
@@ -83,13 +84,14 @@ Renderer::createVulkanInstance(const char* appName,
 		createInfo.enabledLayerCount
 			= static_cast<uint32_t>(vlk::validationLayers.size());
 		createInfo.ppEnabledLayerNames = vlk::validationLayers.data();
-		createInfo.pNext
-			= (VkDebugUtilsMessengerCreateInfoEXT*) (&vlk::getDebugUtilsCreateInfo(
-				debugCreateInfo));
+		/* Give logger access to Debug Messenger */
+		debugCreateInfo = vlk::getDebugUtilsCreateInfo(debugCreateInfo);
+		debugCreateInfo.pUserData = logger_.get();
+		createInfo.pNext = &debugCreateInfo;
 	}
 
 	auto [result, instance] = vk::createInstance(createInfo);
-	ASSERT_VK_RESULT(result, "Failed to create Vulkan instance.");
+	EXPENGINE_VK_ASSERT(result, "Failed to create Vulkan instance.");
 
 	return vk::UniqueInstance(instance);
 }

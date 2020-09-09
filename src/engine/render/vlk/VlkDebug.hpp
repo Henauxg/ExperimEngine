@@ -1,61 +1,34 @@
 #pragma once
 
-#include <iostream>
 #include <vector>
 
+#include <engine/log/ExpengineLog.hpp>
 #include <engine/render/vlk/VlkInclude.hpp>
-
-#if defined(__ANDROID__)
-/* TODO Update this. */
-#define ASSERT_VK_RESULT(f, message)                                      \
-	{                                                                     \
-		VkResult res = (f);                                               \
-		if (res != VK_SUCCESS)                                            \
-		{                                                                 \
-			LOGE("Fatal : VkResult is \" %s \" in %s at line %d",         \
-				 vlk::vkResultToString(res).c_str(), __FILE__, __LINE__); \
-			abort();                                                      \
-		}                                                                 \
-	}
-#define ASSERT_RESULT(f, message)                                         \
-	{                                                                     \
-		bool expr = (f);                                                  \
-		if (!expr)                                                        \
-		{                                                                 \
-			LOGE("Fatal : assert failed in %s at line %d", __FILE__,      \
-				 __LINE__);                                               \
-			abort();                                                      \
-		}                                                                 \
-	}
-#else
-#define ASSERT_VK_RESULT(f, message)                                      \
-	{                                                                     \
-		vk::Result res = (f);                                             \
-		if (res != vk::Result::eSuccess)                                  \
-		{                                                                 \
-			std::cout << "Fatal : VkResult is \""                         \
-					  << vlk::vkResultToString(res) << "\" in "           \
-					  << __FILE__ << " at line " << __LINE__              \
-					  << ", message : " << message << std::endl;          \
-			abort();                                                      \
-		}                                                                 \
-	}
-#define ASSERT_RESULT(f, message)                                         \
-	{                                                                     \
-		bool expr = (f);                                                  \
-		if (!expr)                                                        \
-		{                                                                 \
-			std::cout << "Fatal : assert failed in " << __FILE__          \
-					  << " at line " << __LINE__                          \
-					  << ", message : " << message << std::endl;          \
-			abort();                                                      \
-		}                                                                 \
-	}
-#endif
 
 namespace expengine {
 namespace render {
 namespace vlk {
+
+#if defined(__ANDROID__)
+/* TODO */
+#else
+
+#define EXPENGINE_VK_ASSERT(f, ...)                                       \
+	do                                                                    \
+	{                                                                     \
+		vk::Result res = (f);                                             \
+		if (res != vk::Result::eSuccess)                                  \
+		{                                                                 \
+			SPDLOG_ERROR(                                                 \
+				"Fatal : assert failed. Program will abort. VkResult"     \
+				" is \"{}\"",                                             \
+				vk::to_string(res));                                      \
+			SPDLOG_ERROR(__VA_ARGS__);                                    \
+			abort();                                                      \
+		}                                                                 \
+	} while (0)
+
+#endif
 
 /* vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose */
 /* vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo */
@@ -79,15 +52,12 @@ const std::vector<const char*> validationLayers
 
 bool hasValidationLayerSupport(
 	const std::vector<const char*> validationLayers);
-
 vk::DebugUtilsMessengerCreateInfoEXT
 getDebugUtilsCreateInfo(vk::DebugUtilsMessengerCreateInfoEXT& createInfo);
 vk::DebugUtilsMessengerEXT
 createDebugUtilsMessengerEXT(vk::Instance instance);
 void destroyDebugUtilsMessengerEXT(
 	vk::Instance instance, vk::DebugUtilsMessengerEXT debugMessenger);
-
-std::string vkResultToString(vk::Result errorCode);
 
 } // namespace vlk
 } // namespace render

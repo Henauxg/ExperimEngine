@@ -1,7 +1,6 @@
 #include "VlkCapabilities.hpp"
 
-#include <iostream>
-
+#include <engine/log/ExpengineLog.hpp>
 #include <engine/render/vlk/VlkInclude.hpp>
 
 namespace expengine {
@@ -21,18 +20,17 @@ bool hasInstanceExtensionsSupport(
 										   availableExtensions.data());
 
 	/* Vulkan available extensions */
-	std::cout << "Available Vulkan Extensions : " << std::endl;
+	SPDLOG_INFO("Available Vulkan Extensions :");
 	for (const auto& extension : availableExtensions)
 	{
-		std::cout << "\t" << extension.extensionName << std::endl;
+		SPDLOG_INFO("\t {}", extension.extensionName);
 	}
 
 	/* Required extensions verification */
 	bool extensionsSupported = true;
-	std::cout << "Required Extensions : " << std::endl;
+	SPDLOG_INFO("Required Vulkan Extensions :");
 	for (const auto& reqExtension : requiredExtensions)
 	{
-		std::cout << "\t" << reqExtension;
 		bool extFound = false;
 
 		for (const auto& availableExtProps : availableExtensions)
@@ -45,11 +43,11 @@ bool hasInstanceExtensionsSupport(
 		}
 		if (extFound)
 		{
-			std::cout << " - Available" << std::endl;
+			SPDLOG_INFO("\t {} - Available", reqExtension);
 		}
 		else
 		{
-			std::cout << " - Not available" << std::endl;
+			SPDLOG_INFO("\t {} - Not available", reqExtension);
 			extensionsSupported = false;
 		}
 	}

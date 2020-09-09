@@ -8,15 +8,33 @@ namespace expengine {
 namespace render {
 namespace vlk {
 
-/* TODO : log */
 static VKAPI_ATTR VkBool32 VKAPI_CALL
 debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 			  VkDebugUtilsMessageSeverityFlagsEXT messageType,
 			  const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 			  void* pUserData)
 {
-	std::cerr << "Validation layer : " << pCallbackData->pMessage
-			  << std::endl;
+	auto logger = (spdlog::logger*) pUserData;
+	spdlog::level::level_enum level = spdlog::level::err;
+	switch (messageSeverity)
+	{
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+		level = spdlog::level::trace;
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+		level = spdlog::level::info;
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+		level = spdlog::level::warn;
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_FLAG_BITS_MAX_ENUM_EXT:
+	default:
+		break;
+	}
+
+	SPDLOG_LOGGER_CALL(logger, level, "Validation layer : {}",
+					   pCallbackData->pMessage);
 
 	return VK_FALSE;
 }
@@ -50,8 +68,8 @@ createDebugUtilsMessengerEXT(vk::Instance instance)
 			vk::DispatchLoaderDynamic { instance,
 										&vkGetInstanceProcAddr });
 
-	ASSERT_VK_RESULT(result,
-					 "Debug Utils Messenger could not be created.");
+	EXPENGINE_VK_ASSERT(result,
+						"Debug Utils Messenger could not be created.");
 
 	return vkDebugMessenger;
 }
@@ -78,7 +96,6 @@ bool hasValidationLayerSupport(
 									   availableLayers.data());
 
 	/* Verify that the layers we want are available */
-	std::cout << "Requested Layers : " << std::endl;
 	for (const char* layerName : validationLayers)
 	{
 		bool layerFound = false;
@@ -93,56 +110,15 @@ bool hasValidationLayerSupport(
 		}
 		if (!layerFound)
 		{
-			std::cout << layerName << " - Not available" << std::endl;
+			SPDLOG_INFO("Requested Layer '{}' - Not available", layerName);
 			return false;
 		}
 		else
 		{
-			std::cout << layerName << " - Available" << std::endl;
+			SPDLOG_INFO("Requested Layer '{}' - Available", layerName);
 		}
 	}
 	return true;
-}
-
-std::string vkResultToString(vk::Result errorCode)
-{
-	switch (errorCode)
-	{
-#define STR(r)                                                            \
-	case r:                                                               \
-		return #r
-		STR(vk::Result::eNotReady);
-		STR(vk::Result::eTimeout);
-		STR(vk::Result::eEventSet);
-		STR(vk::Result::eEventReset);
-		STR(vk::Result::eIncomplete);
-		STR(vk::Result::eErrorOutOfHostMemory);
-		STR(vk::Result::eErrorOutOfDeviceMemory);
-		STR(vk::Result::eErrorInitializationFailed);
-		STR(vk::Result::eErrorDeviceLost);
-		STR(vk::Result::eErrorMemoryMapFailed);
-		STR(vk::Result::eErrorLayerNotPresent);
-		STR(vk::Result::eErrorExtensionNotPresent);
-		STR(vk::Result::eErrorFeatureNotPresent);
-		STR(vk::Result::eErrorIncompatibleDriver);
-		STR(vk::Result::eErrorTooManyObjects);
-		STR(vk::Result::eErrorFormatNotSupported);
-		STR(vk::Result::eErrorFragmentedPool);
-		STR(vk::Result::eErrorOutOfPoolMemory);
-		STR(vk::Result::eErrorInvalidExternalHandle);
-		STR(vk::Result::eErrorSurfaceLostKHR);
-		STR(vk::Result::eErrorNativeWindowInUseKHR);
-		STR(vk::Result::eSuboptimalKHR);
-		STR(vk::Result::eErrorOutOfDateKHR);
-		STR(vk::Result::eErrorIncompatibleDisplayKHR);
-		STR(vk::Result::eErrorValidationFailedEXT);
-		STR(vk::Result::eErrorInvalidShaderNV);
-		STR(vk::Result::eErrorFragmentationEXT);
-		STR(vk::Result::eErrorNotPermittedEXT);
-#undef STR
-	default:
-		return "UNKNOWN_ERROR";
-	}
 }
 
 } // namespace vlk
