@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include <engine/render/vlk/VlkInclude.hpp>
+#include <iostream>
 
 namespace expengine {
 namespace render {
@@ -45,7 +46,8 @@ getDebugUtilsCreateInfo(vk::DebugUtilsMessengerCreateInfoEXT& createInfo)
 	createInfo = vk::DebugUtilsMessengerCreateInfoEXT {
 		.messageSeverity = vlk::debugCallbackMessageSeverity,
 		.messageType = vlk::debugCallbackMessageType,
-		.pfnUserCallback = debugCallback
+		.pfnUserCallback = debugCallback,
+		.pUserData = spdlog::get(LOGGER_NAME).get()
 	};
 	return createInfo;
 }
@@ -84,7 +86,6 @@ void destroyDebugUtilsMessengerEXT(
 		vk::DispatchLoaderDynamic { instance, &vkGetInstanceProcAddr });
 }
 
-/* TODO : log */
 bool hasValidationLayerSupport(
 	const std::vector<const char*> validationLayers)
 {
