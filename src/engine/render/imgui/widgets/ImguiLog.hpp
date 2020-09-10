@@ -5,7 +5,7 @@
 namespace expengine {
 namespace render {
 
-/* Inspired by ImGui log example in the demo window, but with a maximal
+/** Inspired by ImGui log example in the demo window, but with a maximal
  * buffer capacity and double-buffered to keep recent history when max
  * capacity (of 1 buffer) is reached */
 class ImguiLog {
