@@ -14,6 +14,7 @@ namespace expengine {
 
 const std::string LOGGER_NAME = "expengine_main_logger";
 
+// TODO Cross-platform
 const std::string LOG_DIRECTORY = "logs";
 const std::string LOG_FILE = LOG_DIRECTORY + "/expengine_log.txt";
 

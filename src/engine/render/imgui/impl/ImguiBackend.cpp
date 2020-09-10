@@ -1,7 +1,12 @@
 #include "ImguiBackend.hpp"
 
+#include <engine/log/ExpengineLog.hpp>
+
 namespace {
-}
+// TODO Cross-platform
+const std::string OPEN_SANS_FONT
+	= "./data/fonts/OpenSans/OpenSans-Regular.ttf";
+} // namespace
 
 namespace expengine {
 namespace render {
@@ -48,6 +53,17 @@ ImguiBackend::ImguiBackend(const Window& window)
 	/* ------------------------------------------- */
 
 	// TODO
+
+	/* ------------------------------------------- */
+	/* Fonts loading & Uploading                   */
+	/* ------------------------------------------- */
+
+	fontRegular_
+		= io.Fonts->AddFontFromFileTTF(OPEN_SANS_FONT.c_str(), 17.0f);
+	EXPENGINE_ASSERT(fontRegular_ != nullptr, "Failed to load font : {}",
+					 OPEN_SANS_FONT);
+
+	// TODO Upload Fonts
 }
 
 } // namespace render

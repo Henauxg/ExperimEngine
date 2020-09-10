@@ -16,6 +16,7 @@ public:
 private:
 	/* ImGui */
 	ImGuiContext* ctx_;
+	ImFont* fontRegular_;
 
 	/* Platform */
 	std::unique_ptr<PlatformBackendSDL> platform_;

@@ -57,4 +57,6 @@ add_custom_command(TARGET ExperimEngine POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBS_DIR}/SDL2/x64/SDL2.dll ${CMAKE_BINARY_DIR}
 	# Lua Scripts
 	COMMAND ${CMAKE_COMMAND} -E copy_directory  ${PROJECT_SOURCE_DIR}/scripts ${CMAKE_BINARY_DIR}/scripts
+	# Data files
+	COMMAND ${CMAKE_COMMAND} -E copy_directory  ${PROJECT_SOURCE_DIR}/data ${CMAKE_BINARY_DIR}/data
 )
