@@ -195,7 +195,7 @@ PhysicalDeviceDetails ratePhysicalDeviceSuitability(
 	deviceDetails.properties = physicalDevice.getProperties();
 	deviceDetails.features = physicalDevice.getFeatures();
 
-	SPDLOG_INFO("\Evaluating Vulkan compatible GPU : {} - {}",
+	SPDLOG_INFO("Evaluating Vulkan compatible GPU : {} - {}",
 				deviceDetails.properties.deviceID,
 				deviceDetails.properties.deviceName);
 
