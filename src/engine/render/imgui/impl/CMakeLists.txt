@@ -1,0 +1,7 @@
+target_sources(ExperimEngine
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/ImguiBackend.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ImguiBackend.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/PlatformBackendSDL.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/PlatformBackendSDL.hpp
+)

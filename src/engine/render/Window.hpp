@@ -23,7 +23,7 @@ public:
 	void setPosition(int x, int y);
 	void hide();
 	void show();
-
+	uint32_t getWindowId() const;
 	std::vector<const char*> Window::getRequiredVkExtensions() const;
 	vk::SurfaceKHR createSurface(vk::Instance vkInstance) const;
 

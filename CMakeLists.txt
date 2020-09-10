@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
-message("CMAKE version is : ${CMAKE_VERSION}")
+message("CMake version is : ${CMAKE_VERSION}")
 
 project(ExperimEngine VERSION 0.0.1)
 
@@ -22,8 +22,9 @@ add_subdirectory(src)
 add_subdirectory(src/engine)
 add_subdirectory(src/engine/log)
 add_subdirectory(src/engine/render)
-add_subdirectory(src/engine/render/imgui)
+add_subdirectory(src/engine/render/imgui/impl)
 add_subdirectory(src/engine/render/imgui/lib)
+add_subdirectory(src/engine/render/imgui/widgets)
 add_subdirectory(src/engine/render/vlk)
 add_subdirectory(src/test)
 

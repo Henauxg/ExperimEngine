@@ -80,6 +80,11 @@ void Window::hide() { SDL_HideWindow(sdlWindow_); }
 
 void Window::show() { SDL_ShowWindow(sdlWindow_); }
 
+uint32_t Window::getWindowId() const
+{
+	return SDL_GetWindowID(sdlWindow_);
+}
+
 std::vector<const char*> Window::getRequiredVkExtensions() const
 {
 	uint32_t extensionCount;

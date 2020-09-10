@@ -28,6 +28,8 @@ Renderer::Renderer(const char* appName, const Window& window,
 
 	vkDescriptorPool_ = vk::UniqueDescriptorPool(
 		createDescriptorPool(vlkDevice_->getDeviceHande()));
+
+	imguiBackend_ = std::make_unique<ImguiBackend>(window);
 }
 
 Renderer::~Renderer()

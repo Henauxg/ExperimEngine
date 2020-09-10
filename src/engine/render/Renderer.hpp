@@ -3,6 +3,7 @@
 #include <engine/EngineParameters.hpp>
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/Window.hpp>
+#include <engine/render/imgui/impl/ImguiBackend.hpp>
 #include <engine/render/vlk/VlkDevice.hpp>
 #include <engine/render/vlk/VlkInclude.hpp>
 
@@ -29,6 +30,9 @@ private:
 	vk::UniqueSurfaceKHR vkSurface_;
 	std::unique_ptr<vlk::Device> vlkDevice_;
 	vk::UniqueDescriptorPool vkDescriptorPool_;
+
+	/* UI */
+	std::unique_ptr<ImguiBackend> imguiBackend_;
 
 	/**  @brief Only used in debug mode. */
 	vk::DebugUtilsMessengerEXT
