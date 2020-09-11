@@ -9,22 +9,26 @@
 namespace expengine {
 namespace render {
 
-Renderer::Renderer(const char* appName, const Window& window,
+Renderer::Renderer(const char* appName, std::shared_ptr<Window> window,
 				   EngineParameters& engineParams)
-	: window_(window)
+	: mainWindow_(window)
 	, engineParams_(engineParams)
 	, logger_(spdlog::get(LOGGER_NAME))
 {
-	vkInstance_ = createVulkanInstance(appName, window);
+	vkInstance_ = createVulkanInstance(appName, *window);
 
 	vkDebugMessenger_
 		= setupDebugMessenger(*vkInstance_, vlk::ENABLE_VALIDATION_LAYERS);
-	vkSurface_ = vk::UniqueSurfaceKHR(window_.createSurface(*vkInstance_),
-									  *vkInstance_);
+
+	auto [surfaceCreated, surface]
+		= mainWindow_->createVkSurface(*vkInstance_);
+	EXPENGINE_ASSERT(surfaceCreated,
+					 "Failed to create a VkSurface for the main window");
+	vkMainWindowSurface_ = vk::UniqueSurfaceKHR(surface, *vkInstance_);
 
 	vlkDevice_ = std::make_unique<vlk::Device>(
-		*vkInstance_, std::vector<vk::SurfaceKHR> { *vkSurface_ },
-		logger_);
+		*vkInstance_,
+		std::vector<vk::SurfaceKHR> { *vkMainWindowSurface_ }, logger_);
 
 	vkDescriptorPool_ = vk::UniqueDescriptorPool(
 		createDescriptorPool(vlkDevice_->getDeviceHande()));
@@ -34,7 +38,6 @@ Renderer::Renderer(const char* appName, const Window& window,
 
 Renderer::~Renderer()
 {
-	/* TODO Implement */
 	if (vlk::ENABLE_VALIDATION_LAYERS)
 	{
 		vlk::destroyDebugUtilsMessengerEXT(*vkInstance_,

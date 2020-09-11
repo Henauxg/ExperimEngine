@@ -7,6 +7,7 @@
 
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <SDL2\SDL.h>
 
 #include <ExperimEngineConfig.h>
 #include <test/Quicktest.hpp>
@@ -82,10 +83,12 @@ Application::Application()
 	/* ------------------------------------------- */
 	/* Initialize main window & renderer           */
 	/* ------------------------------------------- */
-	window_ = std::make_unique<render::Window>(
+	/* TODO Move out */
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER);
+	window_ = std::make_shared<render::Window>(
 		DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, WINDOW_TITLE);
-	renderer_ = std::make_unique<render::Renderer>(
-		APPLICATION_NAME, *window_, engineParams_);
+	renderer_ = std::make_unique<render::Renderer>(APPLICATION_NAME,
+												   window_, engineParams_);
 
 	SPDLOG_LOGGER_INFO(logger_, "ExperimEngine version : {}.{}.{}",
 					   ExperimEngine_VERSION_MAJOR,
@@ -158,6 +161,10 @@ void Application::renderFrame()
 	}
 }
 
-void Application::cleanup() { }
+void Application::cleanup()
+{
+	/* TODO Move out */
+	SDL_Quit();
+}
 
 } // namespace expengine

@@ -11,7 +11,7 @@ namespace render {
 /** Custom back-end */
 class ImguiBackend {
 public:
-	ImguiBackend::ImguiBackend(const Window& window);
+	ImguiBackend::ImguiBackend(std::shared_ptr<Window> window);
 
 private:
 	/* ImGui */

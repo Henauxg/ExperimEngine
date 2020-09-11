@@ -3,6 +3,7 @@
 #include <string>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
 #include <SDL2/SDL_vulkan.h>
 
 namespace {
@@ -12,24 +13,44 @@ const std::string BACKEND_PALTFORM_NAME = "ExperimEngine_SDL";
 namespace expengine {
 namespace render {
 
-// Helper structure we store in the void* RenderUserData field of each
-// ImGuiViewport to easily retrieve our backend data.
-struct ImGuiViewportDataSDL2 {
-	uint32_t windowId_;
-	bool windowOwned_;
+/* Helper structure we store in the void* RenderUserData field of each
+ * ImGuiViewport to easily retrieve our backend data. */
+struct ImGuiViewportData {
+	std::shared_ptr<Window> window_;
 
-	ImGuiViewportDataSDL2()
-		: windowId_(0)
-		, windowOwned_(false)
+	ImGuiViewportData(std::shared_ptr<Window> window)
+		: window_(window)
 	{
 	}
-	~ImGuiViewportDataSDL2() { }
+	~ImGuiViewportData() { }
 };
 
-const char* ImGui_ImplSDL2_GetClipboardTextDelegate(void*);
-void ImGui_ImplSDL2_SetClipboardTextDelegate(void*, const char* text);
+/* Delegates */
+static const char* ImGui_ImplExpengine_GetClipboardText(void*);
+static void ImGui_ImplSDL2_SetClipboardText(void*, const char* text);
+static void ImGui_ImplSDL2_CreateWindow(ImGuiViewport* viewport);
+static void ImGui_ImplExpengine_DestroyWindow(ImGuiViewport* viewport);
+static void ImGui_ImplExpengine_ShowWindow(ImGuiViewport* viewport);
+static ImVec2 ImGui_ImplExpengine_GetWindowPos(ImGuiViewport* viewport);
+static void ImGui_ImplExpengine_SetWindowPos(ImGuiViewport* viewport,
+											 ImVec2 pos);
+static ImVec2 ImGui_ImplExpengine_GetWindowSize(ImGuiViewport* viewport);
+static void ImGui_ImplExpengine_SetWindowSize(ImGuiViewport* viewport,
+											  ImVec2 size);
+static void ImGui_ImplExpengine_SetWindowTitle(ImGuiViewport* viewport,
+											   const char* title);
+static void ImGui_ImplExpengine_SetWindowAlpha(ImGuiViewport* viewport,
+											   float alpha);
+static void ImGui_ImplExpengine_SetWindowFocus(ImGuiViewport* viewport);
+static bool ImGui_ImplExpengine_GetWindowFocus(ImGuiViewport* viewport);
+static bool
+ImGui_ImplExpengine_GetWindowMinimized(ImGuiViewport* viewport);
+static int ImGui_ImplExpengine_CreateVkSurface(ImGuiViewport* viewport,
+											   ImU64 vkInstance,
+											   const void* vkAllocator,
+											   ImU64* outSurface);
 
-PlatformBackendSDL::PlatformBackendSDL(const Window& window)
+PlatformBackendSDL::PlatformBackendSDL(std::shared_ptr<Window> window)
 	: clipboardTextData_(nullptr)
 	, mouseCanUseGlobalState_(true)
 {
@@ -69,8 +90,8 @@ PlatformBackendSDL::PlatformBackendSDL(const Window& window)
 	io.KeyMap[ImGuiKey_Y] = SDL_SCANCODE_Y;
 	io.KeyMap[ImGuiKey_Z] = SDL_SCANCODE_Z;
 
-	io.SetClipboardTextFn = ImGui_ImplSDL2_SetClipboardTextDelegate;
-	io.GetClipboardTextFn = ImGui_ImplSDL2_GetClipboardTextDelegate;
+	io.SetClipboardTextFn = ImGui_ImplSDL2_SetClipboardText;
+	io.GetClipboardTextFn = ImGui_ImplExpengine_GetClipboardText;
 	io.ClipboardUserData = this;
 
 	/* Load mouse cursors */
@@ -106,9 +127,8 @@ PlatformBackendSDL::PlatformBackendSDL(const Window& window)
 	ImGuiViewport* mainViewport = ImGui::GetMainViewport();
 	/* Use an Id instead of the SDL_Window handle to avoid exposing
 	 * SDL_Window type as an interface of Window. */
-	mainViewport->PlatformHandle
-		= ((void*) (uintptr_t) window.getWindowId());
-	/* TODO set PlatformHandleRaw ? */
+	mainViewport->PlatformHandle = window->getPlatformHandle();
+	mainViewport->PlatformHandleRaw = window->getPlatformHandleRaw();
 
 	/* ------------------------------------------- */
 	/* Register monitors                           */
@@ -139,6 +159,9 @@ PlatformBackendSDL::PlatformBackendSDL(const Window& window)
 
 		platform_io.Monitors.push_back(monitor);
 	}
+	/* TODO : It seems that SDL does not send events for display/monitor
+	 * updates ?
+	 */
 
 	/* ------------------------------------------- */
 	/* Initialize platform interface               */
@@ -148,24 +171,29 @@ PlatformBackendSDL::PlatformBackendSDL(const Window& window)
 		&& (io.BackendFlags & ImGuiBackendFlags_PlatformHasViewports))
 	{
 		ImGuiPlatformIO& plt_io = ImGui::GetPlatformIO();
-		// TODO Implement platform delegates
-		// plt_io.Platform_CreateWindow = ImGui_ImplSDL2_CreateWindow;
-		// plt_io.Platform_DestroyWindow = ImGui_ImplSDL2_DestroyWindow;
-		// plt_io.Platform_ShowWindow = ImGui_ImplSDL2_ShowWindow;
-		// plt_io.Platform_SetWindowPos = ImGui_ImplSDL2_SetWindowPos;
-		// plt_io.Platform_GetWindowPos = ImGui_ImplSDL2_GetWindowPos;
-		// plt_io.Platform_SetWindowSize = ImGui_ImplSDL2_SetWindowSize;
-		// plt_io.Platform_GetWindowSize = ImGui_ImplSDL2_GetWindowSize;
-		// plt_io.Platform_SetWindowFocus = ImGui_ImplSDL2_SetWindowFocus;
-		// plt_io.Platform_GetWindowFocus = ImGui_ImplSDL2_GetWindowFocus;
-		// plt_io.Platform_GetWindowMinimized
-		//	= ImGui_ImplSDL2_GetWindowMinimized;
-		// plt_io.Platform_SetWindowTitle = ImGui_ImplSDL2_SetWindowTitle;
-		// plt_io.Platform_RenderWindow = ImGui_ImplSDL2_RenderWindow;
-		// plt_io.Platform_SwapBuffers = ImGui_ImplSDL2_SwapBuffers;
-		// plt_io.Platform_SetWindowAlpha = ImGui_ImplSDL2_SetWindowAlpha;
-		// plt_io.Platform_CreateVkSurface =
-		// ImGui_ImplSDL2_CreateVkSurface;
+
+		plt_io.Platform_CreateWindow = ImGui_ImplSDL2_CreateWindow;
+		plt_io.Platform_DestroyWindow = ImGui_ImplExpengine_DestroyWindow;
+		plt_io.Platform_ShowWindow = ImGui_ImplExpengine_ShowWindow;
+		plt_io.Platform_SetWindowPos = ImGui_ImplExpengine_SetWindowPos;
+		plt_io.Platform_GetWindowPos = ImGui_ImplExpengine_GetWindowPos;
+		plt_io.Platform_SetWindowSize = ImGui_ImplExpengine_SetWindowSize;
+		plt_io.Platform_GetWindowSize = ImGui_ImplExpengine_GetWindowSize;
+		plt_io.Platform_SetWindowFocus
+			= ImGui_ImplExpengine_SetWindowFocus;
+		plt_io.Platform_GetWindowFocus
+			= ImGui_ImplExpengine_GetWindowFocus;
+		plt_io.Platform_GetWindowMinimized
+			= ImGui_ImplExpengine_GetWindowMinimized;
+		plt_io.Platform_SetWindowTitle
+			= ImGui_ImplExpengine_SetWindowTitle;
+		plt_io.Platform_SetWindowAlpha
+			= ImGui_ImplExpengine_SetWindowAlpha;
+		plt_io.Platform_CreateVkSurface
+			= ImGui_ImplExpengine_CreateVkSurface;
+		/* TODO : Unused with Vulkan. No OpenGl backend planned. */
+		/* plt_io.Platform_RenderWindow = */
+		/* plt_io.Platform_SwapBuffers = */
 
 		/* SDL2 by default doesn't pass mouse clicks to the application
 		 * when the click focused a window. This is getting in the way of
@@ -176,9 +204,7 @@ PlatformBackendSDL::PlatformBackendSDL(const Window& window)
 		 * application, not by imgui) Mostly for simplicity and
 		 * consistency, so that backend code (e.g. mouse handling etc.) can
 		 * use same logic for main and secondary viewports. */
-		ImGuiViewportDataSDL2* data = IM_NEW(ImGuiViewportDataSDL2)();
-		data->windowId_ = window.getWindowId();
-		data->windowOwned_ = false;
+		ImGuiViewportData* data = IM_NEW(ImGuiViewportData)(window);
 		mainViewport->PlatformUserData = data;
 	}
 }
@@ -195,18 +221,158 @@ const char* PlatformBackendSDL::getClipboardData()
 	return clipboardTextData_;
 }
 
-const char* ImGui_ImplSDL2_GetClipboardTextDelegate(void* userData)
+static const char* ImGui_ImplExpengine_GetClipboardText(void* userData)
 {
-	PlatformBackendSDL* backend
-		= static_cast<PlatformBackendSDL*>(userData);
+	auto backend = static_cast<PlatformBackendSDL*>(userData);
 	backend->eraseClipboardData();
 	return backend->getClipboardData();
 }
 
-void ImGui_ImplSDL2_SetClipboardTextDelegate(void* userData,
-											 const char* text)
+static void ImGui_ImplSDL2_SetClipboardText(void* userData,
+											const char* text)
 {
 	SDL_SetClipboardText(text);
+}
+
+static void ImGui_ImplSDL2_CreateWindow(ImGuiViewport* viewport)
+{
+	Uint32 sdl_flags = 0;
+	sdl_flags |= SDL_WINDOW_VULKAN;
+	sdl_flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+	sdl_flags |= SDL_WINDOW_HIDDEN;
+	sdl_flags |= (viewport->Flags & ImGuiViewportFlags_NoDecoration)
+		? SDL_WINDOW_BORDERLESS
+		: 0;
+	sdl_flags |= (viewport->Flags & ImGuiViewportFlags_NoDecoration)
+		? 0
+		: SDL_WINDOW_RESIZABLE;
+#if !defined(_WIN32)
+	/* See SDL hack in ImGui_ImplExpengine_ShowWindow() */
+	sdl_flags |= (viewport->Flags & ImGuiViewportFlags_NoTaskBarIcon)
+		? SDL_WINDOW_SKIP_TASKBAR
+		: 0;
+#endif
+	sdl_flags |= (viewport->Flags & ImGuiViewportFlags_TopMost)
+		? SDL_WINDOW_ALWAYS_ON_TOP
+		: 0;
+
+	auto window = std::make_shared<render::Window>(
+		(int) viewport->Size.x, (int) viewport->Size.y, "No Title Yet",
+		sdl_flags);
+	window->setPosition((int) viewport->Pos.x, (int) viewport->Pos.y);
+	auto data = IM_NEW(ImGuiViewportData)(window);
+
+	viewport->PlatformUserData = data;
+	viewport->PlatformHandle = data->window_->getPlatformHandle();
+	viewport->PlatformHandleRaw = data->window_->getPlatformHandleRaw();
+}
+
+static void ImGui_ImplExpengine_DestroyWindow(ImGuiViewport* viewport)
+{
+	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	/* Force reset just in case the ImGuiViewportData does not get
+	 * released. */
+	data->window_.reset();
+	viewport->PlatformUserData = viewport->PlatformHandle = nullptr;
+}
+
+static void ImGui_ImplExpengine_ShowWindow(ImGuiViewport* viewport)
+{
+	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+#if defined(_WIN32)
+	HWND hwnd = (HWND) viewport->PlatformHandleRaw;
+
+	/* SDL hack: Hide icon from task bar. Note: SDL 2.0.6+ has a
+	 * SDL_WINDOW_SKIP_TASKBAR flag which is supported under Windows but
+	 * the way it create the window breaks the seamless transition. */
+	if (viewport->Flags & ImGuiViewportFlags_NoTaskBarIcon)
+	{
+		LONG ex_style = ::GetWindowLong(hwnd, GWL_EXSTYLE);
+		ex_style &= ~WS_EX_APPWINDOW;
+		ex_style |= WS_EX_TOOLWINDOW;
+		::SetWindowLong(hwnd, GWL_EXSTYLE, ex_style);
+	}
+
+	/* SDL hack: SDL always activate/focus windows :/ */
+	if (viewport->Flags & ImGuiViewportFlags_NoFocusOnAppearing)
+	{
+		::ShowWindow(hwnd, SW_SHOWNA);
+		return;
+	}
+#endif
+	data->window_->show();
+}
+
+static ImVec2 ImGui_ImplExpengine_GetWindowPos(ImGuiViewport* viewport)
+{
+	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	auto [x, y] = data->window_->getPosition();
+	return ImVec2((float) x, (float) y);
+}
+
+static void ImGui_ImplExpengine_SetWindowPos(ImGuiViewport* viewport,
+											 ImVec2 pos)
+{
+	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	data->window_->setPosition((int) pos.x, (int) pos.y);
+}
+
+static ImVec2 ImGui_ImplExpengine_GetWindowSize(ImGuiViewport* viewport)
+{
+	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	auto [w, h] = data->window_->getPosition();
+	return ImVec2((float) w, (float) h);
+}
+
+static void ImGui_ImplExpengine_SetWindowSize(ImGuiViewport* viewport,
+											  ImVec2 size)
+{
+	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	data->window_->setSize((int) size.x, (int) size.y);
+}
+
+static void ImGui_ImplExpengine_SetWindowTitle(ImGuiViewport* viewport,
+											   const char* title)
+{
+	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	data->window_->setTitle(title);
+}
+
+static void ImGui_ImplExpengine_SetWindowAlpha(ImGuiViewport* viewport,
+											   float alpha)
+{
+	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	data->window_->setOpacity(alpha);
+}
+
+static void ImGui_ImplExpengine_SetWindowFocus(ImGuiViewport* viewport)
+{
+	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	data->window_->setFocus();
+}
+
+static bool ImGui_ImplExpengine_GetWindowFocus(ImGuiViewport* viewport)
+{
+	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	return data->window_->isFocused();
+}
+
+static bool ImGui_ImplExpengine_GetWindowMinimized(ImGuiViewport* viewport)
+{
+	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	return data->window_->isMinimized();
+}
+
+static int ImGui_ImplExpengine_CreateVkSurface(ImGuiViewport* viewport,
+											   ImU64 vkInstance,
+											   const void* vkAllocator,
+											   ImU64* outSurface)
+{
+	auto* data = (ImGuiViewportData*) viewport->PlatformUserData;
+	(void) vkAllocator;
+	bool createStatus = data->window_->createVkSurface(
+		(VkInstance) vkInstance, *((vk::SurfaceKHR*) outSurface));
+	return createStatus;
 }
 
 } // namespace render

@@ -3,13 +3,15 @@
 #include <engine/render/Window.hpp>
 #include <engine/render/imgui/lib/imgui.h>
 
+struct SDL_Cursor;
+
 namespace expengine {
 namespace render {
 
 /** Custom back-end based on imgui_impl_sdl */
 class PlatformBackendSDL {
 public:
-	PlatformBackendSDL::PlatformBackendSDL(const Window& window);
+	PlatformBackendSDL::PlatformBackendSDL(std::shared_ptr<Window> window);
 
 	void eraseClipboardData();
 	const char* getClipboardData();

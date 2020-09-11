@@ -11,7 +11,7 @@ const std::string OPEN_SANS_FONT
 namespace expengine {
 namespace render {
 
-ImguiBackend::ImguiBackend(const Window& window)
+ImguiBackend::ImguiBackend(std::shared_ptr<Window> window)
 {
 	/* ------------------------------------------- */
 	/* Setup Dear ImGui context                    */

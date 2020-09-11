@@ -2,6 +2,8 @@
 
 #include <stdexcept>
 
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
 #include <SDL2/SDL_vulkan.h>
 
 #include <engine/render/vlk/VlkDebug.hpp>
@@ -9,25 +11,29 @@
 namespace expengine {
 namespace render {
 
-Window::Window(int width, int height, const char* title)
+Window::Window(int width, int height, const char* title, uint32_t flags)
 {
-	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER);
-
 	/* Calls SDL_Vulkan_LoadLibrary */
-	sdlWindow_ = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED,
-								  SDL_WINDOWPOS_CENTERED, width, height,
-								  SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE
-									  | SDL_WINDOW_ALLOW_HIGHDPI);
+	sdlWindow_
+		= SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED,
+						   SDL_WINDOWPOS_CENTERED, width, height, flags);
 
-	/* TODO Error handling since we will create windows on the fly */
+	/* TODO Error handling since we will create windows on the fly
+	 */
 	EXPENGINE_ASSERT(sdlWindow_, "Failed to create an SDL window");
+}
+
+Window::Window(int width, int height, const char* title)
+	: Window(width, height, title,
+			 SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE
+				 | SDL_WINDOW_ALLOW_HIGHDPI)
+{
 }
 
 Window::~Window()
 {
 	/* Calls SDL_Vulkan_UnloadLibrary*/
 	SDL_DestroyWindow(sdlWindow_);
-	SDL_Quit();
 }
 
 bool Window::shouldClose() const
@@ -40,15 +46,22 @@ bool Window::shouldClose() const
 	return tmpTimeout > TMP_TIMEOUT_COUNT;
 }
 
-vk::SurfaceKHR Window::createSurface(vk::Instance vkInstance) const
+std::pair<bool, vk::SurfaceKHR>
+Window::createVkSurface(vk::Instance vkInstance) const
 {
-	VkSurfaceKHR surface;
-	/* TODO Error handling since we will create windows on the fly */
-	EXPENGINE_ASSERT(
-		SDL_Vulkan_CreateSurface(sdlWindow_, vkInstance, &surface),
-		"Failed to create a surface");
+	vk::SurfaceKHR surface;
+	bool result = SDL_Vulkan_CreateSurface(sdlWindow_, vkInstance,
+										   (VkSurfaceKHR*) &surface);
 
-	return surface;
+	return { result, surface };
+}
+
+bool Window::createVkSurface(vk::Instance vkInstance,
+							 vk::SurfaceKHR& surfaceCreated) const
+{
+	bool res;
+	std::tie(res, surfaceCreated) = createVkSurface(vkInstance);
+	return res;
 }
 
 void Window::pollEvents()
@@ -74,6 +87,37 @@ void Window::setSize(int w, int h) { SDL_SetWindowSize(sdlWindow_, w, h); }
 void Window::setPosition(int x, int y)
 {
 	SDL_SetWindowPosition(sdlWindow_, x, y);
+}
+
+void Window::setTitle(const char* title)
+{
+	SDL_SetWindowTitle(sdlWindow_, title);
+}
+
+void Window::setFocus() { SDL_RaiseWindow(sdlWindow_); }
+
+std::pair<int, int> Window::getPosition() const
+{
+	int x = 0, y = 0;
+	SDL_GetWindowPosition(sdlWindow_, &x, &y);
+	return { x, y };
+}
+
+std::pair<int, int> Window::getSize() const
+{
+	int w = 0, h = 0;
+	SDL_GetWindowSize(sdlWindow_, &w, &h);
+	return { w, h };
+}
+
+bool Window::isFocused()
+{
+	return (SDL_GetWindowFlags(sdlWindow_) & SDL_WINDOW_INPUT_FOCUS) != 0;
+}
+
+bool Window::isMinimized()
+{
+	return (SDL_GetWindowFlags(sdlWindow_) & SDL_WINDOW_MINIMIZED) != 0;
 }
 
 void Window::hide() { SDL_HideWindow(sdlWindow_); }
@@ -104,6 +148,22 @@ std::vector<const char*> Window::getRequiredVkExtensions() const
 		"SDL window");
 
 	return windowExtensions;
+}
+
+void* Window::getPlatformHandle() { return (void*) sdlWindow_; }
+
+void* Window::getPlatformHandleRaw()
+{
+#if defined(_WIN32)
+	SDL_SysWMinfo info;
+	SDL_VERSION(&info.version);
+	if (SDL_GetWindowWMInfo(sdlWindow_, &info))
+		return info.info.win.window;
+#endif
+
+	/* Else default to SDL handle. Could implement other systems later if
+	 * getPlatformHandleRaw is used. */
+	return (void*) sdlWindow_;
 }
 
 } // namespace render

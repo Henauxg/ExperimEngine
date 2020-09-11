@@ -15,7 +15,7 @@ public:
 	void run();
 
 private:
-	std::unique_ptr<render::Window> window_;
+	std::shared_ptr<render::Window> window_;
 	std::unique_ptr<render::Renderer> renderer_;
 	EngineParameters engineParams_;
 

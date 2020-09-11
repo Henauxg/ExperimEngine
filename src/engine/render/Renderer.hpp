@@ -12,7 +12,7 @@ namespace render {
 
 class Renderer {
 public:
-	Renderer(const char* appName, const Window& window,
+	Renderer(const char* appName, std::shared_ptr<Window> window,
 			 EngineParameters& engineParams);
 	~Renderer();
 
@@ -22,12 +22,12 @@ public:
 private:
 	/**  @brief Given to the constructor. Used to create the rendering
 	 * surface, access the needed extensions, query for resize, ... . */
-	const Window& window_;
+	std::shared_ptr<const Window> mainWindow_;
 	EngineParameters& engineParams_;
 
 	/* Vulkan objects */
 	vk::UniqueInstance vkInstance_;
-	vk::UniqueSurfaceKHR vkSurface_;
+	vk::UniqueSurfaceKHR vkMainWindowSurface_;
 	std::unique_ptr<vlk::Device> vlkDevice_;
 	vk::UniqueDescriptorPool vkDescriptorPool_;
 
