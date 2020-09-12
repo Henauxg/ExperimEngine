@@ -15,25 +15,25 @@ Renderer::Renderer(const char* appName, std::shared_ptr<Window> window,
 	, engineParams_(engineParams)
 	, logger_(spdlog::get(LOGGER_NAME))
 {
-	vkInstance_ = createVulkanInstance(appName, *window);
+	vkInstance_ = createVulkanInstance(appName, *mainWindow_);
 
 	vkDebugMessenger_
 		= setupDebugMessenger(*vkInstance_, vlk::ENABLE_VALIDATION_LAYERS);
 
-	auto [surfaceCreated, surface]
-		= mainWindow_->createVkSurface(*vkInstance_);
-	EXPENGINE_ASSERT(surfaceCreated,
-					 "Failed to create a VkSurface for the main window");
-	vkMainWindowSurface_ = vk::UniqueSurfaceKHR(surface, *vkInstance_);
+	mainRenderingContext_
+		= std::make_unique<RenderingContext>(*vkInstance_, window);
 
 	vlkDevice_ = std::make_unique<vlk::Device>(
 		*vkInstance_,
-		std::vector<vk::SurfaceKHR> { *vkMainWindowSurface_ }, logger_);
+		std::vector<vk::SurfaceKHR> {
+			mainRenderingContext_->getSurface() },
+		logger_);
 
 	vkDescriptorPool_ = vk::UniqueDescriptorPool(
 		createDescriptorPool(vlkDevice_->getDeviceHande()));
 
-	imguiBackend_ = std::make_unique<ImguiBackend>(window);
+	imguiBackend_
+		= std::make_unique<ImguiBackend>(*mainRenderingContext_, window);
 }
 
 Renderer::~Renderer()

@@ -26,16 +26,16 @@ public:
 	void setFocus();
 	std::pair<int, int> getPosition() const;
 	std::pair<int, int> getSize() const;
-	bool isFocused();
-	bool isMinimized();
+	bool isFocused() const;
+	bool isMinimized() const;
 	void hide();
 	void show();
 	uint32_t getWindowId() const;
 	std::vector<const char*> Window::getRequiredVkExtensions() const;
 
 	/* Platform/OS specific */
-	void* getPlatformHandle();
-	void* getPlatformHandleRaw();
+	void* getPlatformHandle() const;
+	void* getPlatformHandleRaw() const;
 
 	/* Vulkan only */
 	std::pair<bool, vk::SurfaceKHR>

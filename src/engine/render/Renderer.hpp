@@ -4,6 +4,7 @@
 
 #include <engine/EngineParameters.hpp>
 #include <engine/log/ExpengineLog.hpp>
+#include <engine/render/RenderingContext.hpp>
 #include <engine/render/Window.hpp>
 #include <engine/render/imgui/impl/ImguiBackend.hpp>
 #include <engine/render/vlk/VlkDevice.hpp>
@@ -23,14 +24,12 @@ public:
 	void rendererWaitIdle();
 
 private:
-	/**  @brief Given to the constructor. Used to create the rendering
-	 * surface, access the needed extensions, query for resize, ... . */
-	std::shared_ptr<const Window> mainWindow_;
 	EngineParameters& engineParams_;
 
 	/* Vulkan objects */
 	vk::UniqueInstance vkInstance_;
-	vk::UniqueSurfaceKHR vkMainWindowSurface_;
+	std::shared_ptr<const Window> mainWindow_;
+	std::unique_ptr<RenderingContext> mainRenderingContext_;
 	std::unique_ptr<vlk::Device> vlkDevice_;
 	vk::UniqueDescriptorPool vkDescriptorPool_;
 	/**  @brief Only used in debug mode. */

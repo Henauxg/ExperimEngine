@@ -110,12 +110,12 @@ std::pair<int, int> Window::getSize() const
 	return { w, h };
 }
 
-bool Window::isFocused()
+bool Window::isFocused() const
 {
 	return (SDL_GetWindowFlags(sdlWindow_) & SDL_WINDOW_INPUT_FOCUS) != 0;
 }
 
-bool Window::isMinimized()
+bool Window::isMinimized() const
 {
 	return (SDL_GetWindowFlags(sdlWindow_) & SDL_WINDOW_MINIMIZED) != 0;
 }
@@ -150,9 +150,9 @@ std::vector<const char*> Window::getRequiredVkExtensions() const
 	return windowExtensions;
 }
 
-void* Window::getPlatformHandle() { return (void*) sdlWindow_; }
+void* Window::getPlatformHandle() const { return (void*) sdlWindow_; }
 
-void* Window::getPlatformHandleRaw()
+void* Window::getPlatformHandleRaw() const
 {
 #if defined(_WIN32)
 	SDL_SysWMinfo info;

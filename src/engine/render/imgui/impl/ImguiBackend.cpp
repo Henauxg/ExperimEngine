@@ -11,7 +11,8 @@ const std::string OPEN_SANS_FONT
 namespace expengine {
 namespace render {
 
-ImguiBackend::ImguiBackend(std::shared_ptr<Window> window)
+ImguiBackend::ImguiBackend(const RenderingContext& mainRenderingContext,
+						   std::shared_ptr<Window> window)
 {
 	/* ------------------------------------------- */
 	/* Setup Dear ImGui context                    */
@@ -24,6 +25,7 @@ ImguiBackend::ImguiBackend(std::shared_ptr<Window> window)
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+	/* TODO : May look into g.IO.ConfigViewportsNoTaskBarIcon */
 	// io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
 	// io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
@@ -65,6 +67,8 @@ ImguiBackend::ImguiBackend(std::shared_ptr<Window> window)
 
 	// TODO Upload Fonts
 }
+
+ImguiBackend::~ImguiBackend() { ImGui::DestroyContext(ctx_); }
 
 } // namespace render
 } // namespace expengine

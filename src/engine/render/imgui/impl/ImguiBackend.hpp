@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include <engine/render/RenderingContext.hpp>
 #include <engine/render/imgui/impl/PlatformBackendSDL.hpp>
 #include <engine/render/imgui/lib/imgui.h>
 
@@ -11,8 +12,12 @@ namespace render {
 /** Custom back-end */
 class ImguiBackend {
 public:
-	ImguiBackend::ImguiBackend(std::shared_ptr<Window> window);
+	ImguiBackend::ImguiBackend(
+		const RenderingContext& mainRenderingContext,std::shared_ptr<Window>
+			window);
+	~ImguiBackend();
 
+	/* TODO : Could swap ImGuiContext if multiple contexts are used. */
 	inline bool handleEvent(const SDL_Event& event)
 	{
 		return platform_->handleEvent(event);
