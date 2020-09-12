@@ -127,8 +127,6 @@ PlatformBackendSDL::PlatformBackendSDL(std::shared_ptr<Window> window)
 	/* Mouse update function expect PlatformHandle to be filled for the
 	 * main viewport */
 	ImGuiViewport* mainViewport = ImGui::GetMainViewport();
-	/* Use an Id instead of the SDL_Window handle to avoid exposing
-	 * SDL_Window type as an interface of Window. */
 	mainViewport->PlatformHandle = window->getPlatformHandle();
 	mainViewport->PlatformHandleRaw = window->getPlatformHandleRaw();
 
@@ -202,11 +200,7 @@ PlatformBackendSDL::PlatformBackendSDL(std::shared_ptr<Window> window)
 		 * our interactions and we disable that behavior. */
 		SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 
-		/* Register main window handle (which is owned by the main
-		 * application, not by imgui) Mostly for simplicity and
-		 * consistency, so that backend code (e.g. mouse handling etc.) can
-		 * use same logic for main and secondary viewports. */
-		ImGuiViewportData* data = IM_NEW(ImGuiViewportData)(window);
+		ImGuiViewportData* data = new ImGuiViewportData(window);
 		mainViewport->PlatformUserData = data;
 	}
 }
@@ -329,8 +323,8 @@ static void ImGui_ImplSDL2_CreateWindow(ImGuiViewport* viewport)
 		(int) viewport->Size.x, (int) viewport->Size.y, "No Title Yet",
 		sdl_flags);
 	window->setPosition((int) viewport->Pos.x, (int) viewport->Pos.y);
-	auto data = IM_NEW(ImGuiViewportData)(window);
 
+	auto data = new ImGuiViewportData(window);
 	viewport->PlatformUserData = data;
 	viewport->PlatformHandle = data->window_->getPlatformHandle();
 	viewport->PlatformHandleRaw = data->window_->getPlatformHandleRaw();
@@ -339,9 +333,7 @@ static void ImGui_ImplSDL2_CreateWindow(ImGuiViewport* viewport)
 static void ImGui_ImplExpengine_DestroyWindow(ImGuiViewport* viewport)
 {
 	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
-	/* Force reset just in case the ImGuiViewportData does not get
-	 * released. */
-	data->window_.reset();
+	delete data;
 	viewport->PlatformUserData = viewport->PlatformHandle = nullptr;
 }
 
