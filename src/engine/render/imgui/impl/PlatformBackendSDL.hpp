@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SDL2\SDL_events.h>
+
 #include <engine/render/Window.hpp>
 #include <engine/render/imgui/lib/imgui.h>
 
@@ -15,6 +17,7 @@ public:
 
 	void eraseClipboardData();
 	const char* getClipboardData();
+	bool handleEvent(const SDL_Event& event);
 
 private:
 	/* Platform */

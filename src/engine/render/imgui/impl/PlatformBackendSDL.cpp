@@ -221,6 +221,12 @@ const char* PlatformBackendSDL::getClipboardData()
 	return clipboardTextData_;
 }
 
+bool PlatformBackendSDL::handleEvent(const SDL_Event& event)
+{
+	/* TODO : Implement */
+	return false;
+}
+
 static const char* ImGui_ImplExpengine_GetClipboardText(void* userData)
 {
 	auto backend = static_cast<PlatformBackendSDL*>(userData);

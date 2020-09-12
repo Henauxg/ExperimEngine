@@ -49,6 +49,16 @@ void Renderer::render()
 { /* TODO Implement */
 }
 
+void Renderer::handleEvent(const SDL_Event& event)
+{
+	bool handled = imguiBackend_->handleEvent(event);
+
+	if (!handled)
+	{
+		/* TODO handle rendering events */
+	}
+}
+
 void Renderer::rendererWaitIdle()
 { /* TODO Implement */
 }

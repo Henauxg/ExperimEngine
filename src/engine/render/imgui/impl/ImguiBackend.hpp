@@ -13,6 +13,11 @@ class ImguiBackend {
 public:
 	ImguiBackend::ImguiBackend(std::shared_ptr<Window> window);
 
+	inline bool handleEvent(const SDL_Event& event)
+	{
+		return platform_->handleEvent(event);
+	};
+
 private:
 	/* ImGui */
 	ImGuiContext* ctx_;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SDL2\SDL_events.h>
+
 #include <engine/EngineParameters.hpp>
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/Window.hpp>
@@ -17,6 +19,7 @@ public:
 	~Renderer();
 
 	void render();
+	void handleEvent(const SDL_Event& event);
 	void rendererWaitIdle();
 
 private:
@@ -30,13 +33,12 @@ private:
 	vk::UniqueSurfaceKHR vkMainWindowSurface_;
 	std::unique_ptr<vlk::Device> vlkDevice_;
 	vk::UniqueDescriptorPool vkDescriptorPool_;
-
-	/* UI */
-	std::unique_ptr<ImguiBackend> imguiBackend_;
-
 	/**  @brief Only used in debug mode. */
 	vk::DebugUtilsMessengerEXT
 		vkDebugMessenger_; /* TODO : vk::UniqueDebugUtilsMessengerEXT */
+
+	/* UI */
+	std::unique_ptr<ImguiBackend> imguiBackend_;
 
 	/* Logging */
 	std::shared_ptr<spdlog::logger> logger_;
