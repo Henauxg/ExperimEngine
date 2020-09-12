@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include <SDL2\SDL_events.h>
 
 #include <engine/render/Window.hpp>
@@ -24,6 +26,7 @@ private:
 	char* clipboardTextData_;
 	bool mouseCanUseGlobalState_;
 	SDL_Cursor* mouseCursors_[ImGuiMouseCursor_COUNT];
+	std::array<bool, 3> mousePressed_;
 };
 
 } // namespace render

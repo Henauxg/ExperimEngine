@@ -53,7 +53,9 @@ static int ImGui_ImplExpengine_CreateVkSurface(ImGuiViewport* viewport,
 PlatformBackendSDL::PlatformBackendSDL(std::shared_ptr<Window> window)
 	: clipboardTextData_(nullptr)
 	, mouseCanUseGlobalState_(true)
+	, mousePressed_({ false, false, false })
 {
+
 	/* ------------------------------------------- */
 	/* Setup Platform bindings                     */
 	/* ------------------------------------------- */
@@ -223,7 +225,68 @@ const char* PlatformBackendSDL::getClipboardData()
 
 bool PlatformBackendSDL::handleEvent(const SDL_Event& event)
 {
-	/* TODO : Implement */
+	ImGuiIO& io = ImGui::GetIO();
+	switch (event.type)
+	{
+	case SDL_MOUSEWHEEL: {
+		if (event.wheel.x > 0)
+			io.MouseWheelH += 1;
+		if (event.wheel.x < 0)
+			io.MouseWheelH -= 1;
+		if (event.wheel.y > 0)
+			io.MouseWheel += 1;
+		if (event.wheel.y < 0)
+			io.MouseWheel -= 1;
+		return true;
+	}
+	case SDL_MOUSEBUTTONDOWN: {
+		if (event.button.button == SDL_BUTTON_LEFT)
+			mousePressed_[0] = true;
+		if (event.button.button == SDL_BUTTON_RIGHT)
+			mousePressed_[1] = true;
+		if (event.button.button == SDL_BUTTON_MIDDLE)
+			mousePressed_[2] = true;
+		return true;
+	}
+	case SDL_TEXTINPUT: {
+		io.AddInputCharactersUTF8(event.text.text);
+		return true;
+	}
+	case SDL_KEYDOWN:
+	case SDL_KEYUP: {
+		int key = event.key.keysym.scancode;
+		IM_ASSERT(key >= 0 && key < IM_ARRAYSIZE(io.KeysDown));
+		io.KeysDown[key] = (event.type == SDL_KEYDOWN);
+		io.KeyShift = ((SDL_GetModState() & KMOD_SHIFT) != 0);
+		io.KeyCtrl = ((SDL_GetModState() & KMOD_CTRL) != 0);
+		io.KeyAlt = ((SDL_GetModState() & KMOD_ALT) != 0);
+#ifdef _WIN32
+		io.KeySuper = false;
+#else
+		io.KeySuper = ((SDL_GetModState() & KMOD_GUI) != 0);
+#endif
+		return true;
+	}
+	/* Multi-viewport support */
+	case SDL_WINDOWEVENT:
+		Uint8 windowEvent = event.window.event;
+		if (windowEvent == SDL_WINDOWEVENT_CLOSE
+			|| windowEvent == SDL_WINDOWEVENT_MOVED
+			|| windowEvent == SDL_WINDOWEVENT_RESIZED)
+			if (ImGuiViewport* viewport
+				= ImGui::FindViewportByPlatformHandle(
+					(void*) SDL_GetWindowFromID(event.window.windowID)))
+			{
+				if (windowEvent == SDL_WINDOWEVENT_CLOSE)
+					viewport->PlatformRequestClose = true;
+				if (windowEvent == SDL_WINDOWEVENT_MOVED)
+					viewport->PlatformRequestMove = true;
+				if (windowEvent == SDL_WINDOWEVENT_RESIZED)
+					viewport->PlatformRequestResize = true;
+				return true;
+			}
+		break;
+	}
 	return false;
 }
 
