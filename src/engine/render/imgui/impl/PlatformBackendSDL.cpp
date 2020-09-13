@@ -7,7 +7,9 @@
 #include <SDL2/SDL_vulkan.h>
 
 namespace {
-const std::string BACKEND_PALTFORM_NAME = "ExperimEngine_SDL";
+
+const std::string BACKEND_PALTFORM_NAME = "ExperimEngine_SDL_Platform";
+
 }
 
 namespace expengine {

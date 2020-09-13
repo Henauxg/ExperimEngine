@@ -4,4 +4,6 @@ target_sources(ExperimEngine
         ${CMAKE_CURRENT_SOURCE_DIR}/ImguiBackend.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/PlatformBackendSDL.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/PlatformBackendSDL.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RendererBackendVulkan.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RendererBackendVulkan.hpp
 )

@@ -6,6 +6,7 @@
 #include <set>
 #include <string>
 
+#include <engine/render/Window.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
 
 namespace expengine {
@@ -16,18 +17,37 @@ const std::vector<const char*> DEVICE_EXTENSIONS
 	= { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
 Device::Device(vk::Instance vkInstance,
-			   const std::vector<vk::SurfaceKHR>& surfaces,
 			   std::shared_ptr<spdlog::logger> logger)
 	: logger_(logger)
 {
-	EXPENGINE_ASSERT(surfaces.size() > 0,
-					 "The Device creation needs at least 1 surface to "
-					 "decide on the physical device.");
-	physDevice_
-		= pickPhysicalDevice(vkInstance, DEVICE_EXTENSIONS, surfaces);
+	/* Create a temporary dummy window/surface to get information
+	 * about surface compatibility between the Vulkan devices
+	 * selected/created and the surfaces that will be in use during the
+	 * application runtime. */
+	auto dummyWindow = std::make_unique<render::Window>();
+	auto [surfaceCreated, dummySurface]
+		= dummyWindow->createVkSurface(vkInstance);
+	EXPENGINE_ASSERT(surfaceCreated, "Failed to create a VkSurface");
+	auto windowSurface_ = vk::UniqueSurfaceKHR(dummySurface, vkInstance);
+
+	/* Devies */
+	physDevice_ = pickPhysicalDevice(
+		vkInstance, DEVICE_EXTENSIONS,
+		std::vector<vk::SurfaceKHR> { *windowSurface_ });
 	logicalDevice_ = createLogicalDevice(
 		physDevice_.device, physDevice_.queuesIndices, DEVICE_EXTENSIONS);
+
+	/* Queues handles */
+	graphicsQueue_ = logicalDevice_->getQueue(
+		physDevice_.queuesIndices.graphicsFamily.value(), 0);
+	presentQueue_ = logicalDevice_->getQueue(
+		physDevice_.queuesIndices.presentFamily.value(), 0);
+
+	/* Descriptor pool */
+	vkDescriptorPool_ = createDescriptorPool();
 }
+
+void Device::waitIdle() const { logicalDevice_->waitIdle(); }
 
 PhysicalDeviceDetails
 Device::pickPhysicalDevice(vk::Instance vkInstance,
@@ -122,6 +142,30 @@ vk::UniqueDevice Device::createLogicalDevice(
 	EXPENGINE_VK_ASSERT(result, "Failed to create a logical device");
 
 	return std::move(device);
+}
+
+vk::UniqueDescriptorPool Device::createDescriptorPool() const
+{
+	/* TODO what's the right count ? All the different VK_DESCRIPTOR_TYPE
+	 * allocated in the ImGui example do not seem necessary here */
+	const uint32_t descriptorCount = 100;
+	std::vector<vk::DescriptorPoolSize> descriptorPoolSizes {
+		{ .type = vk::DescriptorType::eCombinedImageSampler,
+		  .descriptorCount = descriptorCount }
+	};
+
+	vk::DescriptorPoolCreateInfo descriptorPoolInfo {
+		.maxSets = static_cast<uint32_t>(descriptorCount
+										 * descriptorPoolSizes.size()),
+		.poolSizeCount = static_cast<uint32_t>(descriptorPoolSizes.size()),
+		.pPoolSizes = descriptorPoolSizes.data(),
+	};
+	auto [result, descriptorPool]
+		= logicalDevice_->createDescriptorPoolUnique(descriptorPoolInfo);
+
+	EXPENGINE_VK_ASSERT(result, "Failed to create the descriptor pool");
+
+	return std::move(descriptorPool);
 }
 
 } // namespace vlk

@@ -20,20 +20,13 @@ Renderer::Renderer(const char* appName, std::shared_ptr<Window> window,
 	vkDebugMessenger_
 		= setupDebugMessenger(*vkInstance_, vlk::ENABLE_VALIDATION_LAYERS);
 
-	mainRenderingContext_
-		= std::make_unique<RenderingContext>(*vkInstance_, window);
+	vlkDevice_ = std::make_unique<vlk::Device>(*vkInstance_, logger_);
 
-	vlkDevice_ = std::make_unique<vlk::Device>(
-		*vkInstance_,
-		std::vector<vk::SurfaceKHR> {
-			mainRenderingContext_->getSurface() },
-		logger_);
+	mainRenderingContext_ = std::make_unique<RenderingContext>(
+		*vkInstance_, *vlkDevice_, window);
 
-	vkDescriptorPool_ = vk::UniqueDescriptorPool(
-		createDescriptorPool(vlkDevice_->getDeviceHande()));
-
-	imguiBackend_
-		= std::make_unique<ImguiBackend>(*mainRenderingContext_, window);
+	imguiBackend_ = std::make_unique<ImguiBackend>(
+		*vlkDevice_, *mainRenderingContext_, window);
 }
 
 Renderer::~Renderer()
@@ -59,9 +52,7 @@ void Renderer::handleEvent(const SDL_Event& event)
 	}
 }
 
-void Renderer::rendererWaitIdle()
-{ /* TODO Implement */
-}
+void Renderer::rendererWaitIdle() { vlkDevice_->waitIdle(); }
 
 vk::UniqueInstance
 Renderer::createVulkanInstance(const char* appName,
@@ -129,33 +120,6 @@ Renderer::setupDebugMessenger(vk::Instance instance,
 	}
 
 	return vlk::createDebugUtilsMessengerEXT(instance, logger_.get());
-}
-
-vk::UniqueDescriptorPool
-Renderer::createDescriptorPool(vk::Device device) const
-{
-	/* TODO what's the right count ? All the different VK_DESCRIPTOR_TYPE
-	 * allocated in the ImGui example do not seem necessary here */
-	const uint32_t descriptorCount = 100;
-	std::vector<vk::DescriptorPoolSize> descriptorPoolSizes {
-		{ .type = vk::DescriptorType::eCombinedImageSampler,
-		  .descriptorCount = descriptorCount }
-	};
-
-	vk::DescriptorPoolCreateInfo descriptorPoolInfo {
-		.maxSets = static_cast<uint32_t>(descriptorCount
-										 * descriptorPoolSizes.size()),
-		.poolSizeCount = static_cast<uint32_t>(descriptorPoolSizes.size()),
-		.pPoolSizes = descriptorPoolSizes.data(),
-	};
-	auto [result, descriptorPool]
-		= vlkDevice_->getDeviceHande().createDescriptorPoolUnique(
-			descriptorPoolInfo);
-
-	EXPENGINE_VK_ASSERT(result, "Failed to create the descriptor pool");
-
-	// return vk::UniqueDescriptorPool(descriptorPool);
-	return std::move(descriptorPool);
 }
 
 } // namespace render

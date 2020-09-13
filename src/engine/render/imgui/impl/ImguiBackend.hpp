@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include <engine/render/RenderingContext.hpp>
 #include <engine/render/imgui/impl/PlatformBackendSDL.hpp>
+#include <engine/render/imgui/impl/RendererBackendVulkan.hpp>
 #include <engine/render/imgui/lib/imgui.h>
 
 namespace expengine {
@@ -13,14 +13,15 @@ namespace render {
 class ImguiBackend {
 public:
 	ImguiBackend::ImguiBackend(
-		const RenderingContext& mainRenderingContext,std::shared_ptr<Window>
-			window);
+		const vlk::Device& vlkDevice,
+		const RenderingContext& mainRenderingContext,
+		std::shared_ptr<Window> window);
 	~ImguiBackend();
 
 	/* TODO : Could swap ImGuiContext if multiple contexts are used. */
 	inline bool handleEvent(const SDL_Event& event)
 	{
-		return platform_->handleEvent(event);
+		return platformBackend_->handleEvent(event);
 	};
 
 private:
@@ -29,7 +30,9 @@ private:
 	ImFont* fontRegular_;
 
 	/* Platform */
-	std::unique_ptr<PlatformBackendSDL> platform_;
+	std::unique_ptr<PlatformBackendSDL> platformBackend_;
+	/* Rendering */
+	std::unique_ptr<RendererBackendVulkan> renderingBackend_;
 };
 
 } // namespace render

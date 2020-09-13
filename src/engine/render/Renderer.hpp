@@ -31,10 +31,10 @@ private:
 	std::shared_ptr<const Window> mainWindow_;
 	std::unique_ptr<RenderingContext> mainRenderingContext_;
 	std::unique_ptr<vlk::Device> vlkDevice_;
-	vk::UniqueDescriptorPool vkDescriptorPool_;
+
+	/* TODO : vk::UniqueDebugUtilsMessengerEXT */
 	/**  @brief Only used in debug mode. */
-	vk::DebugUtilsMessengerEXT
-		vkDebugMessenger_; /* TODO : vk::UniqueDebugUtilsMessengerEXT */
+	vk::DebugUtilsMessengerEXT vkDebugMessenger_;
 
 	/* UI */
 	std::unique_ptr<ImguiBackend> imguiBackend_;

@@ -3,15 +3,18 @@
 #include <engine/log/ExpengineLog.hpp>
 
 namespace {
+
 // TODO Cross-platform
 const std::string OPEN_SANS_FONT
 	= "./data/fonts/OpenSans/OpenSans-Regular.ttf";
+
 } // namespace
 
 namespace expengine {
 namespace render {
 
-ImguiBackend::ImguiBackend(const RenderingContext& mainRenderingContext,
+ImguiBackend::ImguiBackend(const vlk::Device& vlkDevice,
+						   const RenderingContext& mainRenderingContext,
 						   std::shared_ptr<Window> window)
 {
 	/* ------------------------------------------- */
@@ -48,24 +51,27 @@ ImguiBackend::ImguiBackend(const RenderingContext& mainRenderingContext,
 	/* Setup Platform bindings                     */
 	/* ------------------------------------------- */
 
-	platform_ = std::make_unique<PlatformBackendSDL>(window);
+	platformBackend_ = std::make_unique<PlatformBackendSDL>(window);
 
 	/* ------------------------------------------- */
 	/* Setup Renderer bindings                     */
 	/* ------------------------------------------- */
 
-	// TODO
+	renderingBackend_ = std::make_unique<RendererBackendVulkan>(
+		vlkDevice, mainRenderingContext);
 
 	/* ------------------------------------------- */
 	/* Fonts loading & Uploading                   */
 	/* ------------------------------------------- */
 
+	/* Load */
 	fontRegular_
 		= io.Fonts->AddFontFromFileTTF(OPEN_SANS_FONT.c_str(), 17.0f);
 	EXPENGINE_ASSERT(fontRegular_ != nullptr, "Failed to load font : {}",
 					 OPEN_SANS_FONT);
 
-	// TODO Upload Fonts
+	/* Upload using the main RenderingContext resources */
+	renderingBackend_->uploadFonts(vlkDevice, mainRenderingContext);
 }
 
 ImguiBackend::~ImguiBackend() { ImGui::DestroyContext(ctx_); }
