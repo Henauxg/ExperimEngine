@@ -5,7 +5,7 @@
 #include <engine/render/vlk/VlkDebug.hpp>
 
 namespace {
-const std::string RENDERER_PALTFORM_NAME = "ExperimEngine_Vulkan_Renderer";
+const std::string RENDERER_BACKEND_NAME = "ExperimEngine_Vulkan_Renderer";
 }
 
 namespace expengine {
@@ -21,7 +21,7 @@ RendererBackendVulkan::RendererBackendVulkan(
 
 	/* Setup back-end capabilities flags */
 	ImGuiIO& io = ImGui::GetIO();
-	io.BackendRendererName = RENDERER_PALTFORM_NAME.c_str();
+	io.BackendRendererName = RENDERER_BACKEND_NAME.c_str();
 	/* We can honor the ImDrawCmd::VtxOffset field, allowing for large
 	 * meshes. */
 	io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;

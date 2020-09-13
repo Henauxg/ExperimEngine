@@ -41,7 +41,7 @@ private:
 	vk::UniqueDescriptorSetLayout descriptorSetLayout_;
 	vk::UniquePipelineLayout pipelineLayout_;
 	/* Not unique since the pool owns it
-	 * (VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT not sued)  */
+	 * (VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT not used)  */
 	vk::DescriptorSet descriptorSet_;
 };
 

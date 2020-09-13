@@ -8,7 +8,7 @@
 
 namespace {
 
-const std::string BACKEND_PALTFORM_NAME = "ExperimEngine_SDL_Platform";
+const std::string PLATFORM_BACKEND_NAME = "ExperimEngine_SDL_Platform";
 
 }
 
@@ -67,7 +67,7 @@ PlatformBackendSDL::PlatformBackendSDL(std::shared_ptr<Window> window)
 	io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
 	io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;
 
-	io.BackendPlatformName = BACKEND_PALTFORM_NAME.c_str();
+	io.BackendPlatformName = PLATFORM_BACKEND_NAME.c_str();
 
 	/* Keyboard mapping. ImGui will use those indices to peek into the
 	 * io.KeysDown[] array. */
