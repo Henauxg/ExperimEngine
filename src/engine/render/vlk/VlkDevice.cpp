@@ -30,7 +30,7 @@ Device::Device(vk::Instance vkInstance,
 	EXPENGINE_ASSERT(surfaceCreated, "Failed to create a VkSurface");
 	auto windowSurface_ = vk::UniqueSurfaceKHR(dummySurface, vkInstance);
 
-	/* Devies */
+	/* Devices */
 	physDevice_ = pickPhysicalDevice(
 		vkInstance, DEVICE_EXTENSIONS,
 		std::vector<vk::SurfaceKHR> { *windowSurface_ });
@@ -44,7 +44,51 @@ Device::Device(vk::Instance vkInstance,
 		physDevice_.queuesIndices.presentFamily.value(), 0);
 
 	/* Descriptor pool */
-	vkDescriptorPool_ = createDescriptorPool();
+	descriptorPool_ = createDescriptorPool();
+
+	/* Command pool for short lived buffers */
+	auto cmdPoolResult = logicalDevice_->createCommandPoolUnique(
+		{ .flags = vk::CommandPoolCreateFlagBits::eTransient,
+		  .queueFamilyIndex
+		  = physDevice_.queuesIndices.graphicsFamily.value() });
+	EXPENGINE_VK_ASSERT(
+		cmdPoolResult.result,
+		"Failed to create the device transient command pool");
+	transientCommandPool_ = std::move(cmdPoolResult.value);
+}
+
+inline const vk::CommandBuffer Device::getTransientCommandBuffer() const
+{
+	auto [allocResult, cmdBuffers]
+		= logicalDevice_->allocateCommandBuffers(
+			{ .commandPool = *transientCommandPool_,
+			  .commandBufferCount = 1 });
+	EXPENGINE_VK_ASSERT(allocResult,
+						"Failed to allocate a command buffer");
+
+	auto commandBuffer = cmdBuffers.front();
+	auto beginResult = commandBuffer.begin(
+		{ .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit });
+	EXPENGINE_VK_ASSERT(beginResult,
+						"Failed to begin on a command buffer");
+
+	return commandBuffer;
+}
+
+const void
+Device::submitTransientCommandBuffer(vk::CommandBuffer commandBuffer) const
+{
+	auto endResult = commandBuffer.end();
+	EXPENGINE_VK_ASSERT(endResult, "Failed to end on a command buffer");
+
+	vk::SubmitInfo submitInfo { .commandBufferCount = 1,
+								.pCommandBuffers = &commandBuffer };
+	/* TODO : Could implement fences for transient buffers ? */
+	graphicsQueue_.submit(submitInfo, nullptr);
+	graphicsQueue_.waitIdle();
+
+	logicalDevice_->freeCommandBuffers(*transientCommandPool_,
+									   commandBuffer);
 }
 
 void Device::waitIdle() const { logicalDevice_->waitIdle(); }

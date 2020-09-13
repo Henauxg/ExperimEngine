@@ -16,6 +16,7 @@ public:
 	Device(vk::Instance vkInstance,
 		   std::shared_ptr<spdlog::logger> logger);
 
+	/* Accessors */
 	inline const vk::Device deviceHandle() const
 	{
 		return logicalDevice_.get();
@@ -30,17 +31,21 @@ public:
 	}
 	inline const vk::DescriptorPool descriptorPool() const
 	{
-		return vkDescriptorPool_.get();
+		return descriptorPool_.get();
 	}
-	inline const vk::Queue graphicQueue() const { return graphicsQueue_; }
+	inline const vk::Queue graphicsQueue() const { return graphicsQueue_; }
 	inline const vk::Queue presentQueue() const { return presentQueue_; }
 
+	const vk::CommandBuffer getTransientCommandBuffer() const;
+	const void
+	submitTransientCommandBuffer(vk::CommandBuffer commandBuffer) const;
 	void waitIdle() const;
 
 private:
 	PhysicalDeviceDetails physDevice_;
 	vk::UniqueDevice logicalDevice_;
-	vk::UniqueDescriptorPool vkDescriptorPool_;
+	vk::UniqueDescriptorPool descriptorPool_;
+	vk::UniqueCommandPool transientCommandPool_;
 	vk::Queue graphicsQueue_;
 	vk::Queue presentQueue_;
 

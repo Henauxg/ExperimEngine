@@ -31,6 +31,15 @@ public:
 	inline const vk::SurfaceKHR surface() { return windowSurface_.get(); };
 	inline const Window& window() const { return *window_; };
 
+	inline vk::CommandBuffer beginSingleTimeCommand() const
+	{
+		return device_.getTransientCommandBuffer();
+	};
+	inline void endSingleTimeCommand(vk::CommandBuffer commandBuffer) const
+	{
+		return device_.submitTransientCommandBuffer(commandBuffer);
+	};
+
 private:
 	const vlk::Device& device_;
 
