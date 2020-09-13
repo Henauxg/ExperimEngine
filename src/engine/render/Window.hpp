@@ -13,6 +13,7 @@ class Window {
 public:
 	Window(int width, int height, const char* title);
 	Window(int width, int height, const char* title, uint32_t flags);
+	Window();
 	~Window();
 
 	bool shouldClose() const;

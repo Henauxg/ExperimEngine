@@ -30,6 +30,13 @@ Window::Window(int width, int height, const char* title)
 {
 }
 
+Window::Window()
+	: Window(100, 100, "",
+			 SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE
+				 | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_HIDDEN)
+{
+}
+
 Window::~Window()
 {
 	/* Calls SDL_Vulkan_UnloadLibrary*/
