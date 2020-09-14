@@ -26,6 +26,7 @@ add_subdirectory(src/engine/render/imgui/impl)
 add_subdirectory(src/engine/render/imgui/lib)
 add_subdirectory(src/engine/render/imgui/widgets)
 add_subdirectory(src/engine/render/vlk)
+add_subdirectory(src/engine/render/vlk/resources)
 add_subdirectory(src/test)
 
 set(LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)

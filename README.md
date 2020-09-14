@@ -62,6 +62,7 @@ Some of the dependencies may become git submodule.
 ### Vulkan
 + [Sascha Willems vulkan examples](https://github.com/SaschaWillems/Vulkan)
 + [Vulkan tutorials](https://vulkan-tutorial.com/Introduction)
++ [Vulkan-Samples](https://github.com/KhronosGroup/Vulkan-Samples)
 + [Awesome Vulkan](https://github.com/vinjn/awesome-vulkan)
 
 ### OpenGl and 3D
