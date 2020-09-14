@@ -30,6 +30,7 @@ struct PhysicalDeviceDetails {
 	vk::PhysicalDevice device;
 	vk::PhysicalDeviceFeatures features;
 	vk::PhysicalDeviceProperties properties;
+	vk::PhysicalDeviceMemoryProperties memoryProperties;
 	QueueFamilyIndices queuesIndices;
 	vk::Format depthFormat;
 };

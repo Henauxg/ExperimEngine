@@ -33,7 +33,7 @@ public:
 
 	inline vk::CommandBuffer beginSingleTimeCommand() const
 	{
-		return device_.getTransientCommandBuffer();
+		return device_.createTransientCommandBuffer();
 	};
 	inline void endSingleTimeCommand(vk::CommandBuffer commandBuffer) const
 	{

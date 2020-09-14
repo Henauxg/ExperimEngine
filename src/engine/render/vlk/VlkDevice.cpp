@@ -57,7 +57,7 @@ Device::Device(vk::Instance vkInstance,
 	transientCommandPool_ = std::move(cmdPoolResult.value);
 }
 
-inline const vk::CommandBuffer Device::getTransientCommandBuffer() const
+const vk::CommandBuffer Device::createTransientCommandBuffer() const
 {
 	auto [allocResult, cmdBuffers]
 		= logicalDevice_->allocateCommandBuffers(
@@ -91,6 +91,59 @@ Device::submitTransientCommandBuffer(vk::CommandBuffer commandBuffer) const
 									   commandBuffer);
 }
 
+std::unique_ptr<vlk::Buffer>
+Device::createBuffer(vk::DeviceSize size, vk::BufferUsageFlags usageFlags,
+					 vk::MemoryPropertyFlags memPropertyFlags,
+					 void const* dataToCopy) const
+{
+	/* Allocations */
+
+	auto [createBufferResult, vkBuffer]
+		= logicalDevice_->createBufferUnique(
+			{ .size = size, .usage = usageFlags });
+	EXPENGINE_VK_ASSERT(createBufferResult, "Failed to create buffer");
+
+	auto memRequirements
+		= logicalDevice_->getBufferMemoryRequirements(vkBuffer.get());
+
+	vk::MemoryAllocateInfo allocInfo {
+		.allocationSize = memRequirements.size,
+		.memoryTypeIndex
+		= findMemoryType(memRequirements.memoryTypeBits, memPropertyFlags)
+	};
+	/* If the buffer has VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT set we
+	 * also need to enable the appropriate flag during allocation */
+	vk::MemoryAllocateFlagsInfoKHR allocFlagsInfo = {};
+	if ((usageFlags & vk::BufferUsageFlagBits::eShaderDeviceAddress)
+		== vk::BufferUsageFlagBits::eShaderDeviceAddress)
+	{
+		allocFlagsInfo.flags = vk::MemoryAllocateFlagBits::eDeviceAddress;
+		allocInfo.pNext = &allocFlagsInfo;
+	}
+	auto memory = logicalDevice_->allocateMemoryUnique(allocInfo);
+
+	/* Wrap in vlkBuffer object */
+
+	auto buffer = std::make_unique<vlk::Buffer>(
+		logicalDevice_.get(), std::move(vkBuffer), std::move(memory),
+		memRequirements.alignment, size, usageFlags, memPropertyFlags);
+
+	/* If available, upload dataToCopy to device */
+
+	if (dataToCopy != nullptr)
+	{
+		EXPENGINE_VK_ASSERT(buffer->map(), "Failed to map memory");
+		buffer->copyData(dataToCopy, size);
+		if ((memPropertyFlags & vk::MemoryPropertyFlagBits::eHostCoherent)
+			== vk::MemoryPropertyFlagBits::eHostCoherent)
+			buffer->flush();
+		buffer->unmap();
+	}
+	EXPENGINE_VK_ASSERT(buffer->bind(), "Failed to bind memory to buffer");
+
+	return std::move(buffer);
+}
+
 void Device::waitIdle() const { logicalDevice_->waitIdle(); }
 
 PhysicalDeviceDetails
@@ -122,6 +175,9 @@ Device::pickPhysicalDevice(vk::Instance vkInstance,
 					 "Failed to find a suitable GPU");
 
 	PhysicalDeviceDetails pickedPhysDevice = candidates.rbegin()->second;
+	/* Store the memory properties of the chosed device */
+	pickedPhysDevice.memoryProperties
+		= pickedPhysDevice.device.getMemoryProperties();
 
 	SPDLOG_LOGGER_INFO(logger_, "Selected GPU : {} - {}",
 					   pickedPhysDevice.properties.deviceID,
@@ -210,6 +266,26 @@ vk::UniqueDescriptorPool Device::createDescriptorPool() const
 	EXPENGINE_VK_ASSERT(result, "Failed to create the descriptor pool");
 
 	return std::move(descriptorPool);
+}
+
+uint32_t Device::findMemoryType(uint32_t typeFilter,
+								vk::MemoryPropertyFlags properties) const
+{
+	bool found = false;
+	auto memProperties = physDevice_.memoryProperties;
+	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+	{
+		if (typeFilter & (1 << i)
+			&& (memProperties.memoryTypes[i].propertyFlags & properties)
+				== properties)
+		{
+			found = true;
+			return i;
+		}
+	}
+
+	EXPENGINE_ASSERT(found, "Failed to find suitable memory type on GPU");
+	return memProperties.memoryTypeCount;
 }
 
 } // namespace vlk
