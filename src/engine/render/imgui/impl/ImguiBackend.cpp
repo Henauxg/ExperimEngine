@@ -57,8 +57,7 @@ ImguiBackend::ImguiBackend(const vlk::Device& vlkDevice,
 	/* Setup Renderer bindings                     */
 	/* ------------------------------------------- */
 
-	renderingBackend_ = std::make_unique<RendererBackendVulkan>(
-		vlkDevice, mainRenderingContext);
+	renderingBackend_ = std::make_unique<RendererBackendVulkan>(vlkDevice);
 
 	/* ------------------------------------------- */
 	/* Fonts loading & Uploading                   */
@@ -70,8 +69,8 @@ ImguiBackend::ImguiBackend(const vlk::Device& vlkDevice,
 	EXPENGINE_ASSERT(fontRegular_ != nullptr, "Failed to load font : {}",
 					 OPEN_SANS_FONT);
 
-	/* Upload using the main RenderingContext resources */
-	renderingBackend_->uploadFonts(vlkDevice, mainRenderingContext);
+	/* Upload to GPU */
+	renderingBackend_->uploadFonts(vlkDevice);
 }
 
 ImguiBackend::~ImguiBackend() { ImGui::DestroyContext(ctx_); }

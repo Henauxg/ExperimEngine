@@ -11,9 +11,7 @@ const std::string RENDERER_BACKEND_NAME = "ExperimEngine_Vulkan_Renderer";
 namespace expengine {
 namespace render {
 
-RendererBackendVulkan::RendererBackendVulkan(
-	const vlk::Device& vlkDevice,
-	const RenderingContext& mainRenderingContext)
+RendererBackendVulkan::RendererBackendVulkan(const vlk::Device& vlkDevice)
 {
 	/* ------------------------------------------- */
 	/* Setup Renderer capabilities flags           */
@@ -103,9 +101,21 @@ RendererBackendVulkan::RendererBackendVulkan(
 	// platform_io.Renderer_SwapBuffers = ImGui_ImplVulkan_SwapBuffers;
 }
 
-void RendererBackendVulkan::uploadFonts(
-	const vlk::Device& vlkDevice, const RenderingContext& renderingContext)
+void RendererBackendVulkan::uploadFonts(const vlk::Device& vlkDevice)
 {
+	ImGuiIO& io = ImGui::GetIO();
+	unsigned char* pixelsBuffer;
+	int width, height;
+	io.Fonts->GetTexDataAsRGBA32(&pixelsBuffer, &width, &height);
+	size_t bufferSize
+		= (size_t) width * (size_t) height * 4 * sizeof(char);
+
+	fontTexture_ = std::make_unique<vlk::Texture>(
+		vlkDevice, pixelsBuffer, bufferSize, vk::Format::eR8G8B8A8Unorm,
+		width, height, fontSampler_.get(),
+		vk::ImageUsageFlagBits::eSampled
+			| vk::ImageUsageFlagBits::eTransferDst,
+		vk::ImageLayout::eShaderReadOnlyOptimal);
 }
 
 } // namespace render
