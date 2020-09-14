@@ -135,7 +135,7 @@ Device::createBuffer(vk::DeviceSize size, vk::BufferUsageFlags usageFlags,
 		EXPENGINE_VK_ASSERT(buffer->map(), "Failed to map memory");
 		buffer->copyData(dataToCopy, size);
 		if ((memPropertyFlags & vk::MemoryPropertyFlagBits::eHostCoherent)
-			== vk::MemoryPropertyFlagBits::eHostCoherent)
+			!= vk::MemoryPropertyFlagBits::eHostCoherent)
 			buffer->flush();
 		buffer->unmap();
 	}
