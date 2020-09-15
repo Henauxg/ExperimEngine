@@ -7,4 +7,6 @@ target_sources(ExperimEngine
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkDevice.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkDevice.hpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkInclude.hpp
+		${CMAKE_CURRENT_SOURCE_DIR}/VlkTools.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/VlkTools.hpp
 )

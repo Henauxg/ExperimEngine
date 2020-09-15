@@ -1,6 +1,7 @@
 #include "VlkTexture.hpp"
 
 #include <engine/render/vlk/VlkDebug.hpp>
+#include <engine/render/vlk/VlkTools.hpp>
 
 namespace expengine {
 namespace render {
@@ -59,12 +60,21 @@ Texture::Texture(const vlk::Device& device, void* texData,
 
 	auto imageCopyCmdBuffer = device.createTransientCommandBuffer();
 
-	/* TODO :
-	transition image layout to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
-	copy stagingBuffer to image
-	transition layout to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-	create image view
-	*/
+	/* Transition image layout to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL */
+	vlk::transitionImageLayout(imageCopyCmdBuffer, image_.get(),
+							   vk::ImageLayout::eUndefined,
+							   vk::ImageLayout::eTransferDstOptimal,
+							   vk::ImageAspectFlagBits::eColor);
+
+	/* TODO : copy stagingBuffer to image */
+
+	/* Transition layout to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL */
+	vlk::transitionImageLayout(imageCopyCmdBuffer, image_.get(),
+							   vk::ImageLayout::eTransferDstOptimal,
+							   vk::ImageLayout::eShaderReadOnlyOptimal,
+							   vk::ImageAspectFlagBits::eColor);
+
+	/* TODO Create Image View */
 
 	/* TODO Implement fence signaling in buffer sumbission */
 	device.submitTransientCommandBuffer(imageCopyCmdBuffer);

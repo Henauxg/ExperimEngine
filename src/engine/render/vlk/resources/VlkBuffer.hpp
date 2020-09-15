@@ -14,7 +14,6 @@ class Device;
  * https://github.com/SaschaWillems/Vulkan */
 class Buffer {
 public:
-	/** Create texture from data buffer */
 	Buffer::Buffer(const vk::Device device, vk::UniqueBuffer buffer,
 				   vk::UniqueDeviceMemory memory, vk::DeviceSize alignment,
 				   vk::DeviceSize size, vk::BufferUsageFlags usageFlags,
