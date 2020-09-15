@@ -42,6 +42,9 @@ public:
 	std::unique_ptr<vlk::Buffer> Device::createBuffer(
 		vk::DeviceSize size, vk::BufferUsageFlags usageFlags,
 		vk::MemoryPropertyFlags memPropertyFlags, void const* data) const;
+	uint32_t
+	Device::findMemoryType(uint32_t typeFilter,
+						   vk::MemoryPropertyFlags properties) const;
 	void waitIdle() const;
 
 private:
@@ -66,10 +69,6 @@ private:
 						const std::vector<const char*> deviceExtensions);
 
 	vk::UniqueDescriptorPool Device::createDescriptorPool() const;
-
-	uint32_t
-	Device::findMemoryType(uint32_t typeFilter,
-						   vk::MemoryPropertyFlags properties) const;
 };
 } // namespace vlk
 } // namespace render
