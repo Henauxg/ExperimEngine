@@ -36,15 +36,26 @@ public:
 	inline const vk::Queue graphicsQueue() const { return graphicsQueue_; }
 	inline const vk::Queue presentQueue() const { return presentQueue_; }
 
+	inline const SwapChainSupportDetails
+	querySwapChainSupport(vk::SurfaceKHR& surface) const
+	{
+		return queryPhysicalDeviceSwapChainSupport(physDevice_.device,
+												   surface);
+	}
+
 	const vk::CommandBuffer createTransientCommandBuffer() const;
+
 	const void
 	submitTransientCommandBuffer(vk::CommandBuffer commandBuffer) const;
+
 	std::unique_ptr<vlk::Buffer> Device::createBuffer(
 		vk::DeviceSize size, vk::BufferUsageFlags usageFlags,
 		vk::MemoryPropertyFlags memPropertyFlags, void const* data) const;
+
 	uint32_t
 	Device::findMemoryType(uint32_t typeFilter,
 						   vk::MemoryPropertyFlags properties) const;
+
 	void waitIdle() const;
 
 private:

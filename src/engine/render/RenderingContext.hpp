@@ -5,6 +5,7 @@
 
 #include <engine/render/Window.hpp>
 #include <engine/render/vlk/VlkDevice.hpp>
+#include <engine/render/vlk/VlkSwapchain.hpp>
 
 namespace expengine {
 namespace render {
@@ -43,8 +44,11 @@ public:
 private:
 	const vlk::Device& device_;
 
+	/* Owned objects */
 	std::shared_ptr<const Window> window_;
 	vk::UniqueSurfaceKHR windowSurface_;
+	std::unique_ptr<vlk::Swapchain> swapchain_;
+
 	/* Frames */
 	uint32_t currentFrameIndex_;
 	std::vector<FrameObjects> frames_;

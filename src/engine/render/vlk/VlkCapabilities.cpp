@@ -251,10 +251,6 @@ PhysicalDeviceDetails ratePhysicalDeviceSuitability(
 			SwapChainSupportDetails swapChainSupport
 				= queryPhysicalDeviceSwapChainSupport(physicalDevice,
 													  surface);
-			// TODO More work on formats and present mode. See main.cpp of
-			// Imgui SDL+Vulkan example. Note : in this main.cpp it is used
-			// as an application pov once the gpu has already been
-			// selected.
 			swapChainAdequate = !swapChainSupport.formats.empty()
 				&& !swapChainSupport.presentModes.empty();
 			if (!swapChainAdequate)

@@ -16,6 +16,19 @@ RenderingContext::RenderingContext(const vk::Instance vkInstance,
 	auto [surfaceCreated, surface] = window_->createVkSurface(vkInstance);
 	EXPENGINE_ASSERT(surfaceCreated, "Failed to create a VkSurface");
 	windowSurface_ = vk::UniqueSurfaceKHR(surface, vkInstance);
+
+	/* TODO Do the following once + on resize */
+
+	/* Create SwapChain */
+	swapchain_ = std::make_unique<vlk::Swapchain>(device, surface);
+
+	/* TODO
+	 * Create Render pass
+	 * Create Image views
+	 * Create Framebuffers
+	 * Create Graphics pipeline (using layout + shaders)
+	 * Create Sync objects + Command pools & Command buffers
+	 */
 }
 
 RenderingContext::~RenderingContext() { }
