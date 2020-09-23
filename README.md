@@ -4,6 +4,10 @@ ExperimEngine is a personal side project made to _experiment_ (hence the name) w
 
 Along the way, I aim to learn many things such as 3D graphics with [Vulkan](https://www.khronos.org/vulkan/), some shader fun, and to embed [Lua](https://www.lua.org/) as a scripting/modding language.
 
+### Current work :
+
++ Integration of [Dear ImGui](https://github.com/ocornut/imgui) docking branch
+
 ## Modding/Scripting
 
 The answer to the "why" for a second scripting language is already quite old and widespread see some information [here](https://en.wikipedia.org/wiki/Scripting_language#Extension/embeddable_languages), but to be short, C++ compilation takes time.
