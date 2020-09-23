@@ -17,14 +17,14 @@ namespace render {
 
 /* Helper structure we store in the void* RenderUserData field of each
  * ImGuiViewport to easily retrieve our backend data. */
-struct ImGuiViewportData {
+struct ImGuiViewportPlatformData {
 	std::shared_ptr<Window> window_;
 
-	ImGuiViewportData(std::shared_ptr<Window> window)
+	ImGuiViewportPlatformData(std::shared_ptr<Window> window)
 		: window_(window)
 	{
 	}
-	~ImGuiViewportData() { }
+	~ImGuiViewportPlatformData() { }
 };
 
 /* Delegates */
@@ -202,7 +202,8 @@ PlatformBackendSDL::PlatformBackendSDL(std::shared_ptr<Window> window)
 		 * our interactions and we disable that behavior. */
 		SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 
-		ImGuiViewportData* data = new ImGuiViewportData(window);
+		ImGuiViewportPlatformData* data
+			= new ImGuiViewportPlatformData(window);
 		mainViewport->PlatformUserData = data;
 	}
 }
@@ -326,7 +327,7 @@ static void ImGui_ImplSDL2_CreateWindow(ImGuiViewport* viewport)
 		sdl_flags);
 	window->setPosition((int) viewport->Pos.x, (int) viewport->Pos.y);
 
-	auto data = new ImGuiViewportData(window);
+	auto data = new ImGuiViewportPlatformData(window);
 	viewport->PlatformUserData = data;
 	viewport->PlatformHandle = data->window_->getPlatformHandle();
 	viewport->PlatformHandleRaw = data->window_->getPlatformHandleRaw();
@@ -334,14 +335,14 @@ static void ImGui_ImplSDL2_CreateWindow(ImGuiViewport* viewport)
 
 static void ImGui_ImplExpengine_DestroyWindow(ImGuiViewport* viewport)
 {
-	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	auto data = (ImGuiViewportPlatformData*) viewport->PlatformUserData;
 	delete data;
 	viewport->PlatformUserData = viewport->PlatformHandle = nullptr;
 }
 
 static void ImGui_ImplExpengine_ShowWindow(ImGuiViewport* viewport)
 {
-	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	auto data = (ImGuiViewportPlatformData*) viewport->PlatformUserData;
 #if defined(_WIN32)
 	HWND hwnd = (HWND) viewport->PlatformHandleRaw;
 
@@ -356,7 +357,7 @@ static void ImGui_ImplExpengine_ShowWindow(ImGuiViewport* viewport)
 		::SetWindowLong(hwnd, GWL_EXSTYLE, ex_style);
 	}
 
-	/* SDL hack: SDL always activate/focus windows :/ */
+	/* SDL hack: SDL always activate/focus windows */
 	if (viewport->Flags & ImGuiViewportFlags_NoFocusOnAppearing)
 	{
 		::ShowWindow(hwnd, SW_SHOWNA);
@@ -368,7 +369,7 @@ static void ImGui_ImplExpengine_ShowWindow(ImGuiViewport* viewport)
 
 static ImVec2 ImGui_ImplExpengine_GetWindowPos(ImGuiViewport* viewport)
 {
-	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	auto data = (ImGuiViewportPlatformData*) viewport->PlatformUserData;
 	auto [x, y] = data->window_->getPosition();
 	return ImVec2((float) x, (float) y);
 }
@@ -376,13 +377,13 @@ static ImVec2 ImGui_ImplExpengine_GetWindowPos(ImGuiViewport* viewport)
 static void ImGui_ImplExpengine_SetWindowPos(ImGuiViewport* viewport,
 											 ImVec2 pos)
 {
-	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	auto data = (ImGuiViewportPlatformData*) viewport->PlatformUserData;
 	data->window_->setPosition((int) pos.x, (int) pos.y);
 }
 
 static ImVec2 ImGui_ImplExpengine_GetWindowSize(ImGuiViewport* viewport)
 {
-	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	auto data = (ImGuiViewportPlatformData*) viewport->PlatformUserData;
 	auto [w, h] = data->window_->getPosition();
 	return ImVec2((float) w, (float) h);
 }
@@ -390,39 +391,39 @@ static ImVec2 ImGui_ImplExpengine_GetWindowSize(ImGuiViewport* viewport)
 static void ImGui_ImplExpengine_SetWindowSize(ImGuiViewport* viewport,
 											  ImVec2 size)
 {
-	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	auto data = (ImGuiViewportPlatformData*) viewport->PlatformUserData;
 	data->window_->setSize((int) size.x, (int) size.y);
 }
 
 static void ImGui_ImplExpengine_SetWindowTitle(ImGuiViewport* viewport,
 											   const char* title)
 {
-	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	auto data = (ImGuiViewportPlatformData*) viewport->PlatformUserData;
 	data->window_->setTitle(title);
 }
 
 static void ImGui_ImplExpengine_SetWindowAlpha(ImGuiViewport* viewport,
 											   float alpha)
 {
-	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	auto data = (ImGuiViewportPlatformData*) viewport->PlatformUserData;
 	data->window_->setOpacity(alpha);
 }
 
 static void ImGui_ImplExpengine_SetWindowFocus(ImGuiViewport* viewport)
 {
-	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	auto data = (ImGuiViewportPlatformData*) viewport->PlatformUserData;
 	data->window_->setFocus();
 }
 
 static bool ImGui_ImplExpengine_GetWindowFocus(ImGuiViewport* viewport)
 {
-	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	auto data = (ImGuiViewportPlatformData*) viewport->PlatformUserData;
 	return data->window_->isFocused();
 }
 
 static bool ImGui_ImplExpengine_GetWindowMinimized(ImGuiViewport* viewport)
 {
-	auto data = (ImGuiViewportData*) viewport->PlatformUserData;
+	auto data = (ImGuiViewportPlatformData*) viewport->PlatformUserData;
 	return data->window_->isMinimized();
 }
 
@@ -431,7 +432,7 @@ static int ImGui_ImplExpengine_CreateVkSurface(ImGuiViewport* viewport,
 											   const void* vkAllocator,
 											   ImU64* outSurface)
 {
-	auto* data = (ImGuiViewportData*) viewport->PlatformUserData;
+	auto* data = (ImGuiViewportPlatformData*) viewport->PlatformUserData;
 	(void) vkAllocator;
 	bool createStatus = data->window_->createVkSurface(
 		(VkInstance) vkInstance, *((vk::SurfaceKHR*) outSurface));

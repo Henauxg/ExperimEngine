@@ -83,6 +83,10 @@ RendererBackendVulkan::RendererBackendVulkan(const vlk::Device& vlkDevice)
 						"Failed to create pipeline layout");
 	pipelineLayout_ = std::move(pipelineLayoutResult.value);
 
+	/* TODO once in RendererBackendVulkan
+	 * Create ImGui shaders modules
+	 */
+
 	/* ------------------------------------------- */
 	/* Rendering bindings                          */
 	/* ------------------------------------------- */
