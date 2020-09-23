@@ -19,6 +19,8 @@ public:
 					 vk::ImageLayout targetImgLayout
 					 = vk::ImageLayout::eShaderReadOnlyOptimal);
 
+	inline vk::Image imageHandle() const { return image_.get(); };
+
 private:
 	vk::UniqueImage image_;
 	vk::UniqueDeviceMemory memory_;

@@ -30,6 +30,7 @@ public:
 					 vk::DeviceSize offset = 0);
 	vk::Result invalidate(vk::DeviceSize size = VK_WHOLE_SIZE,
 						  vk::DeviceSize offset = 0);
+	inline vk::Buffer getHandle() const { return buffer_.get(); };
 
 private:
 	const vk::Device device_;

@@ -92,7 +92,7 @@ RendererBackendVulkan::RendererBackendVulkan(const vlk::Device& vlkDevice)
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		EXPENGINE_ASSERT(
 			platform_io.Platform_CreateVkSurface != nullptr,
-			"Platform needs to setup the CreateVkSurface handler");
+			"Platform backend needs to setup the CreateVkSurface handler");
 	/* TODO */
 	// platform_io.Renderer_CreateWindow = ImGui_ImplVulkan_CreateWindow;
 	// platform_io.Renderer_DestroyWindow = ImGui_ImplVulkan_DestroyWindow;
@@ -103,6 +103,7 @@ RendererBackendVulkan::RendererBackendVulkan(const vlk::Device& vlkDevice)
 
 void RendererBackendVulkan::uploadFonts(const vlk::Device& vlkDevice)
 {
+	/* Get texture data from ImGui */
 	ImGuiIO& io = ImGui::GetIO();
 	unsigned char* pixelsBuffer;
 	int width, height;
@@ -110,12 +111,17 @@ void RendererBackendVulkan::uploadFonts(const vlk::Device& vlkDevice)
 	size_t bufferSize
 		= (size_t) width * (size_t) height * 4 * sizeof(char);
 
+	/* Create GPU texture */
 	fontTexture_ = std::make_unique<vlk::Texture>(
 		vlkDevice, pixelsBuffer, bufferSize, vk::Format::eR8G8B8A8Unorm,
 		width, height, fontSampler_.get(),
 		vk::ImageUsageFlagBits::eSampled
 			| vk::ImageUsageFlagBits::eTransferDst,
 		vk::ImageLayout::eShaderReadOnlyOptimal);
+
+	/* Store font texture identifier */
+	io.Fonts->TexID
+		= (ImTextureID)(intptr_t)(VkImage) fontTexture_->imageHandle();
 }
 
 } // namespace render
