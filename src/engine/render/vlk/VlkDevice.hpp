@@ -6,6 +6,7 @@
 #include <engine/render/vlk/VlkCapabilities.hpp>
 #include <engine/render/vlk/VlkInclude.hpp>
 #include <engine/render/vlk/resources/VlkBuffer.hpp>
+#include <engine\render\vlk\VlkDebug.hpp>
 
 namespace expengine {
 namespace render {
@@ -41,6 +42,12 @@ public:
 	{
 		return queryPhysicalDeviceSwapChainSupport(physDevice_.device,
 												   surface);
+	}
+
+	inline VkBool32 getSurfaceSupport(vk::SurfaceKHR& surface) const
+	{
+		return physDevice_.device.getSurfaceSupportKHR(
+			queueIndices().presentFamily.value(), surface);
 	}
 
 	const vk::CommandBuffer createTransientCommandBuffer() const;

@@ -20,7 +20,9 @@ RenderingContext::RenderingContext(const vk::Instance vkInstance,
 	/* TODO Do the following once + on resize */
 
 	/* Create SwapChain */
-	swapchain_ = std::make_unique<vlk::Swapchain>(device, surface);
+	auto [w, h] = window_->getDrawableSizeInPixels();
+	vlkSwapchain_ = std::make_unique<vlk::Swapchain>(device, surface,
+												  vk::Extent2D { w, h });
 
 	/* TODO
 	 * Create Render pass

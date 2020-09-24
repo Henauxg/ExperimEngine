@@ -27,6 +27,7 @@ public:
 	void setFocus();
 	std::pair<int, int> getPosition() const;
 	std::pair<int, int> getSize() const;
+	std::pair<uint32_t, uint32_t> getDrawableSizeInPixels() const;
 	bool isFocused() const;
 	bool isMinimized() const;
 	void hide();

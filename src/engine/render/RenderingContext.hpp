@@ -47,7 +47,7 @@ private:
 	/* Owned objects */
 	std::shared_ptr<const Window> window_;
 	vk::UniqueSurfaceKHR windowSurface_;
-	std::unique_ptr<vlk::Swapchain> swapchain_;
+	std::unique_ptr<vlk::Swapchain> vlkSwapchain_;
 
 	/* Frames */
 	uint32_t currentFrameIndex_;

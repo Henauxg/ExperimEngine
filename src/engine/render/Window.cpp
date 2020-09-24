@@ -117,6 +117,13 @@ std::pair<int, int> Window::getSize() const
 	return { w, h };
 }
 
+std::pair<uint32_t, uint32_t> Window::getDrawableSizeInPixels() const
+{
+	int w = 0, h = 0;
+	SDL_Vulkan_GetDrawableSize(sdlWindow_, &w, &h);
+	return { (uint32_t) w, (uint32_t) h };
+}
+
 bool Window::isFocused() const
 {
 	return (SDL_GetWindowFlags(sdlWindow_) & SDL_WINDOW_INPUT_FOCUS) != 0;
