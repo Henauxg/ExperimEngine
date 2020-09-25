@@ -57,6 +57,8 @@ Device::Device(vk::Instance vkInstance,
 	transientCommandPool_ = std::move(cmdPoolResult.value);
 }
 
+Device::~Device() { SPDLOG_LOGGER_DEBUG(logger_, "Device destruction"); }
+
 const vk::CommandBuffer Device::createTransientCommandBuffer() const
 {
 	auto [allocResult, cmdBuffers]

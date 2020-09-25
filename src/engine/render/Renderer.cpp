@@ -31,6 +31,7 @@ Renderer::Renderer(const char* appName, std::shared_ptr<Window> window,
 
 Renderer::~Renderer()
 {
+	SPDLOG_LOGGER_DEBUG(logger_, "Renderer destruction");
 	if (vlk::ENABLE_VALIDATION_LAYERS)
 	{
 		vlk::destroyDebugUtilsMessengerEXT(*vkInstance_,

@@ -52,6 +52,9 @@ private:
 	/* Frames */
 	uint32_t currentFrameIndex_;
 	std::vector<FrameObjects> frames_;
+
+	/* Logging */
+	std::shared_ptr<spdlog::logger> logger_;
 };
 
 } // namespace render

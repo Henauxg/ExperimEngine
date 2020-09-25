@@ -29,8 +29,8 @@ private:
 	/* Vulkan objects */
 	vk::UniqueInstance vkInstance_;
 	std::shared_ptr<const Window> mainWindow_;
-	std::unique_ptr<RenderingContext> mainRenderingContext_;
 	std::unique_ptr<vlk::Device> vlkDevice_;
+	std::unique_ptr<RenderingContext> mainRenderingContext_;
 
 	/* TODO : vk::UniqueDebugUtilsMessengerEXT */
 	/**  @brief Only used in debug mode. */

@@ -16,6 +16,7 @@ class Device {
 public:
 	Device(vk::Instance vkInstance,
 		   std::shared_ptr<spdlog::logger> logger);
+	~Device();
 
 	/* Accessors */
 	inline const vk::Device deviceHandle() const

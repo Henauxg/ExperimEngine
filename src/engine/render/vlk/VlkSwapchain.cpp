@@ -108,6 +108,11 @@ Swapchain::Swapchain(const vlk::Device& device, vk::SurfaceKHR& surface,
 	swapchain_ = std::move(swapchainCreateResult.value);
 }
 
+Swapchain::~Swapchain()
+{
+	SPDLOG_LOGGER_DEBUG(logger_, "Swapchain destruction");
+}
+
 /* Based on
  * https://github.com/KhronosGroup/Vulkan-Samples/blob/master/framework/core/swapchain.cpp
  */

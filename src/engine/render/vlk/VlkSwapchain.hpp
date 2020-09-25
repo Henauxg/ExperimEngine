@@ -13,6 +13,7 @@ class Swapchain {
 public:
 	Swapchain(const vlk::Device& device, vk::SurfaceKHR& surface,
 			  vk::Extent2D requestedExtent);
+	~Swapchain();
 
 private:
 	/* References */

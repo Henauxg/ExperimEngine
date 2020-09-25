@@ -12,6 +12,7 @@ RenderingContext::RenderingContext(const vk::Instance vkInstance,
 	: window_(window)
 	, device_(device)
 	, currentFrameIndex_(0)
+	, logger_(spdlog::get(LOGGER_NAME))
 {
 	auto [surfaceCreated, surface] = window_->createVkSurface(vkInstance);
 	EXPENGINE_ASSERT(surfaceCreated, "Failed to create a VkSurface");
@@ -33,7 +34,9 @@ RenderingContext::RenderingContext(const vk::Instance vkInstance,
 	 */
 }
 
-RenderingContext::~RenderingContext() { }
+RenderingContext::~RenderingContext() { 
+	SPDLOG_LOGGER_DEBUG(logger_, "RenderingContext destruction");
+}
 
 } // namespace render
 } // namespace expengine
