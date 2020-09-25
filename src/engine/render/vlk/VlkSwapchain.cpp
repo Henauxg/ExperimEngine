@@ -61,8 +61,18 @@ Swapchain::Swapchain(const vlk::Device& device, vk::SurfaceKHR& surface,
 		swapchainSupport.capabilities.minImageExtent,
 		swapchainSupport.capabilities.maxImageExtent);
 
-	/* TODO min image count */
-	const int MIN_IMAGE_COUNT = 2;
+	/* Chose min image count */
+	uint32_t requestedMinImageCount
+		= swapchainSupport.capabilities.minImageCount + 1;
+	/* A value of 0 for maxImageCount means that there is no limit besides
+	 * memory requirements. */
+	if (swapchainSupport.capabilities.maxImageCount > 0
+		&& requestedMinImageCount
+			> swapchainSupport.capabilities.maxImageCount)
+	{
+		requestedMinImageCount
+			= swapchainSupport.capabilities.maxImageCount;
+	}
 
 	/* Chose image sharing mode */
 	QueueFamilyIndices queueIndices = device.queueIndices();
@@ -83,7 +93,7 @@ Swapchain::Swapchain(const vlk::Device& device, vk::SurfaceKHR& surface,
 	/* Create SwapChain */
 	vk::SwapchainCreateInfoKHR createInfo {
 		.surface = surface,
-		.minImageCount = MIN_IMAGE_COUNT,
+		.minImageCount = requestedMinImageCount,
 		.imageFormat = surfaceFormat.format,
 		.imageColorSpace = surfaceFormat.colorSpace,
 		.imageExtent = imageExtent,
