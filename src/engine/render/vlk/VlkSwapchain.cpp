@@ -64,9 +64,23 @@ Swapchain::Swapchain(const vlk::Device& device, vk::SurfaceKHR& surface,
 	/* TODO min image count */
 	const int MIN_IMAGE_COUNT = 2;
 
-	/* TODO image sharing mode */
+	/* Chose image sharing mode */
+	QueueFamilyIndices queueIndices = device.queueIndices();
+	uint32_t queueFamilyIndices[] = { queueIndices.graphicsFamily.value(),
+									  queueIndices.presentFamily.value() };
+	/* This case offers non-optimal performances but should not happen, see
+	 * findQueueFamilies in VlkCapabilities.cpp for an explanation  */
+	vk::SharingMode imageSharingMode = vk::SharingMode::eExclusive;
+	uint32_t queueFamilyIndexCount = 0;
+	const uint32_t* pQueueFamilyIndices = nullptr;
+	if (queueIndices.graphicsFamily != queueIndices.presentFamily)
+	{
+		imageSharingMode = vk::SharingMode::eConcurrent;
+		queueFamilyIndexCount = 2;
+		pQueueFamilyIndices = queueFamilyIndices;
+	}
 
-	/* TODO Create SwapChain */
+	/* Create SwapChain */
 	vk::SwapchainCreateInfoKHR createInfo {
 		.surface = surface,
 		.minImageCount = MIN_IMAGE_COUNT,
@@ -76,7 +90,9 @@ Swapchain::Swapchain(const vlk::Device& device, vk::SurfaceKHR& surface,
 		.imageArrayLayers = 1,
 		/* Render directly, no post-processsing */
 		.imageUsage = vk::ImageUsageFlagBits::eColorAttachment,
-		.imageSharingMode = vk::SharingMode::eExclusive,
+		.imageSharingMode = imageSharingMode,
+		.queueFamilyIndexCount = queueFamilyIndexCount,
+		.pQueueFamilyIndices = pQueueFamilyIndices,
 		/* No transformation */
 		.preTransform = swapchainSupport.capabilities.currentTransform,
 		.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque,

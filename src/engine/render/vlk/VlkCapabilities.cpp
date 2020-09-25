@@ -56,9 +56,6 @@ bool hasInstanceExtensionsSupport(
 	return extensionsSupported;
 }
 
-/* TODO : Could add logic to explicitly prefer a physical device
- * that supports drawing and presentation in the same queue for improved
- * performance. */
 QueueFamilyIndices
 findQueueFamilies(vk::PhysicalDevice physDevice,
 				  const std::vector<vk::SurfaceKHR>& surfaces)
@@ -68,19 +65,22 @@ findQueueFamilies(vk::PhysicalDevice physDevice,
 	std::vector<vk::QueueFamilyProperties> queueFamilies
 		= physDevice.getQueueFamilyProperties();
 
+	/* Explicitly prefer a queue with both graphics & present.
+	 * The case where graphics queue != present queue will still be handled
+	 * at device/swapchain creation (with VK_SHARING_MODE_CONCURRENT) but
+	 * seems to
+	 * be theoretical only and thus should not impact performance. */
+	/* https://stackoverflow.com/questions/61434615/in-vulkan-is-it-beneficial-for-the-graphics-queue-family-to-be-separate-from-th
+	 */
+	/* https://github.com/KhronosGroup/Vulkan-Docs/issues/1234 */
+
+	std::vector<VkBool32> supportsPresent(queueFamilies.size());
 	int currentQueueIndex = 0;
 	for (const vk::QueueFamilyProperties& queueFamily : queueFamilies)
 	{
-		if (queueFamily.queueCount > 0
-			&& queueFamily.queueFlags & vk::QueueFlagBits::eGraphics)
-		{
-			queueFamilyIndices.graphicsFamily = currentQueueIndex;
-		}
-
-		/* Ensure that the device can present images to every surface we
-		 * created/will create.
-		 */
 		VkBool32 presentSupport = false;
+		/* Ensure that this device queue can present images to every given
+		 * surfaces. */
 		for (auto const& surface : surfaces)
 		{
 			presentSupport = physDevice.getSurfaceSupportKHR(
@@ -88,14 +88,50 @@ findQueueFamilies(vk::PhysicalDevice physDevice,
 			if (!presentSupport)
 				break;
 		}
+		supportsPresent[currentQueueIndex] = presentSupport;
+		currentQueueIndex++;
+	}
 
-		if (queueFamily.queueCount > 0 && presentSupport)
+	currentQueueIndex = 0;
+	for (const vk::QueueFamilyProperties& queueFamily : queueFamilies)
+	{
+		if (queueFamily.queueCount == 0)
+			break;
+
+		if (queueFamily.queueFlags & vk::QueueFlagBits::eGraphics
+			&& !queueFamilyIndices.graphicsFamily.has_value())
+		{
+			queueFamilyIndices.graphicsFamily = currentQueueIndex;
+		}
+
+		if ((supportsPresent[currentQueueIndex] == VK_TRUE)
+			&& (queueFamily.queueFlags & vk::QueueFlagBits::eGraphics))
+		{
 			queueFamilyIndices.presentFamily = currentQueueIndex;
+			queueFamilyIndices.graphicsFamily = currentQueueIndex;
+		}
 
 		if (queueFamilyIndices.isComplete())
 			break;
 
 		currentQueueIndex++;
+	}
+
+	/* If we can't find a queue with both present and graphic, search for a
+	 * separate present queue */
+	if (!queueFamilyIndices.isComplete())
+	{
+		currentQueueIndex = 0;
+		for (const vk::QueueFamilyProperties& queueFamily : queueFamilies)
+		{
+			if (queueFamily.queueCount == 0)
+				break;
+
+			if (supportsPresent[currentQueueIndex] == VK_TRUE)
+				queueFamilyIndices.presentFamily = currentQueueIndex;
+
+			currentQueueIndex++;
+		}
 	}
 
 	return queueFamilyIndices;
@@ -245,6 +281,15 @@ PhysicalDeviceDetails ratePhysicalDeviceSuitability(
 	}
 	else
 	{
+		if (deviceDetails.queuesIndices.graphicsFamily
+			!= deviceDetails.queuesIndices.presentFamily)
+		{
+			SPDLOG_WARN(
+				" - Device queues are not optimal : separate graphic "
+				"& present queue");
+			/* TODO : this could affect the score */
+		}
+
 		bool swapChainAdequate = false;
 		for (auto const& surface : surfaces)
 		{
