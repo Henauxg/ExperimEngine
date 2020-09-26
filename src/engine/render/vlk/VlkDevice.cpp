@@ -18,7 +18,8 @@ const std::vector<const char*> DEVICE_EXTENSIONS
 
 Device::Device(vk::Instance vkInstance,
 			   std::shared_ptr<spdlog::logger> logger)
-	: logger_(logger)
+	: vkInstance_(vkInstance)
+	, logger_(logger)
 {
 	/* Create a temporary dummy window/surface to get information
 	 * about surface compatibility between the Vulkan devices

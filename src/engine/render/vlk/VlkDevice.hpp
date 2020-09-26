@@ -19,6 +19,10 @@ public:
 	~Device();
 
 	/* Accessors */
+	inline const vk::Instance instanceHandle() const
+	{
+		return vkInstance_;
+	}
 	inline const vk::Device deviceHandle() const
 	{
 		return logicalDevice_.get();
@@ -67,6 +71,9 @@ public:
 	void waitIdle() const;
 
 private:
+	/* Instance reference */
+	const vk::Instance& vkInstance_;
+
 	PhysicalDeviceDetails physDevice_;
 	vk::UniqueDevice logicalDevice_;
 	vk::UniqueDescriptorPool descriptorPool_;

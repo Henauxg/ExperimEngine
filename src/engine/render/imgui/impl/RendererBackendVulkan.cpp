@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include <engine/render/imgui/impl/PlatformBackendData.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
 
 namespace {
@@ -11,7 +12,33 @@ const std::string RENDERER_BACKEND_NAME = "ExperimEngine_Vulkan_Renderer";
 namespace expengine {
 namespace render {
 
-RendererBackendVulkan::RendererBackendVulkan(const vlk::Device& vlkDevice)
+/* Static used to give acces to vulkan device/instance to imgui static
+ * callbacks. Device is destroyed after imgui backend and thus should not
+ * be able to be null.
+ */
+static const vlk::Device* gVlkDevice = nullptr;
+
+/* Helper structure stored in the void* RenderUserData field of each
+ * ImGuiViewport to easily retrieve rendering backend data. */
+struct ImGuiViewportRendererData {
+	std::shared_ptr<RenderingContext> renderingContext_;
+
+	ImGuiViewportRendererData(
+		std::shared_ptr<RenderingContext> renderingContext)
+		: renderingContext_(renderingContext)
+	{
+	}
+	~ImGuiViewportRendererData() { }
+};
+
+/* Delegates */
+static void ImGui_ImplExpengine_CreateWindow(ImGuiViewport* viewport);
+static void ImGui_ImplExpengine_DestroyWindow(ImGuiViewport* viewport);
+
+RendererBackendVulkan::RendererBackendVulkan(
+	std::shared_ptr<ImguiContext> context, const vlk::Device& vlkDevice,
+	std::shared_ptr<RenderingContext> mainRenderingContext)
+	: context_(context)
 {
 	/* ------------------------------------------- */
 	/* Setup Renderer capabilities flags           */
@@ -91,18 +118,44 @@ RendererBackendVulkan::RendererBackendVulkan(const vlk::Device& vlkDevice)
 	/* Rendering bindings                          */
 	/* ------------------------------------------- */
 
-	/* Bind rendering delegates */
-	ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
-	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		EXPENGINE_ASSERT(
-			platform_io.Platform_CreateVkSurface != nullptr,
-			"Platform backend needs to setup the CreateVkSurface handler");
-	/* TODO */
-	// platform_io.Renderer_CreateWindow = ImGui_ImplVulkan_CreateWindow;
-	// platform_io.Renderer_DestroyWindow = ImGui_ImplVulkan_DestroyWindow;
-	// platform_io.Renderer_SetWindowSize = ImGui_ImplVulkan_SetWindowSize;
-	// platform_io.Renderer_RenderWindow = ImGui_ImplVulkan_RenderWindow;
-	// platform_io.Renderer_SwapBuffers = ImGui_ImplVulkan_SwapBuffers;
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		/* Give delegates access to vulkan device */
+		gVlkDevice = &vlkDevice;
+
+		/* Bind rendering delegates */
+		ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
+		/* No check for Platform_CreateVkSurface since handled by RC */
+		platform_io.Renderer_CreateWindow
+			= ImGui_ImplExpengine_CreateWindow;
+		/* Note : also called on main viewport */
+		platform_io.Renderer_DestroyWindow
+			= ImGui_ImplExpengine_DestroyWindow;
+		/* TODO */
+		// platform_io.Renderer_SetWindowSize =
+		// ImGui_ImplVulkan_SetWindowSize;
+		// platform_io.Renderer_RenderWindow =
+		// ImGui_ImplVulkan_RenderWindow; platform_io.Renderer_SwapBuffers
+		// = ImGui_ImplVulkan_SwapBuffers;
+	}
+
+	/* Setup main viewport RendererUserData */
+	/* Note : cleaned by ImGui_ImplExpengine_DestroyWindow if viewport
+	 * enabled. Else cleaned by RendererBackend */
+	ImGuiViewportRendererData* data
+		= new ImGuiViewportRendererData(mainRenderingContext);
+	ImGuiViewport* mainViewport = ImGui::GetMainViewport();
+	mainViewport->RendererUserData = data;
+}
+
+RendererBackendVulkan::~RendererBackendVulkan()
+{
+	/* Clean main viewport render data if viewport is not enabled */
+	ImGuiViewport* mainViewport = ImGui::GetMainViewport();
+	if (ImGuiViewportRendererData* data
+		= (ImGuiViewportRendererData*) mainViewport->RendererUserData)
+		delete data;
+	mainViewport->RendererUserData = nullptr;
 }
 
 void RendererBackendVulkan::uploadFonts(const vlk::Device& vlkDevice)
@@ -126,6 +179,37 @@ void RendererBackendVulkan::uploadFonts(const vlk::Device& vlkDevice)
 	/* Store font texture identifier */
 	io.Fonts->TexID
 		= (ImTextureID)(intptr_t)(VkImage) fontTexture_->imageHandle();
+}
+
+static void ImGui_ImplExpengine_CreateWindow(ImGuiViewport* viewport)
+{
+	/* Get window from platform data */
+	auto platformData
+		= (ImGuiViewportPlatformData*) viewport->PlatformUserData;
+	EXPENGINE_ASSERT(platformData != nullptr,
+					 "Error, null PlatformUserData");
+
+	/* Get instance and device from module RendererBackendVulkan global */
+	EXPENGINE_ASSERT(gVlkDevice != nullptr, "Error, null gVlkDevice");
+
+	/* Create a RenderingContext. Surface creation is handled by the RC. */
+	/* TODO Create Render pass attachments here and send to the RC */
+	auto renderingContext = std::make_shared<RenderingContext>(
+		gVlkDevice->instanceHandle(), *gVlkDevice, platformData->window_);
+
+	/* Allocate RendererUserData */
+	auto data = new ImGuiViewportRendererData(renderingContext);
+	viewport->RendererUserData = data;
+}
+
+static void ImGui_ImplExpengine_DestroyWindow(ImGuiViewport* viewport)
+{
+	auto data = (ImGuiViewportRendererData*) viewport->RendererUserData;
+	if (data)
+	{
+		delete data;
+	}
+	viewport->RendererUserData = nullptr;
 }
 
 } // namespace render

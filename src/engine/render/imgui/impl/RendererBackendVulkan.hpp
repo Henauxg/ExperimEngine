@@ -2,6 +2,7 @@
 
 #include <engine/render/RenderingContext.hpp>
 #include <engine/render/Window.hpp>
+#include <engine/render/imgui/impl/ImguiContext.hpp>
 #include <engine/render/imgui/lib/imgui.h>
 #include <engine/render/vlk/VlkDevice.hpp>
 #include <engine/render/vlk/resources/VlkTexture.hpp>
@@ -32,11 +33,17 @@ namespace render {
 class RendererBackendVulkan {
 public:
 	RendererBackendVulkan::RendererBackendVulkan(
-		const vlk::Device& vlkDevice);
+		std::shared_ptr<ImguiContext> context,
+		const vlk::Device& vlkDevice,
+		std::shared_ptr<RenderingContext> mainRenderingContext);
+	~RendererBackendVulkan();
 
 	void uploadFonts(const vlk::Device& vlkDevice);
 
 private:
+	/* ImGui */
+	const std::shared_ptr<ImguiContext> context_;
+
 	std::unique_ptr<vlk::Texture> fontTexture_;
 	vk::UniqueDescriptorSetLayout descriptorSetLayout_;
 	/* Not unique since the pool owns it

@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include <engine/render/imgui/impl/ImguiContext.hpp>
 #include <engine/render/imgui/impl/PlatformBackendSDL.hpp>
 #include <engine/render/imgui/impl/RendererBackendVulkan.hpp>
 #include <engine/render/imgui/lib/imgui.h>
@@ -14,7 +15,7 @@ class ImguiBackend {
 public:
 	ImguiBackend::ImguiBackend(
 		const vlk::Device& vlkDevice,
-		const RenderingContext& mainRenderingContext,
+		std::shared_ptr<RenderingContext> mainRenderingContext,
 		std::shared_ptr<Window> window);
 	~ImguiBackend();
 
@@ -26,7 +27,7 @@ public:
 
 private:
 	/* ImGui */
-	ImGuiContext* ctx_;
+	std::shared_ptr<ImguiContext> context_;
 	ImFont* fontRegular_;
 
 	/* Platform */

@@ -6,6 +6,8 @@
 #include <SDL2/SDL_syswm.h>
 #include <SDL2/SDL_vulkan.h>
 
+#include <engine/render/imgui/impl/PlatformBackendData.hpp>
+
 namespace {
 
 const std::string PLATFORM_BACKEND_NAME = "ExperimEngine_SDL_Platform";
@@ -14,18 +16,6 @@ const std::string PLATFORM_BACKEND_NAME = "ExperimEngine_SDL_Platform";
 
 namespace expengine {
 namespace render {
-
-/* Helper structure we store in the void* RenderUserData field of each
- * ImGuiViewport to easily retrieve our backend data. */
-struct ImGuiViewportPlatformData {
-	std::shared_ptr<Window> window_;
-
-	ImGuiViewportPlatformData(std::shared_ptr<Window> window)
-		: window_(window)
-	{
-	}
-	~ImGuiViewportPlatformData() { }
-};
 
 /* Delegates */
 static const char* ImGui_ImplExpengine_GetClipboardText(void*);
@@ -47,17 +37,14 @@ static void ImGui_ImplExpengine_SetWindowFocus(ImGuiViewport* viewport);
 static bool ImGui_ImplExpengine_GetWindowFocus(ImGuiViewport* viewport);
 static bool
 ImGui_ImplExpengine_GetWindowMinimized(ImGuiViewport* viewport);
-static int ImGui_ImplExpengine_CreateVkSurface(ImGuiViewport* viewport,
-											   ImU64 vkInstance,
-											   const void* vkAllocator,
-											   ImU64* outSurface);
 
-PlatformBackendSDL::PlatformBackendSDL(std::shared_ptr<Window> window)
-	: clipboardTextData_(nullptr)
+PlatformBackendSDL::PlatformBackendSDL(
+	std::shared_ptr<ImguiContext> context, std::shared_ptr<Window> window)
+	: context_(context)
+	, clipboardTextData_(nullptr)
 	, mouseCanUseGlobalState_(true)
 	, mousePressed_({ false, false, false })
 {
-
 	/* ------------------------------------------- */
 	/* Setup Platform bindings                     */
 	/* ------------------------------------------- */
@@ -175,6 +162,7 @@ PlatformBackendSDL::PlatformBackendSDL(std::shared_ptr<Window> window)
 		ImGuiPlatformIO& plt_io = ImGui::GetPlatformIO();
 
 		plt_io.Platform_CreateWindow = ImGui_ImplSDL2_CreateWindow;
+		/* Note : also called on main viewport */
 		plt_io.Platform_DestroyWindow = ImGui_ImplExpengine_DestroyWindow;
 		plt_io.Platform_ShowWindow = ImGui_ImplExpengine_ShowWindow;
 		plt_io.Platform_SetWindowPos = ImGui_ImplExpengine_SetWindowPos;
@@ -191,8 +179,9 @@ PlatformBackendSDL::PlatformBackendSDL(std::shared_ptr<Window> window)
 			= ImGui_ImplExpengine_SetWindowTitle;
 		plt_io.Platform_SetWindowAlpha
 			= ImGui_ImplExpengine_SetWindowAlpha;
-		plt_io.Platform_CreateVkSurface
-			= ImGui_ImplExpengine_CreateVkSurface;
+		/* Surface creation handled by the RenderingContext */
+		/* plt_io.Platform_CreateVkSurface
+			= ImGui_ImplExpengine_CreateVkSurface; */
 		/* TODO : Unused with Vulkan. No OpenGl backend planned. */
 		/* plt_io.Platform_RenderWindow = */
 		/* plt_io.Platform_SwapBuffers = */
@@ -202,6 +191,7 @@ PlatformBackendSDL::PlatformBackendSDL(std::shared_ptr<Window> window)
 		 * our interactions and we disable that behavior. */
 		SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 
+		/* Note : cleared by ImGui_ImplExpengine_DestroyWindow */
 		ImGuiViewportPlatformData* data
 			= new ImGuiViewportPlatformData(window);
 		mainViewport->PlatformUserData = data;
@@ -425,18 +415,6 @@ static bool ImGui_ImplExpengine_GetWindowMinimized(ImGuiViewport* viewport)
 {
 	auto data = (ImGuiViewportPlatformData*) viewport->PlatformUserData;
 	return data->window_->isMinimized();
-}
-
-static int ImGui_ImplExpengine_CreateVkSurface(ImGuiViewport* viewport,
-											   ImU64 vkInstance,
-											   const void* vkAllocator,
-											   ImU64* outSurface)
-{
-	auto* data = (ImGuiViewportPlatformData*) viewport->PlatformUserData;
-	(void) vkAllocator;
-	bool createStatus = data->window_->createVkSurface(
-		(VkInstance) vkInstance, *((vk::SurfaceKHR*) outSurface));
-	return createStatus;
 }
 
 } // namespace render
