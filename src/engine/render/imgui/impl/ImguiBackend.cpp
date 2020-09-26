@@ -17,6 +17,7 @@ ImguiBackend::ImguiBackend(
 	const vlk::Device& vlkDevice,
 	std::shared_ptr<RenderingContext> mainRenderingContext,
 	std::shared_ptr<Window> window)
+	: logger_(spdlog::get(LOGGER_NAME))
 {
 	/* ------------------------------------------- */
 	/* Setup Dear ImGui context                    */
@@ -77,7 +78,10 @@ ImguiBackend::ImguiBackend(
 	renderingBackend_->uploadFonts(vlkDevice);
 }
 
-ImguiBackend::~ImguiBackend() { }
+ImguiBackend::~ImguiBackend()
+{
+	SPDLOG_LOGGER_DEBUG(logger_, "ImguiBackend destruction");
+}
 
 } // namespace render
 } // namespace expengine

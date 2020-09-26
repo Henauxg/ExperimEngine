@@ -51,6 +51,9 @@ private:
 	vk::DescriptorSet descriptorSet_;
 	vk::UniquePipelineLayout pipelineLayout_;
 	vk::UniqueSampler fontSampler_;
+
+	/* Logging */
+	std::shared_ptr<spdlog::logger> logger_;
 };
 
 } // namespace render

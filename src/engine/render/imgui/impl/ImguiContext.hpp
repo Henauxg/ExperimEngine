@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include <engine/log/ExpengineLog.hpp>
 #include <engine/render/imgui/lib/imgui.h>
 
 /* RAII wrapper for an ImGui context */
@@ -12,7 +13,12 @@ namespace render {
 class ImguiContext {
 public:
 	inline ImguiContext::ImguiContext() { ctx_ = ImGui::CreateContext(); };
-	inline ~ImguiContext() { ImGui::DestroyContext(ctx_); };
+	/* Also destroy all ImGui viewports from this context */
+	inline ~ImguiContext()
+	{
+		SPDLOG_DEBUG("ImguiContext destruction");
+		ImGui::DestroyContext(ctx_);
+	};
 	inline ImGuiContext* get() { return ctx_; };
 
 private:

@@ -34,6 +34,9 @@ private:
 	std::unique_ptr<PlatformBackendSDL> platformBackend_;
 	/* Rendering */
 	std::unique_ptr<RendererBackendVulkan> renderingBackend_;
+
+	/* Logging */
+	std::shared_ptr<spdlog::logger> logger_;
 };
 
 } // namespace render

@@ -44,6 +44,7 @@ PlatformBackendSDL::PlatformBackendSDL(
 	, clipboardTextData_(nullptr)
 	, mouseCanUseGlobalState_(true)
 	, mousePressed_({ false, false, false })
+	, logger_(spdlog::get(LOGGER_NAME))
 {
 	/* ------------------------------------------- */
 	/* Setup Platform bindings                     */
@@ -196,6 +197,11 @@ PlatformBackendSDL::PlatformBackendSDL(
 			= new ImGuiViewportPlatformData(window);
 		mainViewport->PlatformUserData = data;
 	}
+}
+
+PlatformBackendSDL::~PlatformBackendSDL()
+{
+	SPDLOG_LOGGER_DEBUG(logger_, "PlatformBackendSDL destruction");
 }
 
 void PlatformBackendSDL::eraseClipboardData()

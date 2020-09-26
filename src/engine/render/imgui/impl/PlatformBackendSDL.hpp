@@ -4,6 +4,7 @@
 
 #include <SDL2\SDL_events.h>
 
+#include <engine/log/ExpengineLog.hpp>
 #include <engine/render/Window.hpp>
 #include <engine/render/imgui/impl/ImguiContext.hpp>
 #include <engine/render/imgui/lib/imgui.h>
@@ -19,6 +20,7 @@ public:
 	PlatformBackendSDL::PlatformBackendSDL(
 		std::shared_ptr<ImguiContext> context,
 		std::shared_ptr<Window> window);
+	~PlatformBackendSDL();
 
 	void eraseClipboardData();
 	const char* getClipboardData();
@@ -33,6 +35,9 @@ private:
 	bool mouseCanUseGlobalState_;
 	SDL_Cursor* mouseCursors_[ImGuiMouseCursor_COUNT];
 	std::array<bool, 3> mousePressed_;
+
+	/* Logging */
+	std::shared_ptr<spdlog::logger> logger_;
 };
 
 } // namespace render

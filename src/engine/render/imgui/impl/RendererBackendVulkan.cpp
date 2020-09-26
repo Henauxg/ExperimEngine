@@ -39,6 +39,7 @@ RendererBackendVulkan::RendererBackendVulkan(
 	std::shared_ptr<ImguiContext> context, const vlk::Device& vlkDevice,
 	std::shared_ptr<RenderingContext> mainRenderingContext)
 	: context_(context)
+	, logger_(spdlog::get(LOGGER_NAME))
 {
 	/* ------------------------------------------- */
 	/* Setup Renderer capabilities flags           */
@@ -150,6 +151,7 @@ RendererBackendVulkan::RendererBackendVulkan(
 
 RendererBackendVulkan::~RendererBackendVulkan()
 {
+	SPDLOG_LOGGER_DEBUG(logger_, "RendererBackendVulkan destruction");
 	/* Clean main viewport render data if viewport is not enabled */
 	ImGuiViewport* mainViewport = ImGui::GetMainViewport();
 	if (ImGuiViewportRendererData* data
