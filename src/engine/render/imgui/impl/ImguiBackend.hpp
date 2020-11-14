@@ -13,10 +13,9 @@ namespace render {
 /** Custom back-end */
 class ImguiBackend {
 public:
-	ImguiBackend::ImguiBackend(
-		const vlk::Device& vlkDevice,
-		std::shared_ptr<RenderingContext> mainRenderingContext,
-		std::shared_ptr<Window> window);
+	ImguiBackend(const vlk::Device& vlkDevice,
+				 std::shared_ptr<RenderingContext> mainRenderingContext,
+				 std::shared_ptr<Window> window);
 	~ImguiBackend();
 
 	/* TODO : Could swap ImGuiContext if multiple contexts are used. */

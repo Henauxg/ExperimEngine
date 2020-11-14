@@ -17,9 +17,8 @@ namespace render {
 /** Custom back-end based on imgui_impl_sdl */
 class PlatformBackendSDL {
 public:
-	PlatformBackendSDL::PlatformBackendSDL(
-		std::shared_ptr<ImguiContext> context,
-		std::shared_ptr<Window> window);
+	PlatformBackendSDL(std::shared_ptr<ImguiContext> context,
+					   std::shared_ptr<Window> window);
 	~PlatformBackendSDL();
 
 	void eraseClipboardData();

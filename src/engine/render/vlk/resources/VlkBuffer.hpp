@@ -14,10 +14,10 @@ class Device;
  * https://github.com/SaschaWillems/Vulkan */
 class Buffer {
 public:
-	Buffer::Buffer(const vk::Device device, vk::UniqueBuffer buffer,
-				   vk::UniqueDeviceMemory memory, vk::DeviceSize alignment,
-				   vk::DeviceSize size, vk::BufferUsageFlags usageFlags,
-				   vk::MemoryPropertyFlags memoryPropertyFlags);
+	Buffer(const vk::Device device, vk::UniqueBuffer buffer,
+		   vk::UniqueDeviceMemory memory, vk::DeviceSize alignment,
+		   vk::DeviceSize size, vk::BufferUsageFlags usageFlags,
+		   vk::MemoryPropertyFlags memoryPropertyFlags);
 
 	vk::Result map(vk::DeviceSize size = VK_WHOLE_SIZE,
 				   vk::DeviceSize offset = 0);

@@ -6,7 +6,7 @@
 
 class Application {
 public:
-	Application::Application();
+	Application();
 	void run();
 
 private:

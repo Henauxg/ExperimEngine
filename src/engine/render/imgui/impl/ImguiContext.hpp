@@ -12,7 +12,7 @@ namespace render {
 /** Custom back-end */
 class ImguiContext {
 public:
-	inline ImguiContext::ImguiContext() { ctx_ = ImGui::CreateContext(); };
+	inline ImguiContext() { ctx_ = ImGui::CreateContext(); };
 	/* Also destroy all ImGui viewports from this context */
 	inline ~ImguiContext()
 	{

@@ -4,9 +4,9 @@
 
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/vlk/VlkCapabilities.hpp>
+#include <engine/render/vlk/VlkDebug.hpp>
 #include <engine/render/vlk/VlkInclude.hpp>
 #include <engine/render/vlk/resources/VlkBuffer.hpp>
-#include <engine\render\vlk\VlkDebug.hpp>
 
 namespace expengine {
 namespace render {
@@ -60,13 +60,13 @@ public:
 	const void
 	submitTransientCommandBuffer(vk::CommandBuffer commandBuffer) const;
 
-	std::unique_ptr<vlk::Buffer> Device::createBuffer(
-		vk::DeviceSize size, vk::BufferUsageFlags usageFlags,
-		vk::MemoryPropertyFlags memPropertyFlags, void const* data) const;
+	std::unique_ptr<vlk::Buffer>
+	createBuffer(vk::DeviceSize size, vk::BufferUsageFlags usageFlags,
+				 vk::MemoryPropertyFlags memPropertyFlags,
+				 void const* data) const;
 
-	uint32_t
-	Device::findMemoryType(uint32_t typeFilter,
-						   vk::MemoryPropertyFlags properties) const;
+	uint32_t findMemoryType(uint32_t typeFilter,
+							vk::MemoryPropertyFlags properties) const;
 
 	void waitIdle() const;
 
@@ -94,7 +94,7 @@ private:
 						QueueFamilyIndices queueFamilyIndices,
 						const std::vector<const char*> deviceExtensions);
 
-	vk::UniqueDescriptorPool Device::createDescriptorPool() const;
+	vk::UniqueDescriptorPool createDescriptorPool() const;
 };
 } // namespace vlk
 } // namespace render

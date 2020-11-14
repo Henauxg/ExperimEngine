@@ -10,7 +10,7 @@ namespace vlk {
 class Texture {
 public:
 	/** Create texture from data buffer */
-	Texture::Texture(const vlk::Device& device, void* buffer,
+	Texture(const vlk::Device& device, void* buffer,
 					 vk::DeviceSize bufferSize, vk::Format format,
 					 uint32_t texWidth, uint32_t texHeight,
 					 const vk::Sampler sampler,

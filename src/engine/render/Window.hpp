@@ -33,7 +33,7 @@ public:
 	void hide();
 	void show();
 	uint32_t getWindowId() const;
-	std::vector<const char*> Window::getRequiredVkExtensions() const;
+
 
 	/* Platform/OS specific */
 	void* getPlatformHandle() const;
@@ -44,6 +44,7 @@ public:
 	createVkSurface(vk::Instance vkInstance) const;
 	bool createVkSurface(vk::Instance vkInstance,
 						 vk::SurfaceKHR& surfaceCreated) const;
+	std::vector<const char*> getRequiredVkExtensions() const;
 
 private:
 	struct SDL_Window* sdlWindow_;
