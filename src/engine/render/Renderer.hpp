@@ -45,10 +45,8 @@ private:
 	vk::UniqueInstance createVulkanInstance(const char* appName,
 											const Window& window) const;
 	vk::DebugUtilsMessengerEXT
-	Renderer::setupDebugMessenger(vk::Instance instance,
-								  bool enableValidationLayers) const;
-
-	vk::UniqueDescriptorPool createDescriptorPool(vk::Device device) const;
+	setupDebugMessenger(vk::Instance instance,
+						bool enableValidationLayers) const;
 };
 
 } // namespace render

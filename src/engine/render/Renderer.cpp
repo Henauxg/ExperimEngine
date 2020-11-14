@@ -22,9 +22,9 @@ Renderer::Renderer(const char* appName, std::shared_ptr<Window> window,
 
 	vlkDevice_ = std::make_unique<vlk::Device>(*vkInstance_, logger_);
 
-	/* TODO Send render pass attachments/subpasses */
 	mainRenderingContext_ = std::make_shared<RenderingContext>(
-		*vkInstance_, *vlkDevice_, window);
+		*vkInstance_, *vlkDevice_, window,
+		AttachmentsFlagBits::eColorAttachment);
 
 	imguiBackend_ = std::make_unique<ImguiBackend>(
 		*vlkDevice_, mainRenderingContext_, window);

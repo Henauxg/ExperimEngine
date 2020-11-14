@@ -32,7 +32,7 @@ namespace render {
 /** Custom back-end inspired by imgui_impl_vulkan. */
 class RendererBackendVulkan {
 public:
-	RendererBackendVulkan::RendererBackendVulkan(
+	RendererBackendVulkan(
 		std::shared_ptr<ImguiContext> context,
 		const vlk::Device& vlkDevice,
 		std::shared_ptr<RenderingContext> mainRenderingContext);

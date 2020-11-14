@@ -47,16 +47,16 @@ Swapchain::Swapchain(const vlk::Device& device, vk::SurfaceKHR& surface,
 	/* Select the best Surface Format available */
 	/* Simply request SURFACE_FORMATS_PRIORITY_LIST[0] as the preferred one
 	 * for now */
-	vk::SurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(
+	surfaceFormat_ = chooseSwapSurfaceFormat(
 		SURFACE_FORMATS_PRIORITY_LIST[0], swapchainSupport.formats,
 		SURFACE_FORMATS_PRIORITY_LIST);
 	/* Select the best Present Mode available */
 	/* Request mailbox for now but should enable Vsync toggle */
-	vk::PresentModeKHR presentMode = chooseSwapPresentMode(
-		vk::PresentModeKHR::eMailbox, swapchainSupport.presentModes,
-		PRESENT_MODE_PRIORITY_LIST);
+	presentMode_ = chooseSwapPresentMode(vk::PresentModeKHR::eMailbox,
+										 swapchainSupport.presentModes,
+										 PRESENT_MODE_PRIORITY_LIST);
 	/* Select the Swap Extent */
-	vk::Extent2D imageExtent = chooseSwapExtent(
+	imageExtent_ = chooseSwapExtent(
 		requestedExtent, swapchainSupport.capabilities.currentExtent,
 		swapchainSupport.capabilities.minImageExtent,
 		swapchainSupport.capabilities.maxImageExtent);
@@ -94,9 +94,9 @@ Swapchain::Swapchain(const vlk::Device& device, vk::SurfaceKHR& surface,
 	vk::SwapchainCreateInfoKHR createInfo {
 		.surface = surface,
 		.minImageCount = requestedMinImageCount,
-		.imageFormat = surfaceFormat.format,
-		.imageColorSpace = surfaceFormat.colorSpace,
-		.imageExtent = imageExtent,
+		.imageFormat = surfaceFormat_.format,
+		.imageColorSpace = surfaceFormat_.colorSpace,
+		.imageExtent = imageExtent_,
 		.imageArrayLayers = 1,
 		/* Render directly, no post-processsing */
 		.imageUsage = vk::ImageUsageFlagBits::eColorAttachment,
@@ -106,7 +106,7 @@ Swapchain::Swapchain(const vlk::Device& device, vk::SurfaceKHR& surface,
 		/* No transformation */
 		.preTransform = swapchainSupport.capabilities.currentTransform,
 		.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque,
-		.presentMode = presentMode,
+		.presentMode = presentMode_,
 		.clipped = VK_TRUE,
 		/* TODO memorize old swapchain */
 		/* .oldSwapchain */

@@ -15,12 +15,20 @@ public:
 			  vk::Extent2D requestedExtent);
 	~Swapchain();
 
+	inline const vk::SurfaceFormatKHR& getSurfaceFormat() const
+	{
+		return surfaceFormat_;
+	}
+
 private:
 	/* References */
 	const vlk::Device& device_;
 	const vk::SurfaceKHR& surface_;
 
 	vk::UniqueSwapchainKHR swapchain_;
+	vk::SurfaceFormatKHR surfaceFormat_;
+	vk::PresentModeKHR presentMode_;
+	vk::Extent2D imageExtent_;
 
 	/* Logging */
 	std::shared_ptr<spdlog::logger> logger_;

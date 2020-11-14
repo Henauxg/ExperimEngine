@@ -195,9 +195,9 @@ static void ImGui_ImplExpengine_CreateWindow(ImGuiViewport* viewport)
 	EXPENGINE_ASSERT(gVlkDevice != nullptr, "Error, null gVlkDevice");
 
 	/* Create a RenderingContext. Surface creation is handled by the RC. */
-	/* TODO Create Render pass attachments here and send to the RC */
 	auto renderingContext = std::make_shared<RenderingContext>(
-		gVlkDevice->instanceHandle(), *gVlkDevice, platformData->window_);
+		gVlkDevice->instanceHandle(), *gVlkDevice, platformData->window_,
+		AttachmentsFlagBits::eColorAttachment);
 
 	/* Allocate RendererUserData */
 	auto data = new ImGuiViewportRendererData(renderingContext);

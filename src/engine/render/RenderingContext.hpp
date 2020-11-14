@@ -6,10 +6,18 @@
 #include <engine/render/Window.hpp>
 #include <engine/render/vlk/VlkDevice.hpp>
 #include <engine/render/vlk/VlkSwapchain.hpp>
+#include <engine/utils/Flags.hpp>
 
 namespace expengine {
 namespace render {
 
+enum class AttachmentsFlagBits : uint32_t {
+	eColorAttachment = 1,
+	eDepthAttachments = 1 << 1
+};
+using AttachmentsFlags = Flags<AttachmentsFlagBits>;
+
+/**/
 struct FrameObjects {
 	vk::CommandPool commandPool_;
 	vk::CommandBuffer commandBuffer_;
@@ -25,7 +33,8 @@ class RenderingContext {
 public:
 	RenderingContext(const vk::Instance vkInstance,
 					 const vlk::Device& device,
-					 std::shared_ptr<Window> window);
+					 std::shared_ptr<Window> window,
+					 AttachmentsFlags attachmentFlags);
 	~RenderingContext();
 
 	/* Accessors */
@@ -48,6 +57,7 @@ private:
 	std::shared_ptr<const Window> window_;
 	vk::UniqueSurfaceKHR windowSurface_;
 	std::unique_ptr<vlk::Swapchain> vlkSwapchain_;
+	vk::UniqueRenderPass renderPass_;
 
 	/* Frames */
 	uint32_t currentFrameIndex_;
@@ -55,6 +65,11 @@ private:
 
 	/* Logging */
 	std::shared_ptr<spdlog::logger> logger_;
+
+	vk::UniqueRenderPass
+	createRenderPass(const vlk::Device& device,
+					 const vlk::Swapchain& swapchain,
+					 AttachmentsFlags attachmentsFlags);
 };
 
 } // namespace render
