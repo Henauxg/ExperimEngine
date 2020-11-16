@@ -17,17 +17,7 @@ enum class AttachmentsFlagBits : uint32_t {
 };
 using AttachmentsFlags = Flags<AttachmentsFlagBits>;
 
-/**/
-struct FrameObjects {
-	vk::CommandPool commandPool_;
-	vk::CommandBuffer commandBuffer_;
-	vk::Fence fence_;
-	vk::Image backbuffer_;
-	vk::ImageView backbufferView_;
-	vk::Framebuffer framebuffer_;
-	vk::Semaphore imageAcquiredSemaphore_;
-	vk::Semaphore renderCompleteSemaphore_;
-};
+struct FrameObjects;
 
 class RenderingContext {
 public:
@@ -51,6 +41,17 @@ public:
 	};
 
 private:
+	struct FrameObjects {
+		vk::UniqueCommandPool commandPool_;
+		vk::UniqueCommandBuffer commandBuffer_;
+		vk::UniqueFence fence_;
+		// vk::Image image_;
+		vk::UniqueImageView imageView_;
+		vk::UniqueFramebuffer framebuffer_;
+		vk::UniqueSemaphore imageAcquiredSemaphore_;
+		vk::UniqueSemaphore renderCompleteSemaphore_;
+	};
+
 	const vlk::Device& device_;
 
 	/* Owned objects */

@@ -30,7 +30,7 @@ RenderingContext::RenderingContext(const vk::Instance vkInstance,
 	 * Create Graphics pipeline (using layout + shaders)
 	 * Create Sync objects + Command pools & Command buffers */
 
-	/* Create SwapChain */
+	/* Create SwapChain with images */
 	auto [w, h] = window_->getDrawableSizeInPixels();
 	vlkSwapchain_ = std::make_unique<vlk::Swapchain>(
 		device, surface, vk::Extent2D { w, h });
@@ -39,14 +39,62 @@ RenderingContext::RenderingContext(const vk::Instance vkInstance,
 	renderPass_
 		= createRenderPass(device, *vlkSwapchain_, attachmentsFlags);
 
-	/* TODO Create Image views */
+	/* Create frame objects : Image views */
+	frames_.clear();
 
-	/* TODO Create Framebuffers */
+	vk::ImageViewCreateInfo imageViewInfo
+		= { .viewType = vk::ImageViewType::e2D,
+			.format = vlkSwapchain_->getSurfaceFormat().format,
+			.components = { .r = vk::ComponentSwizzle::eR,
+							.g = vk::ComponentSwizzle::eG,
+							.b = vk::ComponentSwizzle::eB,
+							.a = vk::ComponentSwizzle::eA },
+			.subresourceRange
+			= { vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 } };
+	for (const auto& image : vlkSwapchain_->getImages())
+	{
+		imageViewInfo.image = image;
+
+		auto [result, imageView]
+			= device_.deviceHandle().createImageViewUnique(imageViewInfo);
+		EXPENGINE_VK_ASSERT(result, "Failed to retrieve swapchain images");
+
+		FrameObjects frame;
+		frame.imageView_ = std::move(imageView);
+		frames_.push_back(std::move(frame));
+	}
+
+	/* Create frame objects : Framebuffers */
+	vk::FramebufferCreateInfo framebufferInfo
+		= { .renderPass = *renderPass_, .layers = 1 };
+
+	std::array<vk::ImageView, 2> attachments;
+	if (attachmentsFlags & AttachmentsFlagBits::eColorAttachment)
+		framebufferInfo.attachmentCount++;
+	if (attachmentsFlags & AttachmentsFlagBits::eDepthAttachments)
+	{
+		/* TODO attachments[framebufferInfo.attachmentCount] =
+		 * depthimageView; */
+		framebufferInfo.attachmentCount++;
+	}
+
+	for (auto& frame : frames_)
+	{
+		if (attachmentsFlags & AttachmentsFlagBits::eColorAttachment)
+			attachments[0] = frame.imageView_.get();
+
+		auto [result, framebuffer]
+			= device_.deviceHandle().createFramebufferUnique(
+				framebufferInfo);
+		EXPENGINE_VK_ASSERT(result, "Failed to create framebuffers");
+
+		frame.framebuffer_ = std::move(framebuffer);
+	}
 
 	/* TODO Create Graphics pipeline  */
 
 	/* TODO Create Sync objects + Command pools & Command buffers */
-} // namespace render
+}
 
 RenderingContext::~RenderingContext()
 {

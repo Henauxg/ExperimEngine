@@ -19,6 +19,14 @@ public:
 	{
 		return surfaceFormat_;
 	}
+	inline const uint32_t getImageCount() const
+	{
+		return static_cast<uint32_t>(images_.size());
+	}
+	inline const std::vector<vk::Image>& getImages() const
+	{
+		return images_;
+	}
 
 private:
 	/* References */
@@ -29,6 +37,8 @@ private:
 	vk::SurfaceFormatKHR surfaceFormat_;
 	vk::PresentModeKHR presentMode_;
 	vk::Extent2D imageExtent_;
+
+	std::vector<vk::Image> images_;
 
 	/* Logging */
 	std::shared_ptr<spdlog::logger> logger_;
@@ -48,6 +58,7 @@ private:
 								  vk::Extent2D minImageExten,
 								  vk::Extent2D maxImageExtent) const;
 };
+
 } // namespace vlk
 } // namespace render
 } // namespace expengine
