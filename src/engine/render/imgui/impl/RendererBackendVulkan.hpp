@@ -46,11 +46,13 @@ private:
 
 	std::unique_ptr<vlk::Texture> fontTexture_;
 	vk::UniqueDescriptorSetLayout descriptorSetLayout_;
-	/* Not unique since the pool owns it
+	/* Descriptor set is not unique since the pool owns it
 	 * (VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT not used)  */
 	vk::DescriptorSet descriptorSet_;
 	vk::UniquePipelineLayout pipelineLayout_;
 	vk::UniqueSampler fontSampler_;
+	vk::UniqueShaderModule vertShader_;
+	vk::UniqueShaderModule fragShader_;
 
 	/* Logging */
 	std::shared_ptr<spdlog::logger> logger_;
