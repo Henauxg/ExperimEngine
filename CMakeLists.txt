@@ -30,18 +30,22 @@ add_subdirectory(src/engine/render/vlk/resources)
 add_subdirectory(src/engine/utils)
 add_subdirectory(src/test)
 
-set(LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
+# Add exeternal CMake build files :
+# Shaderc
+# add_subdirectory(external/shaderc)
 
 # Find installed Vulkan lib. Available in CMake 3.7 and later
 find_package(Vulkan REQUIRED)
 
 # Libraries.
 # TODO : x64/x86 flags
+set(LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
 target_link_libraries(ExperimEngine PUBLIC 
 	${LIBS_DIR}/lua/lua51.lib
 	${LIBS_DIR}/SDL2/x64/SDL2.lib
 	${LIBS_DIR}/SDL2/x64/SDL2main.lib
 	${Vulkan_LIBRARIES}
+#	shaderc
 )
 
 # Includes : ${PROJECT_BINARY_DIR} for CMake generated headers
