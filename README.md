@@ -30,9 +30,28 @@ Scripting in C# would have been great but the main problem was to obtain a clean
 
 ## Cross-platform support
 
-Libraries and languages are chosen with _cross-platform_ as a focus point. As of today, there should be no problem in targeting platforms such as Windows, Linux, MacOs, Android and more.
+### Native support :
+
+Libraries and languages are chosen with _cross-platform_ as a focus point. As of today, there should be no major concern in targeting platforms such as Windows, Linux, MacOs, Android and more.
 
 Right now, the build system is focused on Windows 64 bits only for practical reasons (read laziness, the current development environment is Wx64).
+
+### Web support :
+
+Idealy, an ExperimEngine app should be able to run on a web-browser.
+
+**Current state** : Investigating technologies
+
+Technologies being considered :
++ [Emscripten](https://github.com/emscripten-core/emscripten) to compile C++ to [WebAssembly](https://webassembly.org/).
+  + Emscriptem also provides support for the SLD2 API (already used as an OS abstraction in ExperimEngine).
+  + If OpenGL was a rendering target, Emscriptem could also be used to automatically convert it to WebGL.
++ [WebGPU](https://github.com/gpuweb/gpuweb), a modern API for GPU rendering on the web. It is pretty similar to (and relies on) APIs such as Metal, Vulkan and DirectX12, although a bit higher level, and with web safety in mind.
+  + As of today (06/12/2020) WebGPU is still in a really early stage and only available in experimentals features of some web-browsers, which does not seem like an issue :  by the time I would be able to develop a back-end for it, it could be stabilized/mature enough.
+  + Supporting WebGPU and Vulkan would mean implementing/supporting **2** rendering backends in ExperimEngine.
+  As far as I understand, since WebGPU has Metal/Vulkan/DX12 implementations, it's in theory more portable than Vulkan. So I could get away with just a WebGPU backend and target pretty much the same platforms as Vulkan+WebGPU.
+  See projects like [wgpu-rs](https://github.com/gfx-rs/wgpu-rs) (see also : [wgpu](https://github.com/gfx-rs/wgpu) & [gfx-rs](https://github.com/gfx-rs/wgpu)) for Rust or [Dawn](https://dawn.googlesource.com/dawn) in C++.
+  I intend to keep working on a separate Native Vulkan renderer for now. This may prove too heavy but I hope that WebGPU relying on Vulkan means that both backends would share a lot in term of workflow with WebGPU being the simplest.
 
 ## Dependencies/Libraries
 
@@ -48,13 +67,13 @@ Some of the dependencies may become git submodule.
 + [Vulkan](https://www.khronos.org/vulkan/) 1.2.148.1
 + [Vulkan-Hpp](https://github.com/KhronosGroup/Vulkan-Hpp) (now included in Vulkan SDK)
 + [spdlog](https://github.com/gabime/spdlog) (V1.8.0)
-+ [Dear ImGui](https://github.com/ocornut/imgui) (Docking branch, 770c99536533923d2cf07fc5004c752ef2c63f5c)
++ [Dear ImGui](https://github.com/ocornut/imgui) (Docking branch, ac08593b9645aee7e086b1e9b98a6a1d79d09210)
 
 ### May be used in the future :
 + [Vulkan Memory Allocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator)
 + [Bullet Physics](https://github.com/bulletphysics/bullet3)
 + [Doxygen](http://www.doxygen.nl/)
-+ ENet, RakNet
++ ENet, RakNet, [GameNetworkingSockets (Valve)](https://github.com/ValveSoftware/GameNetworkingSockets)
 
 ## Tooling
 
