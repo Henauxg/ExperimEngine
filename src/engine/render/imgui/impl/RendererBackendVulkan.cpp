@@ -222,21 +222,6 @@ RendererBackendVulkan::RendererBackendVulkan(
 						"Failed to create descriptor set");
 	descriptorSet_ = descriptorResult.value.front();
 
-	/* Pipeline layout */
-	vk::PushConstantRange pushConstants[1]
-		= { { .stageFlags = vk::ShaderStageFlagBits::eVertex,
-			  .offset = 0,
-			  .size = sizeof(float) * 4 } };
-	auto pipelineLayoutResult
-		= vlkDevice.deviceHandle().createPipelineLayoutUnique(
-			{ .setLayoutCount = 1,
-			  .pSetLayouts = &descriptorSetLayout_.get(),
-			  .pushConstantRangeCount = 1,
-			  .pPushConstantRanges = pushConstants });
-	EXPENGINE_VK_ASSERT(pipelineLayoutResult.result,
-						"Failed to create pipeline layout");
-	pipelineLayout_ = std::move(pipelineLayoutResult.value);
-
 	/* Create ImGui shaders modules */
 	auto vertShaderResult
 		= vlkDevice.deviceHandle().createShaderModuleUnique(
@@ -253,6 +238,110 @@ RendererBackendVulkan::RendererBackendVulkan(
 	EXPENGINE_VK_ASSERT(fragShaderResult.result,
 						"Failed to create the ImGui fragment shader");
 	fragShader_ = std::move(fragShaderResult.value);
+
+	/* Shader stages */
+	shaderStages_[0] = vk::PipelineShaderStageCreateInfo {
+		.stage = vk::ShaderStageFlagBits::eVertex,
+		.module = *vertShader_,
+		.pName = "main"
+	};
+	shaderStages_[1] = vk::PipelineShaderStageCreateInfo {
+		.stage = vk::ShaderStageFlagBits::eFragment,
+		.module = *fragShader_,
+		.pName = "main"
+	};
+
+	/* Pipeline layout */
+	vk::PushConstantRange pushConstants[1]
+		= { { .stageFlags = vk::ShaderStageFlagBits::eVertex,
+			  .offset = 0,
+			  .size = sizeof(float) * 4 } };
+	auto pipelineLayoutResult
+		= vlkDevice.deviceHandle().createPipelineLayoutUnique(
+			{ .setLayoutCount = 1,
+			  .pSetLayouts = &descriptorSetLayout_.get(),
+			  .pushConstantRangeCount = 1,
+			  .pPushConstantRanges = pushConstants });
+	EXPENGINE_VK_ASSERT(pipelineLayoutResult.result,
+						"Failed to create pipeline layout");
+	pipelineLayout_ = std::move(pipelineLayoutResult.value);
+
+	/* Create ImGui Graphics pipeline info  */
+	vertBindingDesc_ = { .stride = sizeof(ImDrawVert),
+						 .inputRate = vk::VertexInputRate::eVertex };
+
+	vertAttributesDesc_[0] = { .location = 0,
+							   .binding = vertBindingDesc_.binding,
+							   .format = vk::Format::eR32G32Sfloat,
+							   .offset = IM_OFFSETOF(ImDrawVert, pos) };
+	vertAttributesDesc_[1] = { .location = 0,
+							   .binding = vertBindingDesc_.binding,
+							   .format = vk::Format::eR32G32Sfloat,
+							   .offset = IM_OFFSETOF(ImDrawVert, uv) };
+	vertAttributesDesc_[2] = { .location = 0,
+							   .binding = vertBindingDesc_.binding,
+							   .format = vk::Format::eR32G32Sfloat,
+							   .offset = IM_OFFSETOF(ImDrawVert, col) };
+
+	vertexInfo_
+		= { .vertexBindingDescriptionCount = 1,
+			.pVertexBindingDescriptions = &vertBindingDesc_,
+			.vertexAttributeDescriptionCount
+			= static_cast<uint32_t>(vertAttributesDesc_.size()),
+			.pVertexAttributeDescriptions = vertAttributesDesc_.data() };
+
+	inputAssemblyInfo_
+		= { .topology = vk::PrimitiveTopology::eTriangleList };
+
+	viewportInfo_
+		= vk::PipelineViewportStateCreateInfo { .viewportCount = 1,
+												.scissorCount = 1 };
+
+	rasterizationInfo_ = { .polygonMode = vk::PolygonMode::eFill,
+						   .cullMode = vk::CullModeFlagBits::eNone,
+						   .frontFace = vk::FrontFace::eCounterClockwise,
+						   .lineWidth = 1.0f };
+
+	/* TODO ImGui Multisampling ? */
+	multisamplingInfo_
+		= { .rasterizationSamples = vk::SampleCountFlagBits::e1 };
+
+	colorAttachment_
+		= { .blendEnable = VK_TRUE,
+			.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha,
+			.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha,
+			.colorBlendOp = vk::BlendOp::eAdd,
+			.srcAlphaBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha,
+			.dstAlphaBlendFactor = vk::BlendFactor::eZero,
+			.alphaBlendOp = vk::BlendOp::eAdd,
+			.colorWriteMask = vk::ColorComponentFlagBits::eR
+				| vk::ColorComponentFlagBits::eG
+				| vk::ColorComponentFlagBits::eB
+				| vk::ColorComponentFlagBits::eA };
+
+	depthInfo_ = vk::PipelineDepthStencilStateCreateInfo {};
+
+	blendInfo_
+		= { .attachmentCount = 1, .pAttachments = &colorAttachment_ };
+
+	dynStates_
+		= { vk::DynamicState::eViewport, vk::DynamicState::eScissor };
+	dynamicState_
+		= { .dynamicStateCount = static_cast<uint32_t>(dynStates_.size()),
+			.pDynamicStates = dynStates_.data() };
+
+	graphicsPipelineInfo_
+		= { .stageCount = static_cast<uint32_t>(shaderStages_.size()),
+			.pStages = shaderStages_.data(),
+			.pVertexInputState = &vertexInfo_,
+			.pInputAssemblyState = &inputAssemblyInfo_,
+			.pViewportState = &viewportInfo_,
+			.pRasterizationState = &rasterizationInfo_,
+			.pMultisampleState = &multisamplingInfo_,
+			.pDepthStencilState = &depthInfo_,
+			.pColorBlendState = &blendInfo_,
+			.pDynamicState = &dynamicState_,
+			.layout = pipelineLayout_.get() };
 
 	/* ------------------------------------------- */
 	/* Rendering bindings                          */
@@ -275,8 +364,9 @@ RendererBackendVulkan::RendererBackendVulkan(
 		// platform_io.Renderer_SetWindowSize =
 		// ImGui_ImplVulkan_SetWindowSize;
 		// platform_io.Renderer_RenderWindow =
-		// ImGui_ImplVulkan_RenderWindow; platform_io.Renderer_SwapBuffers
-		// = ImGui_ImplVulkan_SwapBuffers;
+		// ImGui_ImplVulkan_RenderWindow;
+		// platform_io.Renderer_SwapBuffers =
+		// ImGui_ImplVulkan_SwapBuffers;
 	}
 
 	/* Setup main viewport RendererUserData */
@@ -330,10 +420,12 @@ static void ImGui_ImplExpengine_CreateWindow(ImGuiViewport* viewport)
 	EXPENGINE_ASSERT(platformData != nullptr,
 					 "Error, null PlatformUserData");
 
-	/* Get instance and device from module RendererBackendVulkan global */
+	/* Get instance and device from module RendererBackendVulkan global
+	 */
 	EXPENGINE_ASSERT(gVlkDevice != nullptr, "Error, null gVlkDevice");
 
-	/* Create a RenderingContext. Surface creation is handled by the RC. */
+	/* Create a RenderingContext. Surface creation is handled by the
+	 * RC. */
 	auto renderingContext = std::make_shared<RenderingContext>(
 		gVlkDevice->instanceHandle(), *gVlkDevice, platformData->window_,
 		AttachmentsFlagBits::eColorAttachment);
