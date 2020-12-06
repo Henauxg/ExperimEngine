@@ -28,6 +28,7 @@ Renderer::Renderer(const char* appName, std::shared_ptr<Window> window,
 
 	imguiBackend_ = std::make_unique<ImguiBackend>(
 		*vlkDevice_, mainRenderingContext_, window);
+
 }
 
 Renderer::~Renderer()

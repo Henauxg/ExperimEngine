@@ -15,6 +15,10 @@ public:
 			  vk::Extent2D requestedExtent);
 	~Swapchain();
 
+	inline const vk::Extent2D& getImageExtent() const
+	{
+		return imageExtent_;
+	}
 	inline const vk::SurfaceFormatKHR& getSurfaceFormat() const
 	{
 		return surfaceFormat_;

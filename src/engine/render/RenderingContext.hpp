@@ -45,7 +45,6 @@ private:
 		vk::UniqueCommandPool commandPool_;
 		vk::UniqueCommandBuffer commandBuffer_;
 		vk::UniqueFence fence_;
-		// vk::Image image_;
 		vk::UniqueImageView imageView_;
 		vk::UniqueFramebuffer framebuffer_;
 		vk::UniqueSemaphore imageAcquiredSemaphore_;
@@ -67,6 +66,10 @@ private:
 	/* Logging */
 	std::shared_ptr<spdlog::logger> logger_;
 
+	void createFrameObjects(std::vector<FrameObjects>& frames,
+							const vlk::Swapchain& swapchain,
+							vk::RenderPass& renderPass,
+							AttachmentsFlags attachmentsFlags);
 	vk::UniqueRenderPass
 	createRenderPass(const vlk::Device& device,
 					 const vlk::Swapchain& swapchain,

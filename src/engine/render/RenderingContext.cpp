@@ -6,6 +6,19 @@
 namespace expengine {
 namespace render {
 
+/* Per RenderingContext :*/
+/* -> SwapChain */
+/* -> Render pass */
+/* -> 2x Graphics pipeline (1x for ImGui, 1x for the application rendering)
+ */
+/* -> Per Image (image count Backbuffers) */
+/* --> Command pool */
+/* --> Command buffer */
+/* --> Fence */
+/* --> Semaphores (x2) */
+/* --> Image view  (BackbufferView)*/
+/* --> Framebuffer */
+
 RenderingContext::RenderingContext(const vk::Instance vkInstance,
 								   const vlk::Device& device,
 								   std::shared_ptr<Window> window,
@@ -25,9 +38,9 @@ RenderingContext::RenderingContext(const vk::Instance vkInstance,
 	 * Create SwapChain
 	 * [resize-only] Destroy old SwapChain
 	 * Create Render pass
+	 * Create Graphics pipeline (using layout + shaders)
 	 * Create Image views
 	 * Create Framebuffers
-	 * Create Graphics pipeline (using layout + shaders)
 	 * Create Sync objects + Command pools & Command buffers */
 
 	/* Create SwapChain with images */
@@ -39,36 +52,52 @@ RenderingContext::RenderingContext(const vk::Instance vkInstance,
 	renderPass_
 		= createRenderPass(device, *vlkSwapchain_, attachmentsFlags);
 
-	/* Create frame objects : Image views */
-	frames_.clear();
+	/* TODO Create Graphics pipeline(s)  */
 
+	// enginePipeline_ = createGraphicsPipeline();
+	// uiPipeline_
+
+	/* Create frame objects : Image views, Framebuffers, Command pools,
+	 * Command buffers and Sync objects */
+	createFrameObjects(frames_, *vlkSwapchain_, *renderPass_,
+					   attachmentsFlags);
+}
+
+RenderingContext::~RenderingContext()
+{
+	SPDLOG_LOGGER_DEBUG(logger_, "RenderingContext destruction");
+}
+
+void RenderingContext::createFrameObjects(
+	std::vector<FrameObjects>& frames, const vlk::Swapchain& swapchain,
+	vk::RenderPass& renderPass, AttachmentsFlags attachmentsFlags)
+{
+	/* Destroy the previous frame objects */
+	frames.clear();
+
+	/* Configuration shared by all the frames */
+
+	/* Image view */
 	vk::ImageViewCreateInfo imageViewInfo
 		= { .viewType = vk::ImageViewType::e2D,
-			.format = vlkSwapchain_->getSurfaceFormat().format,
+			.format = swapchain.getSurfaceFormat().format,
 			.components = { .r = vk::ComponentSwizzle::eR,
 							.g = vk::ComponentSwizzle::eG,
 							.b = vk::ComponentSwizzle::eB,
 							.a = vk::ComponentSwizzle::eA },
 			.subresourceRange
 			= { vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 } };
-	for (const auto& image : vlkSwapchain_->getImages())
-	{
-		imageViewInfo.image = image;
 
-		auto [result, imageView]
-			= device_.deviceHandle().createImageViewUnique(imageViewInfo);
-		EXPENGINE_VK_ASSERT(result, "Failed to retrieve swapchain images");
-
-		FrameObjects frame;
-		frame.imageView_ = std::move(imageView);
-		frames_.push_back(std::move(frame));
-	}
-
-	/* Create frame objects : Framebuffers */
-	vk::FramebufferCreateInfo framebufferInfo
-		= { .renderPass = *renderPass_, .layers = 1 };
-
+	/* Framebuffer */
+	auto imageExtent = swapchain.getImageExtent();
 	std::array<vk::ImageView, 2> attachments;
+	vk::FramebufferCreateInfo framebufferInfo
+		= { .renderPass = renderPass,
+			.pAttachments = attachments.data(),
+			.width = imageExtent.width,
+			.height = imageExtent.height,
+			.layers = 1 };
+
 	if (attachmentsFlags & AttachmentsFlagBits::eColorAttachment)
 		framebufferInfo.attachmentCount++;
 	if (attachmentsFlags & AttachmentsFlagBits::eDepthAttachments)
@@ -78,27 +107,44 @@ RenderingContext::RenderingContext(const vk::Instance vkInstance,
 		framebufferInfo.attachmentCount++;
 	}
 
-	for (auto& frame : frames_)
+	/* Create 1 frame object for each swapchain image */
+	for (const auto& image : swapchain.getImages())
 	{
-		if (attachmentsFlags & AttachmentsFlagBits::eColorAttachment)
-			attachments[0] = frame.imageView_.get();
+		/* Create the image view */
+		imageViewInfo.image = image;
 
-		auto [result, framebuffer]
+		auto [imageViewResult, imageView]
+			= device_.deviceHandle().createImageViewUnique(imageViewInfo);
+		EXPENGINE_VK_ASSERT(imageViewResult,
+							"Failed to create an image view");
+
+		/* Create the framebuffer */
+		if (attachmentsFlags & AttachmentsFlagBits::eColorAttachment)
+			attachments[0] = imageView.get();
+
+		auto [framebufferResult, framebuffer]
 			= device_.deviceHandle().createFramebufferUnique(
 				framebufferInfo);
-		EXPENGINE_VK_ASSERT(result, "Failed to create framebuffers");
+		EXPENGINE_VK_ASSERT(framebufferResult,
+							"Failed to create a framebuffer");
 
+		/* Create the command pool */
+		auto [cmdPoolResult, commandPool]
+			= device_.deviceHandle().createCommandPoolUnique(
+				{ .flags
+				  = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+				  .queueFamilyIndex
+				  = device_.queueIndices().graphicsFamily.value() });
+		EXPENGINE_VK_ASSERT(framebufferResult,
+							"Failed to create a command pool");
+
+		/* Create the frame object */
+		FrameObjects frame;
+		frame.imageView_ = std::move(imageView);
 		frame.framebuffer_ = std::move(framebuffer);
+		frame.commandPool_ = std::move(commandPool);
+		frames_.push_back(std::move(frame));
 	}
-
-	/* TODO Create Graphics pipeline  */
-
-	/* TODO Create Sync objects + Command pools & Command buffers */
-}
-
-RenderingContext::~RenderingContext()
-{
-	SPDLOG_LOGGER_DEBUG(logger_, "RenderingContext destruction");
 }
 
 vk::UniqueRenderPass
