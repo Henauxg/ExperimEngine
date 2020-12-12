@@ -57,7 +57,7 @@ The C#/.NET ecosystem seems to be rapidly evolving with interop being taken into
 Pros:
 + I enjoy coding with C#
 + Good tooling & ecosystem, huge user-base
-+ The C#/.NET ecosystem went open-source and seems to be rapidly evolving with interop being taken into account :
++ The C#/.NET ecosystem went open-source and seems to be rapidly evolving with interop being taken into account:
   + [Improvements in native code interop in .NET 5.0](https://devblogs.microsoft.com/dotnet/improvements-in-native-code-interop-in-net-5-0/)
 
 Cons :
@@ -106,9 +106,12 @@ Technologies being considered :
   + As of today (06/12/2020) WebGPU is still in a really early stage and only available in experimentals features of some web-browsers, which does not seem like an issue :  by the time I would be able to develop a back-end for it, it could be stabilized/mature enough.
   + Supporting WebGPU and Vulkan would mean implementing/supporting **2** rendering backends in ExperimEngine (*)
  
-  (*) About supporting 2 backends :
+(*) About supporting 2 backends :
+
 As far as I understand, since WebGPU has Metal/Vulkan/DX12 implementations, it's in theory more portable than Vulkan. So I could get away with just a WebGPU backend and target pretty much the same platforms as Vulkan+WebGPU.
+
 See projects like [wgpu-rs](https://github.com/gfx-rs/wgpu-rs) (see also : [wgpu](https://github.com/gfx-rs/wgpu) & [gfx-rs](https://github.com/gfx-rs/wgpu)) for Rust or [Dawn](https://dawn.googlesource.com/dawn) in C++.
+
 I intend to keep working on a separate Native Vulkan renderer for now. This may prove too heavy but I hope that WebGPU relying on Vulkan means that both backends would share a lot in term of workflow with WebGPU being the simplest.
 
 ## Dependencies/Libraries
