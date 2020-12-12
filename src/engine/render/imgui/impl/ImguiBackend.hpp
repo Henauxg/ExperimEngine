@@ -2,19 +2,20 @@
 
 #include <memory>
 
-#include <engine/render/imgui/impl/ImguiContext.hpp>
-#include <engine/render/imgui/impl/PlatformBackendSDL.hpp>
-#include <engine/render/imgui/impl/RendererBackendVulkan.hpp>
+#include <engine/render/imgui/impl/ImGuiContextWrapper.hpp>
+#include <engine/render/imgui/impl/UIPlatformBackendSDL.hpp>
+#include <engine/render/imgui/impl/UIRendererBackendVulkan.hpp>
 #include <engine/render/imgui/lib/imgui.h>
 
 namespace expengine {
 namespace render {
 
+class RenderingContext;
+
 /** Custom back-end */
 class ImguiBackend {
 public:
 	ImguiBackend(const vlk::Device& vlkDevice,
-				 std::shared_ptr<RenderingContext> mainRenderingContext,
 				 std::shared_ptr<Window> window);
 	~ImguiBackend();
 
@@ -23,16 +24,28 @@ public:
 	{
 		return platformBackend_->handleEvent(event);
 	};
+	/* TODO Multi-Rendering-Backends : May need to make this an interface
+	 */
+	inline const UIRendererBackendVulkan& getRenderingBackend() const
+	{
+		return *renderingBackend_;
+	};
+
+	inline void bindMainRenderingContext(
+		std::shared_ptr<RenderingContext> mainRenderingContext)
+	{
+		renderingBackend_->bindMainRenderingContext(mainRenderingContext);
+	}
 
 private:
 	/* ImGui */
-	std::shared_ptr<ImguiContext> context_;
+	std::shared_ptr<ImGuiContextWrapper> context_;
 	ImFont* fontRegular_;
 
 	/* Platform */
-	std::unique_ptr<PlatformBackendSDL> platformBackend_;
+	std::unique_ptr<UIPlatformBackendSDL> platformBackend_;
 	/* Rendering */
-	std::unique_ptr<RendererBackendVulkan> renderingBackend_;
+	std::unique_ptr<UIRendererBackendVulkan> renderingBackend_;
 
 	/* Logging */
 	std::shared_ptr<spdlog::logger> logger_;

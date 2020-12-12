@@ -1,14 +1,15 @@
 #pragma once
 
-#include <engine/render/RenderingContext.hpp>
 #include <engine/render/Window.hpp>
-#include <engine/render/imgui/impl/ImguiContext.hpp>
+#include <engine/render/imgui/impl/ImGuiContextWrapper.hpp>
 #include <engine/render/imgui/lib/imgui.h>
 #include <engine/render/vlk/VlkDevice.hpp>
 #include <engine/render/vlk/resources/VlkTexture.hpp>
 
 namespace expengine {
 namespace render {
+
+class RenderingContext;
 
 /* Shared device objects at backend level : */
 /* -> Font Texture (Image + ImageView + Memory) */
@@ -19,19 +20,25 @@ namespace render {
 /* -> Shader modules and stage info */
 
 /** Custom back-end inspired by imgui_impl_vulkan. */
-class RendererBackendVulkan {
+class UIRendererBackendVulkan {
 public:
-	RendererBackendVulkan(
-		std::shared_ptr<ImguiContext> context,
-		const vlk::Device& vlkDevice,
-		std::shared_ptr<RenderingContext> mainRenderingContext);
-	~RendererBackendVulkan();
+	UIRendererBackendVulkan(std::shared_ptr<ImGuiContextWrapper> context,
+							const vlk::Device& vlkDevice);
+	~UIRendererBackendVulkan();
 
 	void uploadFonts(const vlk::Device& vlkDevice);
+	/* This function should be called after the constructor and before
+	 * rendering. Provides ImGui with access to the main RenderingContext
+	 * from the main viewport. */
+	void bindMainRenderingContext(
+		std::shared_ptr<RenderingContext> mainRenderingContext);
+	/* Returns a modifiable copy of the backend prepared
+	 * vk::GraphicsPipelineCreateInfo */
+	vk::GraphicsPipelineCreateInfo getPipelineInfo() const;
 
 private:
 	/* ImGui */
-	const std::shared_ptr<ImguiContext> context_;
+	const std::shared_ptr<ImGuiContextWrapper> context_;
 
 	/* Vulkan objects shared by all the RenderingContext(s) */
 	std::unique_ptr<vlk::Texture> fontTexture_;

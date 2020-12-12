@@ -1,4 +1,4 @@
-#include "PlatformBackendSDL.hpp"
+#include "UIPlatformBackendSDL.hpp"
 
 #include <string>
 
@@ -6,7 +6,7 @@
 #include <SDL2/SDL_syswm.h>
 #include <SDL2/SDL_vulkan.h>
 
-#include <engine/render/imgui/impl/PlatformBackendData.hpp>
+#include <engine/render/imgui/impl/ImGuiViewportPlatformData.hpp>
 
 namespace {
 
@@ -38,8 +38,9 @@ static bool ImGui_ImplExpengine_GetWindowFocus(ImGuiViewport* viewport);
 static bool
 ImGui_ImplExpengine_GetWindowMinimized(ImGuiViewport* viewport);
 
-PlatformBackendSDL::PlatformBackendSDL(
-	std::shared_ptr<ImguiContext> context, std::shared_ptr<Window> window)
+UIPlatformBackendSDL::UIPlatformBackendSDL(
+	std::shared_ptr<ImGuiContextWrapper> context,
+	std::shared_ptr<Window> window)
 	: context_(context)
 	, clipboardTextData_(nullptr)
 	, mouseCanUseGlobalState_(true)
@@ -199,24 +200,24 @@ PlatformBackendSDL::PlatformBackendSDL(
 	}
 }
 
-PlatformBackendSDL::~PlatformBackendSDL()
+UIPlatformBackendSDL::~UIPlatformBackendSDL()
 {
-	SPDLOG_LOGGER_DEBUG(logger_, "PlatformBackendSDL destruction");
+	SPDLOG_LOGGER_DEBUG(logger_, "UIPlatformBackendSDL destruction");
 }
 
-void PlatformBackendSDL::eraseClipboardData()
+void UIPlatformBackendSDL::eraseClipboardData()
 {
 	if (clipboardTextData_)
 		SDL_free(clipboardTextData_);
 }
 
-const char* PlatformBackendSDL::getClipboardData()
+const char* UIPlatformBackendSDL::getClipboardData()
 {
 	clipboardTextData_ = SDL_GetClipboardText();
 	return clipboardTextData_;
 }
 
-bool PlatformBackendSDL::handleEvent(const SDL_Event& event)
+bool UIPlatformBackendSDL::handleEvent(const SDL_Event& event)
 {
 	ImGuiIO& io = ImGui::GetIO();
 	switch (event.type)
@@ -285,7 +286,7 @@ bool PlatformBackendSDL::handleEvent(const SDL_Event& event)
 
 static const char* ImGui_ImplExpengine_GetClipboardText(void* userData)
 {
-	auto backend = static_cast<PlatformBackendSDL*>(userData);
+	auto backend = static_cast<UIPlatformBackendSDL*>(userData);
 	backend->eraseClipboardData();
 	return backend->getClipboardData();
 }

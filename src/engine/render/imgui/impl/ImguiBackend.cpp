@@ -1,4 +1,4 @@
-#include "ImguiBackend.hpp"
+#include "ImGuiBackend.hpp"
 
 #include <engine/log/ExpengineLog.hpp>
 
@@ -13,10 +13,8 @@ const std::string OPEN_SANS_FONT
 namespace expengine {
 namespace render {
 
-ImguiBackend::ImguiBackend(
-	const vlk::Device& vlkDevice,
-	std::shared_ptr<RenderingContext> mainRenderingContext,
-	std::shared_ptr<Window> window)
+ImguiBackend::ImguiBackend(const vlk::Device& vlkDevice,
+						   std::shared_ptr<Window> window)
 	: logger_(spdlog::get(LOGGER_NAME))
 {
 	/* ------------------------------------------- */
@@ -25,7 +23,7 @@ ImguiBackend::ImguiBackend(
 
 	IMGUI_CHECKVERSION();
 	/* Shared ownership with platform and rendering bakcends */
-	context_ = std::make_shared<ImguiContext>();
+	context_ = std::make_shared<ImGuiContextWrapper>();
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
@@ -55,14 +53,14 @@ ImguiBackend::ImguiBackend(
 	/* ------------------------------------------- */
 
 	platformBackend_
-		= std::make_unique<PlatformBackendSDL>(context_, window);
+		= std::make_unique<UIPlatformBackendSDL>(context_, window);
 
 	/* ------------------------------------------- */
 	/* Setup Renderer bindings                     */
 	/* ------------------------------------------- */
 
-	renderingBackend_ = std::make_unique<RendererBackendVulkan>(
-		context_, vlkDevice, mainRenderingContext);
+	renderingBackend_
+		= std::make_unique<UIRendererBackendVulkan>(context_, vlkDevice);
 
 	/* ------------------------------------------- */
 	/* Fonts loading & Uploading                   */

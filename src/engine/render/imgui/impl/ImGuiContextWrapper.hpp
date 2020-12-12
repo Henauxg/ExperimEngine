@@ -10,13 +10,13 @@ namespace expengine {
 namespace render {
 
 /** Custom back-end */
-class ImguiContext {
+class ImGuiContextWrapper {
 public:
-	inline ImguiContext() { ctx_ = ImGui::CreateContext(); };
+	inline ImGuiContextWrapper() { ctx_ = ImGui::CreateContext(); };
 	/* Also destroy all ImGui viewports from this context */
-	inline ~ImguiContext()
+	inline ~ImGuiContextWrapper()
 	{
-		SPDLOG_DEBUG("ImguiContext destruction");
+		SPDLOG_DEBUG("ImGuiContext destruction");
 		ImGui::DestroyContext(ctx_);
 	};
 	inline ImGuiContext* get() { return ctx_; };

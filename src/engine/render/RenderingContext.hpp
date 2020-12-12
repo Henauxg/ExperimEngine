@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <engine/render/Window.hpp>
+#include <engine/render/imgui/impl/UIRendererBackendVulkan.hpp>
 #include <engine/render/vlk/VlkDevice.hpp>
 #include <engine/render/vlk/VlkSwapchain.hpp>
 #include <engine/utils/Flags.hpp>
@@ -24,6 +25,7 @@ public:
 	RenderingContext(const vk::Instance vkInstance,
 					 const vlk::Device& device,
 					 std::shared_ptr<Window> window,
+					 const UIRendererBackendVulkan& imguiRenderBackend,
 					 AttachmentsFlags attachmentFlags);
 	~RenderingContext();
 
@@ -52,12 +54,14 @@ private:
 	};
 
 	const vlk::Device& device_;
+	const UIRendererBackendVulkan& imguiRenderBackend_;
 
 	/* Owned objects */
 	std::shared_ptr<const Window> window_;
 	vk::UniqueSurfaceKHR windowSurface_;
 	std::unique_ptr<vlk::Swapchain> vlkSwapchain_;
 	vk::UniqueRenderPass renderPass_;
+	vk::UniquePipeline uiGraphicsPipeline_;
 
 	/* Frames */
 	uint32_t currentFrameIndex_;
@@ -66,14 +70,18 @@ private:
 	/* Logging */
 	std::shared_ptr<spdlog::logger> logger_;
 
-	void createFrameObjects(std::vector<FrameObjects>& frames,
-							const vlk::Swapchain& swapchain,
-							vk::RenderPass& renderPass,
-							AttachmentsFlags attachmentsFlags);
 	vk::UniqueRenderPass
 	createRenderPass(const vlk::Device& device,
 					 const vlk::Swapchain& swapchain,
 					 AttachmentsFlags attachmentsFlags);
+	vk::UniquePipeline
+	createGraphicsPipeline(const vlk::Device& device,
+						   vk::GraphicsPipelineCreateInfo& pipelineInfos,
+						   vk::RenderPass& renderPass);
+	void createFrameObjects(std::vector<FrameObjects>& frames,
+							const vlk::Swapchain& swapchain,
+							vk::RenderPass& renderPass,
+							AttachmentsFlags attachmentsFlags);
 };
 
 } // namespace render

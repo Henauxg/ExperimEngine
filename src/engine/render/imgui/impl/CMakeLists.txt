@@ -1,10 +1,11 @@
 target_sources(ExperimEngine
     PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/ImguiBackend.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/ImguiBackend.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/PlatformBackendData.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/PlatformBackendSDL.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/PlatformBackendSDL.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/RendererBackendVulkan.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/RendererBackendVulkan.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiBackend.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiBackend.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiContextWrapper.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiViewportPlatformData.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/UIPlatformBackendSDL.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/UIPlatformBackendSDL.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/UIRendererBackendVulkan.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/UIRendererBackendVulkan.hpp
 )

@@ -1,8 +1,9 @@
-#include "RendererBackendVulkan.hpp"
+#include "UIRendererBackendVulkan.hpp"
 
 #include <string>
 
-#include <engine/render/imgui/impl/PlatformBackendData.hpp>
+#include <engine/render/RenderingContext.hpp>
+#include <engine/render/imgui/impl/ImGuiViewportPlatformData.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
 
 namespace {
@@ -139,10 +140,17 @@ namespace expengine {
 namespace render {
 
 /* Static used to give acces to vulkan device/instance to imgui static
- * callbacks. Device is destroyed after imgui backend and thus should not
- * be able to be null.
+ * callbacks. Set only once in UIRendererBackendVulkan constructor. Device
+ * is destroyed after imgui backend and thus it cannot point to an invalid
+ * object.
  */
 static const vlk::Device* gVlkDevice = nullptr;
+/* Static used to give acces to vulkan imgui rendering backend to imgui
+ * static callbacks. Set only once in UIRendererBackendVulkan
+ * constructor. No RenderinContext can be built by UIRendererBackendVulkan
+ * after UIRendererBackendVulkan destruction, thus it cannot point to an
+ * invalid object. */
+static const UIRendererBackendVulkan* gUIVulkanBackend = nullptr;
 
 /* Helper structure stored in the void* RenderUserData field of each
  * ImGuiViewport to easily retrieve rendering backend data. */
@@ -161,9 +169,9 @@ struct ImGuiViewportRendererData {
 static void ImGui_ImplExpengine_CreateWindow(ImGuiViewport* viewport);
 static void ImGui_ImplExpengine_DestroyWindow(ImGuiViewport* viewport);
 
-RendererBackendVulkan::RendererBackendVulkan(
-	std::shared_ptr<ImguiContext> context, const vlk::Device& vlkDevice,
-	std::shared_ptr<RenderingContext> mainRenderingContext)
+UIRendererBackendVulkan::UIRendererBackendVulkan(
+	std::shared_ptr<ImGuiContextWrapper> context,
+	const vlk::Device& vlkDevice)
 	: context_(context)
 	, logger_(spdlog::get(LOGGER_NAME))
 {
@@ -274,13 +282,13 @@ RendererBackendVulkan::RendererBackendVulkan(
 							   .binding = vertBindingDesc_.binding,
 							   .format = vk::Format::eR32G32Sfloat,
 							   .offset = IM_OFFSETOF(ImDrawVert, pos) };
-	vertAttributesDesc_[1] = { .location = 0,
+	vertAttributesDesc_[1] = { .location = 1,
 							   .binding = vertBindingDesc_.binding,
 							   .format = vk::Format::eR32G32Sfloat,
 							   .offset = IM_OFFSETOF(ImDrawVert, uv) };
-	vertAttributesDesc_[2] = { .location = 0,
+	vertAttributesDesc_[2] = { .location = 2,
 							   .binding = vertBindingDesc_.binding,
-							   .format = vk::Format::eR32G32Sfloat,
+							   .format = vk::Format::eR8G8B8A8Unorm,
 							   .offset = IM_OFFSETOF(ImDrawVert, col) };
 
 	vertexInfo_
@@ -349,8 +357,9 @@ RendererBackendVulkan::RendererBackendVulkan(
 
 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
-		/* Give delegates access to vulkan device */
+		/* Give delegates access to vulkan device and backend */
 		gVlkDevice = &vlkDevice;
+		gUIVulkanBackend = this;
 
 		/* Bind rendering delegates */
 		ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
@@ -368,19 +377,11 @@ RendererBackendVulkan::RendererBackendVulkan(
 		// platform_io.Renderer_SwapBuffers =
 		// ImGui_ImplVulkan_SwapBuffers;
 	}
-
-	/* Setup main viewport RendererUserData */
-	/* Note : cleaned by ImGui_ImplExpengine_DestroyWindow if viewport
-	 * enabled. Else cleaned by RendererBackend */
-	ImGuiViewportRendererData* data
-		= new ImGuiViewportRendererData(mainRenderingContext);
-	ImGuiViewport* mainViewport = ImGui::GetMainViewport();
-	mainViewport->RendererUserData = data;
 }
 
-RendererBackendVulkan::~RendererBackendVulkan()
+UIRendererBackendVulkan::~UIRendererBackendVulkan()
 {
-	SPDLOG_LOGGER_DEBUG(logger_, "RendererBackendVulkan destruction");
+	SPDLOG_LOGGER_DEBUG(logger_, "UIRendererBackendVulkan destruction");
 	/* Clean main viewport render data if viewport is not enabled */
 	ImGuiViewport* mainViewport = ImGui::GetMainViewport();
 	if (ImGuiViewportRendererData* data
@@ -389,7 +390,14 @@ RendererBackendVulkan::~RendererBackendVulkan()
 	mainViewport->RendererUserData = nullptr;
 }
 
-void RendererBackendVulkan::uploadFonts(const vlk::Device& vlkDevice)
+vk::GraphicsPipelineCreateInfo
+UIRendererBackendVulkan::getPipelineInfo() const
+{
+	vk::GraphicsPipelineCreateInfo pipelineInfo = graphicsPipelineInfo_;
+	return pipelineInfo;
+};
+
+void UIRendererBackendVulkan::uploadFonts(const vlk::Device& vlkDevice)
 {
 	/* Get texture data from ImGui */
 	ImGuiIO& io = ImGui::GetIO();
@@ -412,6 +420,18 @@ void RendererBackendVulkan::uploadFonts(const vlk::Device& vlkDevice)
 		= (ImTextureID)(intptr_t)(VkImage) fontTexture_->imageHandle();
 }
 
+void UIRendererBackendVulkan::bindMainRenderingContext(
+	std::shared_ptr<RenderingContext> mainRenderingContext)
+{
+	/* Setup main viewport RendererUserData */
+	/* Cleaned by ImGui_ImplExpengine_DestroyWindow if viewport
+	 * enabled. Else cleaned by RendererBackend */
+	ImGuiViewportRendererData* data
+		= new ImGuiViewportRendererData(mainRenderingContext);
+	ImGuiViewport* mainViewport = ImGui::GetMainViewport();
+	mainViewport->RendererUserData = data;
+}
+
 static void ImGui_ImplExpengine_CreateWindow(ImGuiViewport* viewport)
 {
 	/* Get window from platform data */
@@ -420,15 +440,18 @@ static void ImGui_ImplExpengine_CreateWindow(ImGuiViewport* viewport)
 	EXPENGINE_ASSERT(platformData != nullptr,
 					 "Error, null PlatformUserData");
 
-	/* Get instance and device from module RendererBackendVulkan global
+	/* Get instance and device from module UIRendererBackendVulkan global
 	 */
 	EXPENGINE_ASSERT(gVlkDevice != nullptr, "Error, null gVlkDevice");
+	/* Also get a reference to the UIRendererBackendVulkan itself */
+	EXPENGINE_ASSERT(gUIVulkanBackend != nullptr,
+					 "Error, null gUIVulkanBackend");
 
 	/* Create a RenderingContext. Surface creation is handled by the
 	 * RC. */
 	auto renderingContext = std::make_shared<RenderingContext>(
 		gVlkDevice->instanceHandle(), *gVlkDevice, platformData->window_,
-		AttachmentsFlagBits::eColorAttachment);
+		*gUIVulkanBackend, AttachmentsFlagBits::eColorAttachment);
 
 	/* Allocate RendererUserData */
 	auto data = new ImGuiViewportRendererData(renderingContext);

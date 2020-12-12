@@ -22,13 +22,14 @@ Renderer::Renderer(const char* appName, std::shared_ptr<Window> window,
 
 	vlkDevice_ = std::make_unique<vlk::Device>(*vkInstance_, logger_);
 
+	imguiBackend_ = std::make_unique<ImguiBackend>(*vlkDevice_, window);
+
 	mainRenderingContext_ = std::make_shared<RenderingContext>(
 		*vkInstance_, *vlkDevice_, window,
+		imguiBackend_->getRenderingBackend(),
 		AttachmentsFlagBits::eColorAttachment);
 
-	imguiBackend_ = std::make_unique<ImguiBackend>(
-		*vlkDevice_, mainRenderingContext_, window);
-
+	imguiBackend_->bindMainRenderingContext(mainRenderingContext_);
 }
 
 Renderer::~Renderer()

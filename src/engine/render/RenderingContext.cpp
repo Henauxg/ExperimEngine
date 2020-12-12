@@ -6,9 +6,9 @@
 namespace expengine {
 namespace render {
 
-/* Per RenderingContext :*/
+/* Vulkan objects per RenderingContext :*/
 /* -> SwapChain */
-/* -> Render pass */
+/* -> 1 Render pass shared by UI and application */
 /* -> 2x Graphics pipeline (1x for ImGui, 1x for the application rendering)
  */
 /* -> Per Image (image count Backbuffers) */
@@ -19,12 +19,14 @@ namespace render {
 /* --> Image view  (BackbufferView)*/
 /* --> Framebuffer */
 
-RenderingContext::RenderingContext(const vk::Instance vkInstance,
-								   const vlk::Device& device,
-								   std::shared_ptr<Window> window,
-								   AttachmentsFlags attachmentsFlags)
+RenderingContext::RenderingContext(
+	const vk::Instance vkInstance, const vlk::Device& device,
+	std::shared_ptr<Window> window,
+	const UIRendererBackendVulkan& imguiRenderBackend,
+	AttachmentsFlags attachmentsFlags)
 	: window_(window)
 	, device_(device)
+	, imguiRenderBackend_(imguiRenderBackend)
 	, currentFrameIndex_(0)
 	, logger_(spdlog::get(LOGGER_NAME))
 {
@@ -33,12 +35,12 @@ RenderingContext::RenderingContext(const vk::Instance vkInstance,
 	EXPENGINE_ASSERT(surfaceCreated, "Failed to create a VkSurface");
 	windowSurface_ = vk::UniqueSurfaceKHR(surface, vkInstance);
 
-	/* Do the following once + on resize
+	/* Do the following once at startup + on each resize
 	 * [resize-only] Destroy previous resources except swapchain
 	 * Create SwapChain
 	 * [resize-only] Destroy old SwapChain
 	 * Create Render pass
-	 * Create Graphics pipeline (using layout + shaders)
+	 * Create Graphics pipeline(s) (using layout + shaders)
 	 * Create Image views
 	 * Create Framebuffers
 	 * Create Sync objects + Command pools & Command buffers */
@@ -52,10 +54,10 @@ RenderingContext::RenderingContext(const vk::Instance vkInstance,
 	renderPass_
 		= createRenderPass(device, *vlkSwapchain_, attachmentsFlags);
 
-	/* TODO Create Graphics pipeline(s)  */
-
-	// enginePipeline_ = createGraphicsPipeline();
-	// uiPipeline_
+	/* Create Graphics pipeline(s)  */
+	auto uiPipelineInfo = imguiRenderBackend_.getPipelineInfo();
+	uiGraphicsPipeline_
+		= createGraphicsPipeline(device, uiPipelineInfo, *renderPass_);
 
 	/* Create frame objects : Image views, Framebuffers, Command pools,
 	 * Command buffers and Sync objects */
@@ -236,6 +238,21 @@ RenderingContext::createRenderPass(const vlk::Device& device,
 	EXPENGINE_VK_ASSERT(result, "Failed to create a render pass");
 
 	return std::move(renderPass);
+}
+
+vk::UniquePipeline RenderingContext::createGraphicsPipeline(
+	const vlk::Device& device,
+	vk::GraphicsPipelineCreateInfo& pipelineInfos,
+	vk::RenderPass& renderPass)
+{
+	pipelineInfos.renderPass = renderPass;
+
+	auto [result, graphicsPipeline]
+		= device.deviceHandle().createGraphicsPipelineUnique(
+			nullptr, pipelineInfos);
+	EXPENGINE_VK_ASSERT(result, "Failed to create a graphics pipeline");
+
+	return std::move(graphicsPipeline);
 }
 
 } // namespace render

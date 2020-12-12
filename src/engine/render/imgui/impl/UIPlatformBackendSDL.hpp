@@ -6,7 +6,7 @@
 
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/Window.hpp>
-#include <engine/render/imgui/impl/ImguiContext.hpp>
+#include <engine/render/imgui/impl/ImGuiContextWrapper.hpp>
 #include <engine/render/imgui/lib/imgui.h>
 
 struct SDL_Cursor;
@@ -15,11 +15,11 @@ namespace expengine {
 namespace render {
 
 /** Custom back-end based on imgui_impl_sdl */
-class PlatformBackendSDL {
+class UIPlatformBackendSDL {
 public:
-	PlatformBackendSDL(std::shared_ptr<ImguiContext> context,
-					   std::shared_ptr<Window> window);
-	~PlatformBackendSDL();
+	UIPlatformBackendSDL(std::shared_ptr<ImGuiContextWrapper> context,
+						 std::shared_ptr<Window> window);
+	~UIPlatformBackendSDL();
 
 	void eraseClipboardData();
 	const char* getClipboardData();
@@ -27,7 +27,7 @@ public:
 
 private:
 	/* ImGui */
-	const std::shared_ptr<ImguiContext> context_;
+	const std::shared_ptr<ImGuiContextWrapper> context_;
 
 	/* Platform */
 	char* clipboardTextData_;
