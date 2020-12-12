@@ -140,11 +140,43 @@ void RenderingContext::createFrameObjects(
 		EXPENGINE_VK_ASSERT(framebufferResult,
 							"Failed to create a command pool");
 
+		/* Create the command buffer */
+		auto [cmdBufferResult, cmdBuffer]
+			= device_.deviceHandle().allocateCommandBuffersUnique(
+				{ .commandPool = *commandPool,
+				  .level = vk::CommandBufferLevel::ePrimary,
+				  .commandBufferCount = 1 });
+		EXPENGINE_VK_ASSERT(cmdBufferResult,
+							"Failed to create a command buffer");
+
+		/* Create the fence */
+		auto [fenceResult, fence]
+			= device_.deviceHandle().createFenceUnique(
+				{ .flags = vk::FenceCreateFlagBits::eSignaled });
+		EXPENGINE_VK_ASSERT(fenceResult, "Failed to create a fence");
+
+		/* Create the semaphores */
+		auto imageAcqSemaphore
+			= device_.deviceHandle().createSemaphoreUnique({});
+		EXPENGINE_VK_ASSERT(
+			imageAcqSemaphore.result,
+			"Failed to create the imageAcquired Semaphore");
+		auto renderCompleteSemaphore
+			= device_.deviceHandle().createSemaphoreUnique({});
+		EXPENGINE_VK_ASSERT(
+			renderCompleteSemaphore.result,
+			"Failed to create the renderComplete Semaphore");
+
 		/* Create the frame object */
 		FrameObjects frame;
 		frame.imageView_ = std::move(imageView);
 		frame.framebuffer_ = std::move(framebuffer);
 		frame.commandPool_ = std::move(commandPool);
+		frame.commandBuffer_ = std::move(cmdBuffer.front());
+		frame.fence_ = std::move(fence);
+		frame.imageAcquiredSemaphore_ = std::move(imageAcqSemaphore.value);
+		frame.renderCompleteSemaphore_
+			= std::move(renderCompleteSemaphore.value);
 		frames_.push_back(std::move(frame));
 	}
 }
