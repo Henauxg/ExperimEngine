@@ -2,41 +2,97 @@
 
 ExperimEngine is a personal side project made to _experiment_ (hence the name) with various tech pieces in order to make a tiny _C++ game engine_. 
 
-Along the way, I aim to learn many things such as 3D graphics with [Vulkan](https://www.khronos.org/vulkan/), some shader fun, and to embed [Lua](https://www.lua.org/) as a scripting/modding language.
+Along the way, I aim to learn many things such as 3D graphics with [Vulkan](https://www.khronos.org/vulkan/), some shader fun, and to embed a scripting/modding language.
 
 ### Current work :
 
 + Integration of [Dear ImGui](https://github.com/ocornut/imgui) docking branch
++ Investigation for a [scripting language](##-modding-and-scripting)
++ Investigation for [web-support](###-web-support)
 
-## Modding/Scripting
+## Modding and Scripting
 
-The answer to the "why" for a second scripting language is already quite old and widespread see some information [here](https://en.wikipedia.org/wiki/Scripting_language#Extension/embeddable_languages), but to be short, C++ compilation takes time.
-Both _modding_ and _scripting_ have similar needs : there needs to be a _clear, fast and powerful C++ API_
+ExperimEngine will include an API for a second language both for scripting and modding. A common way of doing this is to embed a language into the host language (here C++), see [embeddable_languages](https://en.wikipedia.org/wiki/Scripting_language#Extension/embeddable_languages). In adddition to modding, this allow for quick iteration while working a on a game by reloading scripts at run-time instead of a slow C++ compilation.
+Both _modding_ and _scripting_ have similar needs : there needs to be a _fast, easy to use and powerful C++ API_
+Lua is considered for now but this may still change.
 
-I chose Lua as a scripting language for the following reasons :
+### Languages being evaluated
 
+#### Lua :
+
+Classic embedded language in game engines.
+Pros :
 + Blazing fast [perfomances](http://luajit.org/performance.html), thanks to LuaJIT
 + Awesome C++ interop (with [sol](https://github.com/ThePhD/sol2), although [others](https://sol2.readthedocs.io/en/latest/features.html) exist)
-+ Large community
-+ Open-source
-+ Learning experience
++ Open-source and light-weight
++ Easy to embed
 
-C#/.NET was also considered as a candidate. I planned to :
+Cons :
++ LuaJIT is *not* maintained (and quite complex) and is 32-bit only
++ Lua's best performances come from the JIT but JIT compiling seems to be forbidden on apple devices
++ Weird syntax, 1-indexed arrays, feels quite different from usual languages nowadays.
 
+#### Wren
+
+[Wren](https://wren.io/) is described as "Smalltalk in a Lua-sized package with a dash of Erlang and wrapped up in a familiar, modern syntax"
+Pros :
++ [Fast](https://wren.io/performance.html), without JIT
++ Open-source and light-weight
++ Easy to embed
++ Modern syntax
+
+Cons :
++ C++ interop seems seems less advanced than sol in lua
++ Quite a niche language (ecosystem, tooling, user-base)
+
+#### C#/.NET
+
+I planned to :
 + [Host the .NET Core](https://docs.microsoft.com/en-us/dotnet/core/tutorials/netcore-hosting) with the new 3.0 hosting API (see [this document](https://github.com/dotnet/core-setup/blob/master/Documentation/design-docs/native-hosting.md))
 + Use [Roslyn](https://github.com/dotnet/roslyn) as a way to dynamically compile script files.
 
-Scripting in C# would have been great but the main problem was to obtain a clean C#/C++(classes/objects) interop without resorting to Windows-only solutions.
+Scripting in C# could great but the main problem is to obtain a clean C#/C++(classes/objects) interop without resorting to Windows-only solutions.
+The C#/.NET ecosystem seems to be rapidly evolving with interop being taken into account.
+
+Pros:
++ I enjoy coding with C#
++ Good tooling & ecosystem, huge user-base
++ The C#/.NET ecosystem went open-source and seems to be rapidly evolving with interop being taken into account :
+  + [Improvements in native code interop in .NET 5.0](https://devblogs.microsoft.com/dotnet/improvements-in-native-code-interop-in-net-5-0/)
+
+Cons :
++ Not light-weight
++ Hard to embed, hard to provide an egronomic & performant C++ interop
+
+[Mono](https://www.mono-project.com/) is an open source implementation of Microsoft's .NET Framework, and provides a good [embedding API](https://www.mono-project.com/docs/advanced/embedding/) but seems to be behind in terms of features and performances.
+
+Elements to investigate :
++ [UnrealCLR](https://github.com/nxrighthere/UnrealCLR) for C++/C# in Unreal Engine.
++ Compatibility with emscriptem/webassembly ?
+
+#### Javascript :
+
+Embedding google's [V8 and its C++ API](https://v8.dev/docs/embed) or another JS engine (Mozilla's [SpiderMonkey](https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey)).
+
+Pros :
++ Gigantic eco-system, widespread language with good community support/tooling
++ Good C++ interop (V8)
+
+Cons :
++ V8/SpiderMonkey are not light-weight
+
+There are some lighter JS engine out there : [Duktape](https://github.com/svaarala/duktape), [JerryScript](https://github.com/jerryscript-project/jerryscript), and more, but I have yet to investigate the performance impact & C++ interop possibilities.
+
 
 ## Cross-platform support
 
-### Native support :
+### Native support
 
 Libraries and languages are chosen with _cross-platform_ as a focus point. As of today, there should be no major concern in targeting platforms such as Windows, Linux, MacOs, Android and more.
 
 Right now, the build system is focused on Windows 64 bits only for practical reasons (read laziness, the current development environment is Wx64).
 
-### Web support :
+### Web support
 
 Idealy, an ExperimEngine app should be able to run on a web-browser.
 
@@ -58,6 +114,11 @@ Technologies being considered :
 For now dependencies (windows 64bits) are _packaged within the project_ in order to facilitate the environment setup on multiples machines.
 
 Some of the dependencies may become git submodule.
+
+Libraries are picked trying to respect as much as possible the following criterias :
+1. C/C++
+2. Cross-platform
+3. Light-weight & Performant
 
 ### Used :
 + [OpenGL Mathematics (GLM)](https://glm.g-truc.net/0.9.9/index.html) V0.9.9.6
