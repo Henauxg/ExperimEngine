@@ -33,6 +33,19 @@ public:
 	inline const vk::SurfaceKHR surface() { return windowSurface_.get(); };
 	inline const Window& window() const { return *window_; };
 
+	/* Called once at creation. Should also be called on each resize.
+	 * Reads the new image size from the window directly.
+	 * Does the following :
+	 * [resize-only] Destroy previous resources except swapchain
+	 * Create SwapChain
+	 * [resize-only] Destroy old SwapChain
+	 * Create Render pass
+	 * Create Graphics pipeline(s) (using layout/shaders/info... from UI
+	 * backend)
+	 * Create Image views, Framebuffers, Sync objects, Command pools,
+	 * Command buffers */
+	void initOrResizeRenderingContext();
+
 	inline vk::CommandBuffer beginSingleTimeCommand() const
 	{
 		return device_.createTransientCommandBuffer();
@@ -55,6 +68,9 @@ private:
 
 	const vlk::Device& device_;
 	const UIRendererBackendVulkan& imguiRenderBackend_;
+
+	/* Configuration */
+	AttachmentsFlags attachmentsFlags_;
 
 	/* Owned objects */
 	std::shared_ptr<const Window> window_;

@@ -6,18 +6,19 @@
 namespace expengine {
 namespace render {
 
-/* Vulkan objects per RenderingContext :*/
-/* -> SwapChain */
-/* -> 1 Render pass shared by UI and application */
-/* -> 2x Graphics pipeline (1x for ImGui, 1x for the application rendering)
- */
-/* -> Per Image (image count Backbuffers) */
-/* --> Command pool */
-/* --> Command buffer */
-/* --> Fence */
-/* --> Semaphores (x2) */
-/* --> Image view  (BackbufferView)*/
-/* --> Framebuffer */
+/* Vulkan objects per RenderingContext :
+ * All the objects except the surface are recreated on resize.
+ * -> Surface
+ * -> SwapChain
+ * -> 1 Render pass shared by UI and application
+ * -> 2x Graphics pipeline (1x for ImGui, 1x for the application rendering)
+ * -> Per Image (image count Backbuffers)
+ * --> Command pool
+ * --> Command buffer
+ * --> Fence
+ * --> Semaphores (x2)
+ * --> Image view  (BackbufferView)
+ * --> Framebuffer */
 
 RenderingContext::RenderingContext(
 	const vk::Instance vkInstance, const vlk::Device& device,
@@ -27,6 +28,7 @@ RenderingContext::RenderingContext(
 	: window_(window)
 	, device_(device)
 	, imguiRenderBackend_(imguiRenderBackend)
+	, attachmentsFlags_(attachmentsFlags)
 	, currentFrameIndex_(0)
 	, logger_(spdlog::get(LOGGER_NAME))
 {
@@ -35,39 +37,34 @@ RenderingContext::RenderingContext(
 	EXPENGINE_ASSERT(surfaceCreated, "Failed to create a VkSurface");
 	windowSurface_ = vk::UniqueSurfaceKHR(surface, vkInstance);
 
-	/* Do the following once at startup + on each resize
-	 * [resize-only] Destroy previous resources except swapchain
-	 * Create SwapChain
-	 * [resize-only] Destroy old SwapChain
-	 * Create Render pass
-	 * Create Graphics pipeline(s) (using layout + shaders)
-	 * Create Image views
-	 * Create Framebuffers
-	 * Create Sync objects + Command pools & Command buffers */
-
-	/* Create SwapChain with images */
-	auto [w, h] = window_->getDrawableSizeInPixels();
-	vlkSwapchain_ = std::make_unique<vlk::Swapchain>(
-		device, surface, vk::Extent2D { w, h });
-
-	/* Create Render pass */
-	renderPass_
-		= createRenderPass(device, *vlkSwapchain_, attachmentsFlags);
-
-	/* Create Graphics pipeline(s)  */
-	auto uiPipelineInfo = imguiRenderBackend_.getPipelineInfo();
-	uiGraphicsPipeline_
-		= createGraphicsPipeline(device, uiPipelineInfo, *renderPass_);
-
-	/* Create frame objects : Image views, Framebuffers, Command pools,
-	 * Command buffers and Sync objects */
-	createFrameObjects(frames_, *vlkSwapchain_, *renderPass_,
-					   attachmentsFlags);
+	initOrResizeRenderingContext();
 }
 
 RenderingContext::~RenderingContext()
 {
 	SPDLOG_LOGGER_DEBUG(logger_, "RenderingContext destruction");
+}
+
+void RenderingContext::initOrResizeRenderingContext()
+{
+	/* Create SwapChain with images */
+	auto [w, h] = window_->getDrawableSizeInPixels();
+	vlkSwapchain_ = std::make_unique<vlk::Swapchain>(
+		device_, *windowSurface_, vk::Extent2D { w, h });
+
+	/* Create Render pass */
+	renderPass_
+		= createRenderPass(device_, *vlkSwapchain_, attachmentsFlags_);
+
+	/* Create Graphics pipeline(s)  */
+	auto uiPipelineInfo = imguiRenderBackend_.getPipelineInfo();
+	uiGraphicsPipeline_
+		= createGraphicsPipeline(device_, uiPipelineInfo, *renderPass_);
+
+	/* Create frame objects : Image views, Framebuffers, Command pools,
+	 * Command buffers and Sync objects */
+	createFrameObjects(frames_, *vlkSwapchain_, *renderPass_,
+					   attachmentsFlags_);
 }
 
 void RenderingContext::createFrameObjects(

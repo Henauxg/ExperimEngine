@@ -168,6 +168,8 @@ struct ImGuiViewportRendererData {
 /* Delegates */
 static void ImGui_ImplExpengine_CreateWindow(ImGuiViewport* viewport);
 static void ImGui_ImplExpengine_DestroyWindow(ImGuiViewport* viewport);
+static void ImGui_ImplExpengine_SetWindowSize(ImGuiViewport* viewport,
+											  ImVec2 size);
 
 UIRendererBackendVulkan::UIRendererBackendVulkan(
 	std::shared_ptr<ImGuiContextWrapper> context,
@@ -369,9 +371,10 @@ UIRendererBackendVulkan::UIRendererBackendVulkan(
 		/* Note : also called on main viewport */
 		platform_io.Renderer_DestroyWindow
 			= ImGui_ImplExpengine_DestroyWindow;
+		platform_io.Renderer_SetWindowSize
+			= ImGui_ImplExpengine_SetWindowSize;
 		/* TODO */
-		// platform_io.Renderer_SetWindowSize =
-		// ImGui_ImplVulkan_SetWindowSize;
+
 		// platform_io.Renderer_RenderWindow =
 		// ImGui_ImplVulkan_RenderWindow;
 		// platform_io.Renderer_SwapBuffers =
@@ -454,18 +457,34 @@ static void ImGui_ImplExpengine_CreateWindow(ImGuiViewport* viewport)
 		*gUIVulkanBackend, AttachmentsFlagBits::eColorAttachment);
 
 	/* Allocate RendererUserData */
-	auto data = new ImGuiViewportRendererData(renderingContext);
-	viewport->RendererUserData = data;
+	auto renderData = new ImGuiViewportRendererData(renderingContext);
+	viewport->RendererUserData = renderData;
 }
 
 static void ImGui_ImplExpengine_DestroyWindow(ImGuiViewport* viewport)
 {
-	auto data = (ImGuiViewportRendererData*) viewport->RendererUserData;
-	if (data)
+	auto renderData
+		= (ImGuiViewportRendererData*) viewport->RendererUserData;
+	if (renderData)
 	{
-		delete data;
+		delete renderData;
 	}
 	viewport->RendererUserData = nullptr;
+}
+
+static void ImGui_ImplExpengine_SetWindowSize(ImGuiViewport* viewport,
+											  ImVec2 size)
+{
+	ImGuiViewportRendererData* renderData
+		= (ImGuiViewportRendererData*) viewport->RendererUserData;
+	EXPENGINE_ASSERT(renderData != nullptr,
+					 "Error, null RendererUserData");
+
+	/* TODO Here handle clear request : (viewport->Flags &
+	 * ImGuiViewportFlags_NoRendererClear) */
+
+	/* Window size already set by platfrom backend. */
+	renderData->renderingContext_->initOrResizeRenderingContext();
 }
 
 } // namespace render
