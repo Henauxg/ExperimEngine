@@ -32,6 +32,9 @@ public:
 		return images_;
 	}
 
+	vk::ResultValue<uint32_t>
+	acquireNextImage(vk::Semaphore& imageAcquiredSemaphore);
+
 private:
 	/* References */
 	const vlk::Device& device_;

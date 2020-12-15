@@ -128,6 +128,14 @@ Swapchain::~Swapchain()
 	SPDLOG_LOGGER_DEBUG(logger_, "Swapchain destruction");
 }
 
+vk::ResultValue<uint32_t>
+Swapchain::acquireNextImage(vk::Semaphore& imageAcquiredSemaphore)
+{
+	return device_.deviceHandle().acquireNextImageKHR(
+		*swapchain_, std::numeric_limits<uint64_t>::max(),
+		imageAcquiredSemaphore, nullptr);
+}
+
 /* Based on
  * https://github.com/KhronosGroup/Vulkan-Samples/blob/master/framework/core/swapchain.cpp
  */

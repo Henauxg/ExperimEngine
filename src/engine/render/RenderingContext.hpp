@@ -30,21 +30,11 @@ public:
 	~RenderingContext();
 
 	/* Accessors */
-	inline const vk::SurfaceKHR surface() { return windowSurface_.get(); };
+	inline const vk::SurfaceKHR surface() const
+	{
+		return windowSurface_.get();
+	};
 	inline const Window& window() const { return *window_; };
-
-	/* Called once at creation. Should also be called on each resize.
-	 * Reads the new image size from the window directly.
-	 * Does the following :
-	 * [resize-only] Destroy previous resources except swapchain
-	 * Create SwapChain
-	 * [resize-only] Destroy old SwapChain
-	 * Create Render pass
-	 * Create Graphics pipeline(s) (using layout/shaders/info... from UI
-	 * backend)
-	 * Create Image views, Framebuffers, Sync objects, Command pools,
-	 * Command buffers */
-	void initOrResizeRenderingContext();
 
 	inline vk::CommandBuffer beginSingleTimeCommand() const
 	{
@@ -55,6 +45,8 @@ public:
 		return device_.submitTransientCommandBuffer(commandBuffer);
 	};
 
+	void handleSurfaceChanges();
+
 private:
 	struct FrameObjects {
 		vk::UniqueCommandPool commandPool_;
@@ -62,8 +54,11 @@ private:
 		vk::UniqueFence fence_;
 		vk::UniqueImageView imageView_;
 		vk::UniqueFramebuffer framebuffer_;
-		vk::UniqueSemaphore imageAcquiredSemaphore_;
-		vk::UniqueSemaphore renderCompleteSemaphore_;
+	};
+
+	struct FrameSemaphores {
+		vk::UniqueSemaphore imageAcquired_;
+		vk::UniqueSemaphore renderComplete_;
 	};
 
 	const vlk::Device& device_;
@@ -80,12 +75,16 @@ private:
 	vk::UniquePipeline uiGraphicsPipeline_;
 
 	/* Frames */
-	uint32_t currentFrameIndex_;
+	uint32_t frameIndex_;
+	uint32_t semaphoreIndex_;
 	std::vector<FrameObjects> frames_;
+	std::vector<FrameSemaphores> semaphores_;
+	std::unordered_map<uint32_t, vk::Fence> semaphoreToFrameFence_;
 
 	/* Logging */
 	std::shared_ptr<spdlog::logger> logger_;
 
+	/* Objects creation */
 	vk::UniqueRenderPass
 	createRenderPass(const vlk::Device& device,
 					 const vlk::Swapchain& swapchain,
@@ -98,6 +97,22 @@ private:
 							const vlk::Swapchain& swapchain,
 							vk::RenderPass& renderPass,
 							AttachmentsFlags attachmentsFlags);
+	/* Called once at creation. Should also be called on each resize.
+	 * Reads the new image/surface size from the window directly.
+	 * Does the following :
+	 * [resize-only] Destroy previous resources except swapchain
+	 * Create SwapChain
+	 * [resize-only] Destroy old SwapChain
+	 * Create Render pass
+	 * Create Graphics pipeline(s) (using layout/shaders/info... from UI
+	 * backend)
+	 * Create Image views, Framebuffers, Sync objects, Command pools,
+	 * Command buffers */
+	void initOrResizeRenderingContext();
+
+	/* Frame rendering */
+	vk::CommandBuffer& beginFrame();
+	void submitFrame(const vk::CommandBuffer& cmdBuffer);
 };
 
 } // namespace render
