@@ -11,20 +11,20 @@ namespace expengine {
 
 class Engine {
 public:
-	Engine(const char* appName);
-	~Engine();
+    Engine(const char* appName);
+    ~Engine();
 
-	void run();
+    void run();
 
 private:
-	std::shared_ptr<render::Window> mainWindow_;
-	std::unique_ptr<render::Renderer> renderer_;
-	EngineParameters engineParams_;
+    std::shared_ptr<render::Window> mainWindow_;
+    std::unique_ptr<render::Renderer> renderer_;
+    EngineParameters engineParams_;
 
-	/* Logging */
-	std::shared_ptr<spdlog::logger> logger_;
+    /* Logging */
+    std::shared_ptr<spdlog::logger> logger_;
 
-	void render();
+    void render();
 };
 
 } // namespace expengine

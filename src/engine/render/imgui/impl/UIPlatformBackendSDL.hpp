@@ -17,26 +17,27 @@ namespace render {
 /** Custom back-end based on imgui_impl_sdl */
 class UIPlatformBackendSDL {
 public:
-	UIPlatformBackendSDL(std::shared_ptr<ImGuiContextWrapper> context,
-						 std::shared_ptr<Window> window);
-	~UIPlatformBackendSDL();
+    UIPlatformBackendSDL(
+        std::shared_ptr<ImGuiContextWrapper> context,
+        std::shared_ptr<Window> window);
+    ~UIPlatformBackendSDL();
 
-	void eraseClipboardData();
-	const char* getClipboardData();
-	bool handleEvent(const SDL_Event& event);
+    void eraseClipboardData();
+    const char* getClipboardData();
+    bool handleEvent(const SDL_Event& event);
 
 private:
-	/* ImGui */
-	const std::shared_ptr<ImGuiContextWrapper> context_;
+    /* ImGui */
+    const std::shared_ptr<ImGuiContextWrapper> context_;
 
-	/* Platform */
-	char* clipboardTextData_;
-	bool mouseCanUseGlobalState_;
-	SDL_Cursor* mouseCursors_[ImGuiMouseCursor_COUNT];
-	std::array<bool, 3> mousePressed_;
+    /* Platform */
+    char* clipboardTextData_;
+    bool mouseCanUseGlobalState_;
+    SDL_Cursor* mouseCursors_[ImGuiMouseCursor_COUNT];
+    std::array<bool, 3> mousePressed_;
 
-	/* Logging */
-	std::shared_ptr<spdlog::logger> logger_;
+    /* Logging */
+    std::shared_ptr<spdlog::logger> logger_;
 };
 
 } // namespace render

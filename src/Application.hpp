@@ -6,9 +6,9 @@
 
 class Application {
 public:
-	Application();
-	void run();
+    Application();
+    void run();
 
 private:
-	std::unique_ptr<expengine::Engine> engine_;
+    std::unique_ptr<expengine::Engine> engine_;
 };

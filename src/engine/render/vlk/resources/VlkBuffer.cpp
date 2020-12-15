@@ -7,19 +7,23 @@ namespace expengine {
 namespace render {
 namespace vlk {
 
-Buffer::Buffer(const vk::Device device, vk::UniqueBuffer buffer,
-			   vk::UniqueDeviceMemory memory, vk::DeviceSize alignment,
-			   vk::DeviceSize size, vk::BufferUsageFlags usageFlags,
-			   vk::MemoryPropertyFlags memoryPropertyFlags)
-	: device_(device)
-	, buffer_(std::move(buffer))
-	, memory_(std::move(memory))
-	, alignment_(alignment)
-	, size_(size)
-	, usageFlags_(usageFlags)
-	, memoryPropertyFlags_(memoryPropertyFlags)
+Buffer::Buffer(
+    const vk::Device device,
+    vk::UniqueBuffer buffer,
+    vk::UniqueDeviceMemory memory,
+    vk::DeviceSize alignment,
+    vk::DeviceSize size,
+    vk::BufferUsageFlags usageFlags,
+    vk::MemoryPropertyFlags memoryPropertyFlags)
+    : device_(device)
+    , buffer_(std::move(buffer))
+    , memory_(std::move(memory))
+    , alignment_(alignment)
+    , size_(size)
+    , usageFlags_(usageFlags)
+    , memoryPropertyFlags_(memoryPropertyFlags)
 {
-	setupDescriptor();
+    setupDescriptor();
 }
 
 /**
@@ -34,10 +38,10 @@ Buffer::Buffer(const vk::Device device, vk::UniqueBuffer buffer,
  */
 vk::Result Buffer::map(vk::DeviceSize size, vk::DeviceSize offset)
 {
-	auto mapResult = device_.mapMemory(memory_.get(), offset, size);
+    auto mapResult = device_.mapMemory(memory_.get(), offset, size);
 
-	mapped_ = mapResult.value;
-	return mapResult.result;
+    mapped_ = mapResult.value;
+    return mapResult.result;
 }
 
 /**
@@ -47,11 +51,11 @@ vk::Result Buffer::map(vk::DeviceSize size, vk::DeviceSize offset)
  */
 void Buffer::unmap()
 {
-	if (mapped_)
-	{
-		device_.unmapMemory(memory_.get());
-		mapped_ = nullptr;
-	}
+    if (mapped_)
+    {
+        device_.unmapMemory(memory_.get());
+        mapped_ = nullptr;
+    }
 }
 
 /**
@@ -64,14 +68,14 @@ void Buffer::unmap()
  */
 vk::Result Buffer::bind(vk::DeviceSize offset)
 {
-	return device_.bindBufferMemory(buffer_.get(), memory_.get(), offset);
+    return device_.bindBufferMemory(buffer_.get(), memory_.get(), offset);
 }
 
 void Buffer::setupDescriptor(vk::DeviceSize size, vk::DeviceSize offset)
 {
-	descriptor_.offset = offset;
-	descriptor_.buffer = *buffer_;
-	descriptor_.range = size;
+    descriptor_.offset = offset;
+    descriptor_.buffer = *buffer_;
+    descriptor_.range = size;
 }
 
 /**
@@ -83,8 +87,8 @@ void Buffer::setupDescriptor(vk::DeviceSize size, vk::DeviceSize offset)
  */
 void Buffer::copyData(void const* data, vk::DeviceSize size)
 {
-	EXPENGINE_ASSERT(data, "Null data copied to a VlkBuffer");
-	memcpy(mapped_, data, size);
+    EXPENGINE_ASSERT(data, "Null data copied to a VlkBuffer");
+    memcpy(mapped_, data, size);
 }
 
 /**
@@ -100,9 +104,9 @@ void Buffer::copyData(void const* data, vk::DeviceSize size)
  */
 vk::Result Buffer::flush(vk::DeviceSize size, vk::DeviceSize offset)
 {
-	vk::MappedMemoryRange mappedRange
-		= { .memory = memory_.get(), .offset = offset, .size = size };
-	return device_.flushMappedMemoryRanges(mappedRange);
+    vk::MappedMemoryRange mappedRange
+        = {.memory = memory_.get(), .offset = offset, .size = size};
+    return device_.flushMappedMemoryRanges(mappedRange);
 }
 
 /**
@@ -118,9 +122,9 @@ vk::Result Buffer::flush(vk::DeviceSize size, vk::DeviceSize offset)
  */
 vk::Result Buffer::invalidate(vk::DeviceSize size, vk::DeviceSize offset)
 {
-	vk::MappedMemoryRange mappedRange
-		= { .memory = memory_.get(), .offset = offset, .size = size };
-	return device_.invalidateMappedMemoryRanges(mappedRange);
+    vk::MappedMemoryRange mappedRange
+        = {.memory = memory_.get(), .offset = offset, .size = size};
+    return device_.invalidateMappedMemoryRanges(mappedRange);
 }
 
 } // namespace vlk

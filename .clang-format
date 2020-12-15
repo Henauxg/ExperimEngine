@@ -1,15 +1,19 @@
 ﻿---
 BasedOnStyle: WebKit
-AlignAfterOpenBracket: Align
-TabWidth: '4'
-UseTab: Always
-ColumnLimit: 75
 FixNamespaceComments: true
 NamespaceIndentation: None
 SpaceAfterCStyleCast : true
 BreakBeforeBraces: Custom
 BraceWrapping:
+  AfterEnum: true
   AfterControlStatement: true
   AfterFunction:   true
   BeforeElse:      true
+ColumnLimit: 85
+AlignAfterOpenBracket: AlwaysBreak
+BinPackParameters: false
+BinPackArguments: false
+PenaltyReturnTypeOnItsOwnLine: 600
+Cpp11BracedListStyle: true
+AllowAllParametersOfDeclarationOnNextLine: false
 ...
