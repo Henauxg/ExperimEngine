@@ -39,7 +39,8 @@ RenderingContext::RenderingContext(
     EXPENGINE_ASSERT(surfaceCreated, "Failed to create a VkSurface");
     windowSurface_ = vk::UniqueSurfaceKHR(surface, vkInstance);
 
-    initOrResizeRenderingContext();
+    auto [w, h] = window_->getDrawableSizeInPixels();
+    buildSwapchainObjects({w, h});
 }
 
 RenderingContext::~RenderingContext()
@@ -47,12 +48,11 @@ RenderingContext::~RenderingContext()
     SPDLOG_LOGGER_DEBUG(logger_, "RenderingContext destruction");
 }
 
-void RenderingContext::initOrResizeRenderingContext()
+void RenderingContext::buildSwapchainObjects(vk::Extent2D requestedExtent)
 {
     /* Create SwapChain with images */
-    auto [w, h] = window_->getDrawableSizeInPixels();
     vlkSwapchain_ = std::make_unique<vlk::Swapchain>(
-        device_, *windowSurface_, vk::Extent2D {w, h});
+        device_, *windowSurface_, requestedExtent);
 
     /* Create Render pass */
     renderPass_ = createRenderPass(device_, *vlkSwapchain_, attachmentsFlags_);
@@ -275,8 +275,15 @@ vk::UniquePipeline RenderingContext::createGraphicsPipeline(
 
 void RenderingContext::handleSurfaceChanges()
 {
-    // TODO check swapchain and call initOrResizeRenderingContext if
-    // needed.
+    auto [result, surfaceProperties]
+        = device_.getSurfaceCapabilities(windowSurface_.get());
+    EXPENGINE_VK_ASSERT(result, "Error, could not get surface capabilities");
+
+    if (surfaceProperties.currentExtent != vlkSwapchain_->getRequestedExtent())
+    {
+        device_.waitIdle();
+        buildSwapchainObjects(surfaceProperties.currentExtent);
+    }
 }
 
 vk::CommandBuffer& RenderingContext::beginFrame()

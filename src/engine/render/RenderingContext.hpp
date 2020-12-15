@@ -108,7 +108,7 @@ private:
      * backend)
      * Create Image views, Framebuffers, Sync objects, Command pools,
      * Command buffers */
-    void initOrResizeRenderingContext();
+    void buildSwapchainObjects(vk::Extent2D requestedExtent);
 
     /* Frame rendering */
     vk::CommandBuffer& beginFrame();

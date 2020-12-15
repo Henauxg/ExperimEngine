@@ -47,6 +47,11 @@ public:
             queueIndices().presentFamily.value(), surface);
     }
 
+    inline auto getSurfaceCapabilities(vk::SurfaceKHR& surface) const
+    {
+        return physDevice_.device.getSurfaceCapabilitiesKHR(surface);
+    }
+
     const vk::CommandBuffer createTransientCommandBuffer() const;
 
     const void submitTransientCommandBuffer(vk::CommandBuffer commandBuffer) const;

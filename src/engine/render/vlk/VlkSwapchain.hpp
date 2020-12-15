@@ -18,6 +18,10 @@ public:
     ~Swapchain();
 
     inline const vk::Extent2D& getImageExtent() const { return imageExtent_; }
+    inline const vk::Extent2D& getRequestedExtent() const
+    {
+        return requestedExtent_;
+    }
     inline const vk::SurfaceFormatKHR& getSurfaceFormat() const
     {
         return surfaceFormat_;
@@ -37,10 +41,15 @@ private:
     const vk::SurfaceKHR& surface_;
 
     vk::UniqueSwapchainKHR swapchain_;
+    /* Swapchain properties */
     vk::SurfaceFormatKHR surfaceFormat_;
     vk::PresentModeKHR presentMode_;
     vk::Extent2D imageExtent_;
+    /* Extent that was requested when creating the swapchain. May not be the same as
+     * the actual extent (imageExtent_) */
+    vk::Extent2D requestedExtent_;
 
+    /* Swapchain objects  */
     std::vector<vk::Image> images_;
 
     /* Logging */

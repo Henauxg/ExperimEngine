@@ -37,6 +37,7 @@ Swapchain::Swapchain(
     vk::Extent2D requestedExtent)
     : device_(device)
     , surface_(surface)
+    , requestedExtent_(requestedExtent)
     , logger_(spdlog::get(LOGGER_NAME))
 {
     /* Check for WSI support */
