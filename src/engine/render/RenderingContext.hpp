@@ -46,6 +46,10 @@ public:
 
     void handleSurfaceChanges();
 
+    /* Frame rendering */
+    vk::CommandBuffer& beginFrame();
+    void submitFrame(const vk::CommandBuffer& cmdBuffer);
+
 private:
     struct FrameObjects {
         vk::UniqueCommandPool commandPool_;
@@ -109,10 +113,6 @@ private:
      * Create Image views, Framebuffers, Sync objects, Command pools,
      * Command buffers */
     void buildSwapchainObjects(vk::Extent2D requestedExtent);
-
-    /* Frame rendering */
-    vk::CommandBuffer& beginFrame();
-    void submitFrame(const vk::CommandBuffer& cmdBuffer);
 };
 
 } // namespace render

@@ -277,7 +277,7 @@ void RenderingContext::handleSurfaceChanges()
 {
     auto [result, surfaceProperties]
         = device_.getSurfaceCapabilities(windowSurface_.get());
-    EXPENGINE_VK_ASSERT(result, "Error, could not get surface capabilities");
+    EXPENGINE_VK_ASSERT(result, "Failed to get surface capabilities");
 
     if (surfaceProperties.currentExtent != vlkSwapchain_->getRequestedExtent())
     {
@@ -307,10 +307,11 @@ vk::CommandBuffer& RenderingContext::beginFrame()
         || nextImage.result == vk::Result::eErrorOutOfDateKHR)
     {
         handleSurfaceChanges();
+        /* Refresh the semaphore, the index may have been reset */
+        imgAcqSemaphore = semaphores_[semaphoreIndex_].imageAcquired_.get();
         nextImage = vlkSwapchain_->acquireNextImage(imgAcqSemaphore);
     }
-    EXPENGINE_VK_ASSERT(
-        nextImage.result, "Error, could not acquire Swapchain image");
+    EXPENGINE_VK_ASSERT(nextImage.result, "Failed to acquire Swapchain image");
     frameIndex_ = nextImage.value;
     auto& frame = frames_.at(frameIndex_);
 
@@ -335,11 +336,41 @@ vk::CommandBuffer& RenderingContext::beginFrame()
 
 void RenderingContext::submitFrame(const vk::CommandBuffer& cmdBuffer)
 {
-    // TODO Reset frame fence
-    // TODO Submit buffer(s) to queue with frame fence
+    auto& frame = frames_.at(frameIndex_);
 
-    // TODO Present frame
-    // TODO Handle result : may recreate swapchain
+    /* Reset the fence before submitting the frame */
+    device_.deviceHandle().resetFences(frame.fence_.get());
+
+    /* Submit buffer(s) to queue. Will signal the fence and
+     * renderCompleteSem */
+    auto& imgAcqSem = semaphores_[semaphoreIndex_].imageAcquired_.get();
+    auto& renderCompleteSem = semaphores_[semaphoreIndex_].renderComplete_.get();
+    vk::SubmitInfo submitInfo {
+        .waitSemaphoreCount = 1,
+        .pWaitSemaphores = &imgAcqSem,
+        .commandBufferCount = 1,
+        .pCommandBuffers = &cmdBuffer,
+        .signalSemaphoreCount = 1,
+        .pSignalSemaphores = &renderCompleteSem};
+    device_.graphicsQueue().submit(submitInfo, frame.fence_.get());
+
+    /* Present frame : will wait for renderCompleteSem */
+    auto presentResult = vlkSwapchain_->presentImage(
+        device_.presentQueue(), frameIndex_, renderCompleteSem);
+    /* Handle present result : may recreate swapchain */
+    if (presentResult == vk::Result::eSuboptimalKHR
+        || presentResult == vk::Result::eErrorOutOfDateKHR)
+    {
+        handleSurfaceChanges();
+    }
+    else
+    {
+        /* Update sync resource index. The index itself is not tied to the frame
+         * index */
+        semaphoreIndex_
+            = (semaphoreIndex_ + 1) % static_cast<uint32_t>(semaphores_.size());
+    }
 }
+
 } // namespace render
 } // namespace expengine

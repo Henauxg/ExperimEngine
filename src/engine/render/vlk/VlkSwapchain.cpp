@@ -139,6 +139,20 @@ vk::ResultValue<uint32_t> Swapchain::acquireNextImage(
         nullptr);
 }
 
+vk::Result Swapchain::presentImage(
+    vk::Queue presentQueue,
+    uint32_t imageIndex,
+    const vk::Semaphore& waitSemaphore)
+{
+    vk::PresentInfoKHR presInfo {
+        .waitSemaphoreCount = 1,
+        .pWaitSemaphores = &waitSemaphore,
+        .swapchainCount = 1,
+        .pSwapchains = &swapchain_.get(),
+        .pImageIndices = &imageIndex};
+    return presentQueue.presentKHR(presInfo);
+}
+
 /* Based on
  * https://github.com/KhronosGroup/Vulkan-Samples/blob/master/framework/core/swapchain.cpp
  */

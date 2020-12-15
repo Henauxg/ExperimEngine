@@ -34,6 +34,10 @@ public:
 
     vk::ResultValue<uint32_t> acquireNextImage(
         vk::Semaphore& imageAcquiredSemaphore);
+    vk::Result presentImage(
+        vk::Queue presentQueue,
+        uint32_t imageIndex,
+        const vk::Semaphore& waitSemaphore);
 
 private:
     /* References */
