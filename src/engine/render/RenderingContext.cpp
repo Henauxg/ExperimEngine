@@ -330,13 +330,19 @@ vk::CommandBuffer& RenderingContext::beginFrame()
     /* Reset command pool/buffers */
     device_.deviceHandle().resetCommandPool(frame.commandPool_.get(), {});
 
-    /* Return command buffer for this frame */
-    return frames_.at(frameIndex_).commandBuffer_.get();
+    /* Start and return a command buffer for this frame */
+    frame.commandBuffer_->begin(
+        {.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit});
+    return frame.commandBuffer_.get();
 }
 
 void RenderingContext::submitFrame()
 {
     auto& frame = frames_.at(frameIndex_);
+
+    /* End the command buffer. */
+    /* TODO Multiple command buffers */
+    frame.commandBuffer_->end();
 
     /* Reset the fence before submitting the frame */
     device_.deviceHandle().resetFences(frame.fence_.get());
@@ -345,9 +351,12 @@ void RenderingContext::submitFrame()
      * renderCompleteSem */
     auto& imgAcqSem = semaphores_[semaphoreIndex_].imageAcquired_.get();
     auto& renderCompleteSem = semaphores_[semaphoreIndex_].renderComplete_.get();
+    vk::PipelineStageFlags waitStage
+        = vk::PipelineStageFlagBits::eColorAttachmentOutput;
     vk::SubmitInfo submitInfo {
         .waitSemaphoreCount = 1,
         .pWaitSemaphores = &imgAcqSem,
+        .pWaitDstStageMask = &waitStage,
         .commandBufferCount = 1,
         .pCommandBuffers = &frame.commandBuffer_.get(),
         .signalSemaphoreCount = 1,
