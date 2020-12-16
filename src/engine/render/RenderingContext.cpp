@@ -334,7 +334,7 @@ vk::CommandBuffer& RenderingContext::beginFrame()
     return frames_.at(frameIndex_).commandBuffer_.get();
 }
 
-void RenderingContext::submitFrame(const vk::CommandBuffer& cmdBuffer)
+void RenderingContext::submitFrame()
 {
     auto& frame = frames_.at(frameIndex_);
 
@@ -349,7 +349,7 @@ void RenderingContext::submitFrame(const vk::CommandBuffer& cmdBuffer)
         .waitSemaphoreCount = 1,
         .pWaitSemaphores = &imgAcqSem,
         .commandBufferCount = 1,
-        .pCommandBuffers = &cmdBuffer,
+        .pCommandBuffers = &frame.commandBuffer_.get(),
         .signalSemaphoreCount = 1,
         .pSignalSemaphores = &renderCompleteSem};
     device_.graphicsQueue().submit(submitInfo, frame.fence_.get());

@@ -167,9 +167,11 @@ static void ImGui_ImplExpengine_CreateWindow(ImGuiViewport* viewport);
 static void ImGui_ImplExpengine_DestroyWindow(ImGuiViewport* viewport);
 static void ImGui_ImplExpengine_SetWindowSize(ImGuiViewport* viewport, ImVec2 size);
 static void ImGui_ImplExpengine_RenderWindow(ImGuiViewport* viewport, void*);
+static void ImGui_ImplExpengine_SwapBuffers(ImGuiViewport* viewport, void*);
 
 UIRendererBackendVulkan::UIRendererBackendVulkan(
-    std::shared_ptr<ImGuiContextWrapper> context, const vlk::Device& vlkDevice)
+    std::shared_ptr<ImGuiContextWrapper> context,
+    const vlk::Device& vlkDevice)
     : context_(context)
     , logger_(spdlog::get(LOGGER_NAME))
 {
@@ -356,12 +358,8 @@ UIRendererBackendVulkan::UIRendererBackendVulkan(
         /* Note : also called on main viewport */
         platform_io.Renderer_DestroyWindow = ImGui_ImplExpengine_DestroyWindow;
         platform_io.Renderer_SetWindowSize = ImGui_ImplExpengine_SetWindowSize;
-        /* TODO */
-
-        // platform_io.Renderer_RenderWindow =
-        // ImGui_ImplVulkan_RenderWindow;
-        // platform_io.Renderer_SwapBuffers =
-        // ImGui_ImplVulkan_SwapBuffers;
+        platform_io.Renderer_RenderWindow = ImGui_ImplExpengine_RenderWindow;
+        platform_io.Renderer_SwapBuffers = ImGui_ImplExpengine_SwapBuffers;
     }
 }
 
@@ -464,11 +462,35 @@ static void ImGui_ImplExpengine_SetWindowSize(ImGuiViewport* viewport, ImVec2 si
     /* TODO Here handle clear request : (viewport->Flags &
      * ImGuiViewportFlags_NoRendererClear) */
 
-    /* Window size already set by platform backend. */
+    /* Window size already set by platform backend. Simply notify the RC */
     renderData->renderingContext_->handleSurfaceChanges();
 }
 
-static void ImGui_ImplExpengine_RenderWindow(ImGuiViewport* viewport, void*) { }
+static void ImGui_ImplExpengine_RenderWindow(ImGuiViewport* viewport, void*)
+{
+    ImGuiViewportRendererData* renderData
+        = (ImGuiViewportRendererData*) viewport->RendererUserData;
+    EXPENGINE_ASSERT(renderData != nullptr, "Error, null RendererUserData");
+
+    auto& cmdBuffer = renderData->renderingContext_->beginFrame();
+
+    /* TODO Here : begin CommandBuffer & RenderPass */
+
+    /* TODO Here : record draw commands */
+
+    /* TODO Here : end CommandBuffer & RenderPass */
+}
+
+static void ImGui_ImplExpengine_SwapBuffers(ImGuiViewport* viewport, void*)
+{
+    ImGuiViewportRendererData* renderData
+        = (ImGuiViewportRendererData*) viewport->RendererUserData;
+    EXPENGINE_ASSERT(renderData != nullptr, "Error, null RendererUserData");
+
+    /* Note : Queue submission for rendering is launched here instead of
+     * ImGui_ImplExpengine_RenderWindow */
+    renderData->renderingContext_->submitFrame();
+}
 
 } // namespace render
 } // namespace expengine

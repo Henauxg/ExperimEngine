@@ -48,7 +48,7 @@ public:
 
     /* Frame rendering */
     vk::CommandBuffer& beginFrame();
-    void submitFrame(const vk::CommandBuffer& cmdBuffer);
+    void submitFrame();
 
 private:
     struct FrameObjects {
