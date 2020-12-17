@@ -6,6 +6,7 @@
 #include <engine/render/Window.hpp>
 #include <engine/render/imgui/impl/UIRendererBackendVulkan.hpp>
 #include <engine/render/vlk/VlkDevice.hpp>
+#include <engine/render/vlk/VlkFrameCommandBuffer.hpp>
 #include <engine/render/vlk/VlkSwapchain.hpp>
 #include <engine/utils/Flags.hpp>
 
@@ -39,13 +40,13 @@ public:
      * it. */
     void handleSurfaceChanges();
     /* Frame rendering */
-    vk::CommandBuffer& beginFrame();
+    vlk::FrameCommandBuffer& beginFrame();
     void submitFrame();
 
 private:
     struct FrameObjects {
         vk::UniqueCommandPool commandPool_;
-        vk::UniqueCommandBuffer commandBuffer_;
+        std::unique_ptr<vlk::FrameCommandBuffer> commandBuffer_;
         vk::UniqueFence fence_;
         vk::UniqueImageView imageView_;
         vk::UniqueFramebuffer framebuffer_;
@@ -74,6 +75,9 @@ private:
     uint32_t semaphoreIndex_;
     std::vector<FrameObjects> frames_;
     std::vector<FrameSemaphores> semaphores_;
+    /* Mapping to know which frame is using which semaphore group.
+     * Semaphore Group ID -> Frame Fence
+     * We can wait on the fence to make sure that the semaphore group is available */
     std::unordered_map<uint32_t, vk::Fence> semaphoreToFrameFence_;
 
     /* Logging */

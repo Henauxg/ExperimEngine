@@ -474,11 +474,10 @@ static void ImGui_ImplExpengine_RenderWindow(ImGuiViewport* viewport, void*)
 
     auto& cmdBuffer = renderData->renderingContext_->beginFrame();
 
-    /* TODO Here : begin CommandBuffer & RenderPass */
-
     /* TODO Here : record draw commands */
 
-    /* TODO Here : end CommandBuffer & RenderPass */
+    /* End RenderPass */
+    cmdBuffer.endRenderPass();
 }
 
 static void ImGui_ImplExpengine_SwapBuffers(ImGuiViewport* viewport, void*)

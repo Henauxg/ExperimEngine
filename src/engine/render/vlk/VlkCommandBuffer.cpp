@@ -15,7 +15,9 @@ CommandBuffer::CommandBuffer(const vlk::Device& device, vk::CommandPool commandP
 {
     auto [allocResult, cmdBuffers]
         = device.deviceHandle().allocateCommandBuffersUnique(
-            {.commandPool = commandPool, .commandBufferCount = 1});
+            {.commandPool = commandPool,
+             .level = vk::CommandBufferLevel::ePrimary,
+             .commandBufferCount = 1});
     EXPENGINE_VK_ASSERT(allocResult, "Failed to allocate a command buffer");
 
     commandBuffer_ = std::move(cmdBuffers.front());
@@ -31,17 +33,6 @@ void CommandBuffer::end()
 {
     auto endResult = commandBuffer_->end();
     EXPENGINE_VK_ASSERT(endResult, "Failed to end a command buffer");
-}
-
-void CommandBuffer::beginRenderPass(
-    vk::RenderPass renderPass,
-    vk::Framebuffer framebuffer)
-{
-    /* TODO implement */
-}
-
-void CommandBuffer::endRenderPass()
-{ /* TODO implement */
 }
 
 void CommandBuffer::copyBufferToImage(

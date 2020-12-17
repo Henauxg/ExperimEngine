@@ -8,6 +8,8 @@ target_sources(ExperimEngine
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkDebug.hpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkDevice.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkDevice.hpp
+		${CMAKE_CURRENT_SOURCE_DIR}/VlkFrameCommandBuffer.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/VlkFrameCommandBuffer.hpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkInclude.hpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkSwapchain.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkSwapchain.hpp

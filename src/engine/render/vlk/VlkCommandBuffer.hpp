@@ -16,15 +16,13 @@ public:
 
     void begin(vk::CommandBufferUsageFlags flags);
     void end();
-    void beginRenderPass(vk::RenderPass renderPass, vk::Framebuffer framebuffer);
-    void endRenderPass();
 
     void copyBufferToImage(
         vk::Buffer buffer,
         vk::Image image,
         const vk::BufferImageCopy& copyRegion);
 
-private:
+protected:
     /* Handles */
     vk::CommandPool commandPool_;
     /* Owned */

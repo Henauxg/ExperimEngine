@@ -137,14 +137,6 @@ void RenderingContext::createFrameObjects(
                  .queueFamilyIndex = device_.queueIndices().graphicsFamily.value()});
         EXPENGINE_VK_ASSERT(framebufferResult, "Failed to create a command pool");
 
-        /* Create the command buffer */
-        auto [cmdBufferResult, cmdBuffer]
-            = device_.deviceHandle().allocateCommandBuffersUnique(
-                {.commandPool = *commandPool,
-                 .level = vk::CommandBufferLevel::ePrimary,
-                 .commandBufferCount = 1});
-        EXPENGINE_VK_ASSERT(cmdBufferResult, "Failed to create a command buffer");
-
         /* Create the fence */
         auto [fenceResult, fence] = device_.deviceHandle().createFenceUnique(
             {.flags = vk::FenceCreateFlagBits::eSignaled});
@@ -155,8 +147,15 @@ void RenderingContext::createFrameObjects(
         frame.imageView_ = std::move(imageView);
         frame.framebuffer_ = std::move(framebuffer);
         frame.commandPool_ = std::move(commandPool);
-        frame.commandBuffer_ = std::move(cmdBuffer.front());
         frame.fence_ = std::move(fence);
+        /* Create the command buffer */
+        frame.commandBuffer_ = std::make_unique<vlk::FrameCommandBuffer>(
+            device_,
+            commandPool.get(),
+            renderPass,
+            framebuffer.get(),
+            swapchain.getImageExtent());
+
         frames_.push_back(std::move(frame));
 
         /* Create the semaphores */
@@ -286,7 +285,7 @@ void RenderingContext::handleSurfaceChanges()
     }
 }
 
-vk::CommandBuffer& RenderingContext::beginFrame()
+vlk::FrameCommandBuffer& RenderingContext::beginFrame()
 {
     /* Here we check for the semaphore availability. If semaphoreIndex_ is
      * still used by a frame not yet submitted, we wait for its frame to be
@@ -315,12 +314,12 @@ vk::CommandBuffer& RenderingContext::beginFrame()
     frameIndex_ = nextImage.value;
     auto& frame = frames_.at(frameIndex_);
 
-    /* Wait on frame fence. If this frame is already in use, we wait for it
-     * to be fully submitted before reusing it. vk:queueSubmit will signal
-     * the fence when the frame can be reused. */
+    /* If this frame is already in use, we wait on its fence for the frame to be
+     * fully submitted, before reusing it.
+     * "vk:queueSubmit" will signal the fence when the frame can be reused. */
     /* We could check if the fence for this frame is the same as the frame
      * we waited on for the semaphore above. But waitForFences should
-     * return immediatly anyway if the fence is in the signaled state.*/
+     * return immediately anyway if the fence is in the signaled state. */
     device_.deviceHandle().waitForFences(frame.fence_.get(), VK_TRUE, 0);
 
     /* Link (through its fence) the used semaphore ID to the Frame Object
@@ -331,9 +330,8 @@ vk::CommandBuffer& RenderingContext::beginFrame()
     device_.deviceHandle().resetCommandPool(frame.commandPool_.get(), {});
 
     /* Start and return a command buffer for this frame */
-    frame.commandBuffer_->begin(
-        {.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit});
-    return frame.commandBuffer_.get();
+    frame.commandBuffer_->begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
+    return *frame.commandBuffer_;
 }
 
 void RenderingContext::submitFrame()
@@ -353,12 +351,13 @@ void RenderingContext::submitFrame()
     auto& renderCompleteSem = semaphores_[semaphoreIndex_].renderComplete_.get();
     vk::PipelineStageFlags waitStage
         = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+    auto bufHandle = frame.commandBuffer_->getHandle();
     vk::SubmitInfo submitInfo {
         .waitSemaphoreCount = 1,
         .pWaitSemaphores = &imgAcqSem,
         .pWaitDstStageMask = &waitStage,
         .commandBufferCount = 1,
-        .pCommandBuffers = &frame.commandBuffer_.get(),
+        .pCommandBuffers = &bufHandle,
         .signalSemaphoreCount = 1,
         .pSignalSemaphores = &renderCompleteSem};
     device_.graphicsQueue().submit(submitInfo, frame.fence_.get());
@@ -374,8 +373,8 @@ void RenderingContext::submitFrame()
     }
     else
     {
-        /* Update sync resource index. The index itself is not tied to the frame
-         * index */
+        /* Update sync resource index. The semaphore index itself is not tied to the
+         * frame index */
         semaphoreIndex_
             = (semaphoreIndex_ + 1) % static_cast<uint32_t>(semaphores_.size());
     }
