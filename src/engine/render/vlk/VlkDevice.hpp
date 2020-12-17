@@ -4,8 +4,8 @@
 
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/vlk/VlkCapabilities.hpp>
+#include <engine/render/vlk/VlkCommandBuffer.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
-#include <engine/render/vlk/VlkInclude.hpp>
 #include <engine/render/vlk/resources/VlkBuffer.hpp>
 
 namespace expengine {
@@ -52,9 +52,8 @@ public:
         return physDevice_.device.getSurfaceCapabilitiesKHR(surface);
     }
 
-    const vk::CommandBuffer createTransientCommandBuffer() const;
-
-    const void submitTransientCommandBuffer(vk::CommandBuffer commandBuffer) const;
+    const CommandBuffer createTransientCommandBuffer() const;
+    const void submitTransientCommandBuffer(CommandBuffer& commandBuffer) const;
 
     std::unique_ptr<vlk::Buffer> createBuffer(
         vk::DeviceSize size,

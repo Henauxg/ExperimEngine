@@ -56,33 +56,23 @@ Device::Device(vk::Instance vkInstance, std::shared_ptr<spdlog::logger> logger)
 
 Device::~Device() { SPDLOG_LOGGER_DEBUG(logger_, "Device destruction"); }
 
-const vk::CommandBuffer Device::createTransientCommandBuffer() const
+const CommandBuffer Device::createTransientCommandBuffer() const
 {
-    auto [allocResult, cmdBuffers] = logicalDevice_->allocateCommandBuffers(
-        {.commandPool = *transientCommandPool_, .commandBufferCount = 1});
-    EXPENGINE_VK_ASSERT(allocResult, "Failed to allocate a command buffer");
-
-    auto commandBuffer = cmdBuffers.front();
-    auto beginResult = commandBuffer.begin(
-        {.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit});
-    EXPENGINE_VK_ASSERT(beginResult, "Failed to begin on a command buffer");
+    CommandBuffer commandBuffer(*this, transientCommandPool_.get());
+    commandBuffer.begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
 
     return commandBuffer;
 }
 
-const void Device::submitTransientCommandBuffer(
-    vk::CommandBuffer commandBuffer) const
+const void Device::submitTransientCommandBuffer(CommandBuffer& commandBuffer) const
 {
-    auto endResult = commandBuffer.end();
-    EXPENGINE_VK_ASSERT(endResult, "Failed to end on a command buffer");
+    commandBuffer.end();
 
-    vk::SubmitInfo submitInfo {
-        .commandBufferCount = 1, .pCommandBuffers = &commandBuffer};
+    auto handle = commandBuffer.getHandle();
+    vk::SubmitInfo submitInfo {.commandBufferCount = 1, .pCommandBuffers = &handle};
     /* TODO : Could implement fences for transient buffers ? */
     graphicsQueue_.submit(submitInfo, nullptr);
     graphicsQueue_.waitIdle();
-
-    logicalDevice_->freeCommandBuffers(*transientCommandPool_, commandBuffer);
 }
 
 std::unique_ptr<vlk::Buffer> Device::createBuffer(

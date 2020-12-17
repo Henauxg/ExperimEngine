@@ -64,7 +64,7 @@ Texture::Texture(
 
     /* Transition image layout to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL */
     vlk::transitionImageLayout(
-        imageCopyCmdBuffer,
+        imageCopyCmdBuffer.getHandle(),
         image_.get(),
         vk::ImageLayout::eUndefined,
         vk::ImageLayout::eTransferDstOptimal,
@@ -79,14 +79,11 @@ Texture::Texture(
            .layerCount = 1},
         .imageExtent = {.width = width_, .height = height_, .depth = 1}};
     imageCopyCmdBuffer.copyBufferToImage(
-        stagingBuffer->getHandle(),
-        image_.get(),
-        vk::ImageLayout::eTransferDstOptimal,
-        bufferCopyRegion);
+        stagingBuffer->getHandle(), image_.get(), bufferCopyRegion);
 
     /* Transition layout to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL */
     vlk::transitionImageLayout(
-        imageCopyCmdBuffer,
+        imageCopyCmdBuffer.getHandle(),
         image_.get(),
         vk::ImageLayout::eTransferDstOptimal,
         vk::ImageLayout::eShaderReadOnlyOptimal,

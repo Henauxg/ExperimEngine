@@ -35,17 +35,9 @@ public:
     inline const vk::SurfaceKHR surface() const { return windowSurface_.get(); };
     inline const Window& window() const { return *window_; };
 
-    inline vk::CommandBuffer beginSingleTimeCommand() const
-    {
-        return device_.createTransientCommandBuffer();
-    };
-    inline void endSingleTimeCommand(vk::CommandBuffer commandBuffer) const
-    {
-        return device_.submitTransientCommandBuffer(commandBuffer);
-    };
-
+    /* Call to make the RenderingContext check its surface and adapt its objects to
+     * it. */
     void handleSurfaceChanges();
-
     /* Frame rendering */
     vk::CommandBuffer& beginFrame();
     void submitFrame();
