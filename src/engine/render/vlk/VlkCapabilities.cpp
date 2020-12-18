@@ -12,11 +12,8 @@ namespace vlk {
 bool hasInstanceExtensionsSupport(std::vector<const char*> requiredExtensions)
 {
     /* Acquire Vulkan available extensions */
-    uint32_t extensionCount = 0;
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-    vkEnumerateInstanceExtensionProperties(
-        nullptr, &extensionCount, availableExtensions.data());
+    auto [result, availableExtensions] = vk::enumerateInstanceExtensionProperties();
+    EXPENGINE_VK_ASSERT(result, "Failed to fetch instance extension properties");
 
     /* Vulkan available extensions */
     SPDLOG_INFO("Available Vulkan Extensions :");
@@ -60,8 +57,7 @@ QueueFamilyIndices findQueueFamilies(
 {
     QueueFamilyIndices queueFamilyIndices;
 
-    std::vector<vk::QueueFamilyProperties> queueFamilies
-        = physDevice.getQueueFamilyProperties();
+    auto queueFamilies = physDevice.getQueueFamilyProperties();
 
     /* Explicitly prefer a queue with both graphics & present.
      * The case where graphics queue != present queue will still be handled
@@ -81,9 +77,11 @@ QueueFamilyIndices findQueueFamilies(
          * surfaces. */
         for (auto const& surface : surfaces)
         {
-            auto [result, presentSupport]
+            auto surfaceSupport
                 = physDevice.getSurfaceSupportKHR(currentQueueIndex, surface);
-            EXPENGINE_VK_ASSERT(result, "Failed to check for surface support");
+            EXPENGINE_VK_ASSERT(
+                surfaceSupport.result, "Failed to check for surface support");
+            presentSupport = surfaceSupport.value;
 
             if (!presentSupport)
                 break;

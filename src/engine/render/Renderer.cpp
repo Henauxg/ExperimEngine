@@ -5,6 +5,7 @@
 #include <ExperimEngineConfig.h>
 #include <engine/render/vlk/VlkCapabilities.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
+#include <engine/render/vlk/VlkDispatch.hpp>
 
 namespace expengine {
 namespace render {
@@ -17,12 +18,15 @@ Renderer::Renderer(
     , engineParams_(engineParams)
     , logger_(spdlog::get(LOGGER_NAME))
 {
+    vlk::initializeDispatch();
     vkInstance_ = createVulkanInstance(appName, *mainWindow_);
+    vlk::initializeInstanceDispatch(*vkInstance_);
 
     vkDebugMessenger_
         = setupDebugMessenger(*vkInstance_, vlk::ENABLE_VALIDATION_LAYERS);
 
     vlkDevice_ = std::make_unique<vlk::Device>(*vkInstance_, logger_);
+    vlk::specializeDeviceDispatch(*vlkDevice_);
 
     imguiBackend_ = std::make_unique<ImguiBackend>(*vlkDevice_, window);
 

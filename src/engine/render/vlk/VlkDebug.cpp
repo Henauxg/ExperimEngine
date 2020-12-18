@@ -67,10 +67,7 @@ vk::DebugUtilsMessengerEXT createDebugUtilsMessengerEXT(
 
     vk::DebugUtilsMessengerCreateInfoEXT createInfo;
     auto [result, vkDebugMessenger] = instance.createDebugUtilsMessengerEXT(
-        getDebugUtilsCreateInfo(createInfo, logger),
-        nullptr,
-        vk::DispatchLoaderDynamic {instance, &vkGetInstanceProcAddr});
-
+        getDebugUtilsCreateInfo(createInfo, logger), nullptr);
     EXPENGINE_VK_ASSERT(result, "Debug Utils Messenger could not be created.");
 
     return vkDebugMessenger;
@@ -81,20 +78,13 @@ void destroyDebugUtilsMessengerEXT(
     vk::DebugUtilsMessengerEXT debugMessenger)
 {
     instance.destroyDebugUtilsMessengerEXT(
-        debugMessenger,
-        nullptr,
-        vk::DispatchLoaderDynamic {instance, &vkGetInstanceProcAddr});
+        debugMessenger, nullptr, VULKAN_HPP_DEFAULT_DISPATCHER);
 }
 
 bool hasValidationLayerSupport(const std::vector<const char*> validationLayers)
 {
-    uint32_t layerCount;
-    /* Get number of layers */
-    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-
-    /* Get the available layers */
-    std::vector<VkLayerProperties> availableLayers(layerCount);
-    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+    auto [result, availableLayers] = vk::enumerateInstanceLayerProperties();
+    EXPENGINE_VK_ASSERT(result, "Failed to enumerate instance available layers.");
 
     /* Verify that the layers we want are available */
     for (const char* layerName : validationLayers)
