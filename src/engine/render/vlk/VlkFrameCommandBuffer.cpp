@@ -32,6 +32,9 @@ void FrameCommandBuffer::beginRenderPass(
            .framebuffer = framebuffer,
            .renderArea = {.extent = extent}};
 
+    /* TODO here could check for optimality of render area against renderpass
+     * granularity */
+
     commandBuffer_->beginRenderPass(info, vk::SubpassContents::eInline);
 }
 

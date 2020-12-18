@@ -4,6 +4,7 @@
 #include <engine/render/imgui/impl/ImGuiContextWrapper.hpp>
 #include <engine/render/imgui/lib/imgui.h>
 #include <engine/render/vlk/VlkDevice.hpp>
+#include <engine/render/vlk/VlkFrameCommandBuffer.hpp>
 #include <engine/render/vlk/resources/VlkTexture.hpp>
 
 namespace expengine {
@@ -28,14 +29,20 @@ public:
     ~UIRendererBackendVulkan();
 
     void uploadFonts(const vlk::Device& vlkDevice);
+
     /* This function should be called after the constructor and before
      * rendering. Provides ImGui with access to the main RenderingContext
      * from the main viewport. */
     void bindMainRenderingContext(
         std::shared_ptr<RenderingContext> mainRenderingContext);
+
     /* Returns a modifiable copy of the backend prepared
      * vk::GraphicsPipelineCreateInfo */
     vk::GraphicsPipelineCreateInfo getPipelineInfo() const;
+
+    /* Called by ImGui callbacks for secondary viewports */
+    void renderUI(ImDrawData* draw_data, vlk::FrameCommandBuffer& commandBuffer)
+        const;
 
 private:
     /* ImGui */

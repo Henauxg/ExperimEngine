@@ -417,6 +417,31 @@ void UIRendererBackendVulkan::bindMainRenderingContext(
     mainViewport->RendererUserData = data;
 }
 
+void UIRendererBackendVulkan::renderUI(
+    ImDrawData* drawData,
+    vlk::FrameCommandBuffer& commandBuffer) const
+{
+    /* Avoid rendering when minimized, scale coordinates for retina displays (screen
+     * coordinates != framebuffer coordinates) */
+    uint32_t fbWidth = static_cast<uint32_t>(
+        drawData->DisplaySize.x * drawData->FramebufferScale.x);
+    uint32_t fbHeight = static_cast<uint32_t>(
+        drawData->DisplaySize.y * drawData->FramebufferScale.y);
+    if (fbWidth == 0 || fbHeight == 0)
+        return;
+
+    /* TODO Upload to index and vertex buffers */
+
+    /* need 1 index/vertex buffer pair for each frame for each viewport */
+    // renderContext.requestBuffer();
+    // Need to be able to reuse it if large enough, so it needs to stick between
+    // frames
+
+    /* TODO Setup render state */
+
+    /* TODO Draw commands */
+}
+
 static void ImGui_ImplExpengine_CreateWindow(ImGuiViewport* viewport)
 {
     /* Get window from platform data */
@@ -471,10 +496,12 @@ static void ImGui_ImplExpengine_RenderWindow(ImGuiViewport* viewport, void*)
     ImGuiViewportRendererData* renderData
         = (ImGuiViewportRendererData*) viewport->RendererUserData;
     EXPENGINE_ASSERT(renderData != nullptr, "Error, null RendererUserData");
+    EXPENGINE_ASSERT(gUIVulkanBackend != nullptr, "Error, null gUIVulkanBackend");
 
     auto& cmdBuffer = renderData->renderingContext_->beginFrame();
 
-    /* TODO Here : record draw commands */
+    /* Setup Vulkan state and record draw commands */
+    gUIVulkanBackend->renderUI(viewport->DrawData, cmdBuffer);
 
     /* End RenderPass */
     cmdBuffer.endRenderPass();
