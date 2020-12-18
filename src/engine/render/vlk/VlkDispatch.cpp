@@ -18,7 +18,7 @@ namespace vlk {
 
 void initializeDispatch()
 {
-    EXPENGINE_ASSERT(!g_dispatchInitialized, "Dispacth already initialized");
+    EXPENGINE_ASSERT(!g_dispatchInitialized, "Dispatch already initialized");
 
     g_dispatchInitialized = true;
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr
