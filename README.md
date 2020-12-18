@@ -13,8 +13,9 @@ Along the way, I aim to learn many things such as 3D graphics with [Vulkan](http
 ## Modding and Scripting
 
 ExperimEngine will include an API for a second language both for scripting and modding. A common way of doing this is to embed a language into the host language (here C++), see [embeddable_languages](https://en.wikipedia.org/wiki/Scripting_language#Extension/embeddable_languages). In adddition to modding, this allow for quick iteration while working a on a game by reloading scripts at run-time instead of a slow C++ compilation.
-Both _modding_ and _scripting_ have similar needs : there needs to be a _fast, easy to use and powerful C++ API_
-Lua is considered for now but this may still change.
+Both _modding_ and _scripting_ have similar needs : there needs to be a _fast, easy to use and powerful C++ API_.
+
+Lua is the language considered for now but this may still change.
 
 ### Languages being evaluated
 
@@ -81,7 +82,7 @@ Pros :
 Cons :
 + V8/SpiderMonkey are not light-weight
 
-There are some lighter JS engine out there : [Duktape](https://github.com/svaarala/duktape), [JerryScript](https://github.com/jerryscript-project/jerryscript), and more, but I have yet to investigate the performance impact & C++ interop possibilities.
+There are some lighter JS engine out there : [Duktape](https://github.com/svaarala/duktape), [JerryScript](https://github.com/jerryscript-project/jerryscript) and more, but I have yet to investigate the performance impact & C++ interop possibilities.
 
 
 ## Cross-platform support
@@ -126,14 +127,20 @@ Libraries are picked trying to respect as much as possible the following criteri
 3. Light-weight & Performant
 
 ### Used :
-+ [OpenGL Mathematics (GLM)](https://glm.g-truc.net/0.9.9/index.html) V0.9.9.6
-+ [Simple DirectMedia Layer (SDL2)](https://www.libsdl.org/index.php) V2.0.10
+
+Vulkan:
++ [Vulkan](https://www.khronos.org/vulkan/) 1.2.162.0
++ [Vulkan-Hpp](https://github.com/KhronosGroup/Vulkan-Hpp) (now included in Vulkan SDK). C++ API to Vulkan, and also used for [dynamic dispatching](https://gpuopen.com/learn/reducing-vulkan-api-call-overhead/).
+
+Scripting:
 + [LuaJIT](http://luajit.org/luajit.html) V2.0.5
 + [sol](https://github.com/ThePhD/sol2) v3.2.1
-+ [Vulkan](https://www.khronos.org/vulkan/) 1.2.148.1
-+ [Vulkan-Hpp](https://github.com/KhronosGroup/Vulkan-Hpp) (now included in Vulkan SDK)
-+ [spdlog](https://github.com/gabime/spdlog) (V1.8.0)
+
+Others:
++ [OpenGL Mathematics (GLM)](https://glm.g-truc.net/0.9.9/index.html) V0.9.9.6
++ [Simple DirectMedia Layer (SDL2)](https://www.libsdl.org/index.php) V2.0.10
 + [Dear ImGui](https://github.com/ocornut/imgui) (Docking branch, ac08593b9645aee7e086b1e9b98a6a1d79d09210)
++ [spdlog](https://github.com/gabime/spdlog) (V1.8.0)
 
 ### May be used in the future :
 + [Vulkan Memory Allocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator)
@@ -149,10 +156,11 @@ Libraries are picked trying to respect as much as possible the following criteri
 ## Credits and useful resources
 
 ### Vulkan
-+ [Sascha Willems vulkan examples](https://github.com/SaschaWillems/Vulkan)
++ [Sascha Willems Vulkan examples](https://github.com/SaschaWillems/Vulkan)
 + [Vulkan tutorials](https://vulkan-tutorial.com/Introduction)
-+ [Vulkan-Samples](https://github.com/KhronosGroup/Vulkan-Samples)
++ [Khronos Vulkan-Samples](https://github.com/KhronosGroup/Vulkan-Samples)
 + [Awesome Vulkan](https://github.com/vinjn/awesome-vulkan)
++ [Writing an efficient Vulkan renderer](https://zeux.io/2020/02/27/writing-an-efficient-vulkan-renderer/) by Arseny Kapoulkine
 
 ### OpenGl and 3D
 + [GPU Gems](https://developer.nvidia.com/gpugems/GPUGems/gpugems_pref01.html), by NVIDIA
