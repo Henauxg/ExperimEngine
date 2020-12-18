@@ -43,8 +43,10 @@ public:
 
     inline VkBool32 getSurfaceSupport(vk::SurfaceKHR& surface) const
     {
-        return physDevice_.device.getSurfaceSupportKHR(
+        auto support = physDevice_.device.getSurfaceSupportKHR(
             queueIndices().presentFamily.value(), surface);
+        EXPENGINE_VK_ASSERT(support.result, "Failed to check for surface support");
+        return support.value;
     }
 
     inline auto getSurfaceCapabilities(vk::SurfaceKHR& surface) const

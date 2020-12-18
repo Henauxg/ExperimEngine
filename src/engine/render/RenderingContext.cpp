@@ -293,7 +293,8 @@ vlk::FrameCommandBuffer& RenderingContext::beginFrame()
     auto fenceIt = semaphoreToFrameFence_.find(semaphoreIndex_);
     if (fenceIt != semaphoreToFrameFence_.end())
     {
-        device_.deviceHandle().waitForFences(fenceIt->second, VK_TRUE, 0);
+        auto res = device_.deviceHandle().waitForFences(fenceIt->second, VK_TRUE, 0);
+        EXPENGINE_VK_ASSERT(res, "Error while waiting on fence");
     }
 
     /* Acquire an image from the swapchain */
@@ -320,7 +321,8 @@ vlk::FrameCommandBuffer& RenderingContext::beginFrame()
     /* We could check if the fence for this frame is the same as the frame
      * we waited on for the semaphore above. But waitForFences should
      * return immediately anyway if the fence is in the signaled state. */
-    device_.deviceHandle().waitForFences(frame.fence_.get(), VK_TRUE, 0);
+    auto res = device_.deviceHandle().waitForFences(frame.fence_.get(), VK_TRUE, 0);
+    EXPENGINE_VK_ASSERT(res, "Error while waiting on fence");
 
     /* Link (through its fence) the used semaphore ID to the Frame Object
      * given by the SwapChain . */
@@ -360,7 +362,8 @@ void RenderingContext::submitFrame()
         .pCommandBuffers = &bufHandle,
         .signalSemaphoreCount = 1,
         .pSignalSemaphores = &renderCompleteSem};
-    device_.graphicsQueue().submit(submitInfo, frame.fence_.get());
+    auto res = device_.graphicsQueue().submit(submitInfo, frame.fence_.get());
+    EXPENGINE_VK_ASSERT(res, "Failed to submit frame to graphics queue");
 
     /* Present frame : will wait for renderCompleteSem */
     auto presentResult = vlkSwapchain_->presentImage(

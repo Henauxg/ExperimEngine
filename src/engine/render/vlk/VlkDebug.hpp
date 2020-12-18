@@ -16,13 +16,13 @@ namespace vlk {
 #define EXPENGINE_VK_ASSERT(f, ...)                                                 \
     do                                                                              \
     {                                                                               \
-        vk::Result res = (f);                                                       \
-        if (res != vk::Result::eSuccess)                                            \
+        vk::Result __res__ = (f);                                                   \
+        if (__res__ != vk::Result::eSuccess)                                        \
         {                                                                           \
             SPDLOG_ERROR(                                                           \
                 "Fatal : assert failed. Program will abort. VkResult"               \
                 " is \"{}\"",                                                       \
-                vk::to_string(res));                                                \
+                vk::to_string(__res__));                                            \
             SPDLOG_ERROR(__VA_ARGS__);                                              \
             abort();                                                                \
         }                                                                           \

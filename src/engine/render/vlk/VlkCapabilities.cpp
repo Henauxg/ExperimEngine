@@ -3,7 +3,7 @@
 #include <set>
 
 #include <engine/log/ExpengineLog.hpp>
-#include <engine/render/vlk/VlkInclude.hpp>
+#include <engine/render/vlk/VlkDebug.hpp>
 
 namespace expengine {
 namespace render {
@@ -81,8 +81,10 @@ QueueFamilyIndices findQueueFamilies(
          * surfaces. */
         for (auto const& surface : surfaces)
         {
-            presentSupport
+            auto [result, presentSupport]
                 = physDevice.getSurfaceSupportKHR(currentQueueIndex, surface);
+            EXPENGINE_VK_ASSERT(result, "Failed to check for surface support");
+
             if (!presentSupport)
                 break;
         }
@@ -165,8 +167,9 @@ bool hasPhysDeviceExtensionsSupport(
     vk::PhysicalDevice physDevice,
     const std::vector<const char*> deviceExtensions)
 {
-    std::vector<vk::ExtensionProperties> availableExtensions
+    auto [result, availableExtensions]
         = physDevice.enumerateDeviceExtensionProperties();
+    EXPENGINE_VK_ASSERT(result, "Failed to enumerate physical device extensions");
 
     std::set<std::string> requiredExtensions(
         deviceExtensions.begin(), deviceExtensions.end());

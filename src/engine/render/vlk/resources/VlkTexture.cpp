@@ -57,8 +57,13 @@ Texture::Texture(
         .memoryTypeIndex = device.findMemoryType(
             memRequirements.memoryTypeBits,
             vk::MemoryPropertyFlagBits::eDeviceLocal)};
-    memory_ = device.deviceHandle().allocateMemoryUnique(memAllocInfo);
-    device.deviceHandle().bindImageMemory(image_.get(), memory_.get(), 0);
+    auto memAlloc = device.deviceHandle().allocateMemoryUnique(memAllocInfo);
+    EXPENGINE_VK_ASSERT(memAlloc.result, "Failed to allocate memory for an image.");
+    memory_ = std::move(memAlloc.value);
+
+    auto bindResult
+        = device.deviceHandle().bindImageMemory(image_.get(), memory_.get(), 0);
+    EXPENGINE_VK_ASSERT(bindResult, "Failed to bind memory to an image.");
 
     auto imageCopyCmdBuffer = device.createTransientCommandBuffer();
 

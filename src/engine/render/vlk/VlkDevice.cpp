@@ -71,8 +71,12 @@ const void Device::submitTransientCommandBuffer(CommandBuffer& commandBuffer) co
     auto handle = commandBuffer.getHandle();
     vk::SubmitInfo submitInfo {.commandBufferCount = 1, .pCommandBuffers = &handle};
     /* TODO : Could implement fences for transient buffers ? */
-    graphicsQueue_.submit(submitInfo, nullptr);
-    graphicsQueue_.waitIdle();
+    auto res = graphicsQueue_.submit(submitInfo, nullptr);
+    EXPENGINE_VK_ASSERT(
+        res, "Failed to submit transient command buffer to graphics queue");
+
+    res = graphicsQueue_.waitIdle();
+    EXPENGINE_VK_ASSERT(res, "Failed to wait on the graphics queue to be idle");
 }
 
 std::unique_ptr<vlk::Buffer> Device::createBuffer(
@@ -103,14 +107,15 @@ std::unique_ptr<vlk::Buffer> Device::createBuffer(
         allocFlagsInfo.flags = vk::MemoryAllocateFlagBits::eDeviceAddress;
         allocInfo.pNext = &allocFlagsInfo;
     }
-    auto memory = logicalDevice_->allocateMemoryUnique(allocInfo);
+    auto memAlloc = logicalDevice_->allocateMemoryUnique(allocInfo);
+    EXPENGINE_VK_ASSERT(memAlloc.result, "Failed to allocate memory for a buffer.");
 
     /* Wrap in vlkBuffer object */
 
     auto buffer = std::make_unique<vlk::Buffer>(
         logicalDevice_.get(),
         std::move(vkBuffer),
-        std::move(memory),
+        std::move(memAlloc.value),
         memRequirements.alignment,
         size,
         usageFlags,
@@ -132,7 +137,11 @@ std::unique_ptr<vlk::Buffer> Device::createBuffer(
     return std::move(buffer);
 }
 
-void Device::waitIdle() const { logicalDevice_->waitIdle(); }
+void Device::waitIdle() const
+{
+    auto res = logicalDevice_->waitIdle();
+    EXPENGINE_VK_ASSERT(res, "Failed to wait on the logical device to be idle");
+}
 
 PhysicalDeviceDetails Device::pickPhysicalDevice(
     vk::Instance vkInstance,
