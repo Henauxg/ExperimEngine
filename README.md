@@ -131,6 +131,7 @@ Libraries are picked trying to respect as much as possible the following criteri
 Vulkan:
 + [Vulkan](https://www.khronos.org/vulkan/) 1.2.162.0
 + [Vulkan-Hpp](https://github.com/KhronosGroup/Vulkan-Hpp) (now included in Vulkan SDK). C++ API to Vulkan, and also used for [dynamic dispatching](https://gpuopen.com/learn/reducing-vulkan-api-call-overhead/).
++ [Vulkan Memory Allocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator) 2.3.0
 
 Scripting:
 + [LuaJIT](http://luajit.org/luajit.html) V2.0.5
