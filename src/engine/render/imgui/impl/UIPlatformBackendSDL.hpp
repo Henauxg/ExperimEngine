@@ -33,7 +33,7 @@ private:
     /* Platform */
     char* clipboardTextData_;
     bool mouseCanUseGlobalState_;
-    SDL_Cursor* mouseCursors_[ImGuiMouseCursor_COUNT];
+    std::array<SDL_Cursor*, ImGuiMouseCursor_COUNT> mouseCursors_;
     std::array<bool, 3> mousePressed_;
 
     /* Logging */
