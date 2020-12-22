@@ -16,7 +16,7 @@ namespace expengine {
 namespace render {
 namespace vlk {
 
-void initializeDispatch()
+vk::DispatchLoaderDynamic& initializeDispatch()
 {
     EXPENGINE_ASSERT(!g_dispatchInitialized, "Dispatch already initialized");
 
@@ -24,16 +24,22 @@ void initializeDispatch()
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr
         = g_dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
     VULKAN_HPP_DEFAULT_DISPATCHER.init(vkGetInstanceProcAddr);
+
+    return VULKAN_HPP_DEFAULT_DISPATCHER;
 }
 
-void initializeInstanceDispatch(vk::Instance instance)
+void initializeInstanceDispatch(
+    vk::Instance instance,
+    vk::DispatchLoaderDynamic& dispatchloader)
 {
-    VULKAN_HPP_DEFAULT_DISPATCHER.init(instance);
+    dispatchloader.init(instance);
 }
 
-void specializeDeviceDispatch(const Device& device)
+void specializeDeviceDispatch(
+    const Device& device,
+    vk::DispatchLoaderDynamic& dispatchloader)
 {
-    VULKAN_HPP_DEFAULT_DISPATCHER.init(device.deviceHandle());
+    dispatchloader.init(device.deviceHandle());
 }
 
 } // namespace vlk

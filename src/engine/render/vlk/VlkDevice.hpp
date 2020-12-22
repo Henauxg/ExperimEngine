@@ -20,6 +20,10 @@ public:
     /* Accessors */
     inline const vk::Instance instanceHandle() const { return vkInstance_; }
     inline const vk::Device deviceHandle() const { return logicalDevice_.get(); }
+    inline const vk::PhysicalDevice getPhysicalHandle() const
+    {
+        return physDevice_.device;
+    }
     inline const QueueFamilyIndices queueIndices() const
     {
         return physDevice_.queuesIndices;

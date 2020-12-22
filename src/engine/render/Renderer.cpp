@@ -3,9 +3,11 @@
 #include <stdexcept>
 
 #include <ExperimEngineConfig.h>
+#include <engine/render/imgui/impl/ImGuiBackend.hpp>
 #include <engine/render/vlk/VlkCapabilities.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
 #include <engine/render/vlk/VlkDispatch.hpp>
+#include <engine/render/vlk/VlkMemoryAllocator.hpp>
 
 namespace expengine {
 namespace render {
@@ -18,15 +20,18 @@ Renderer::Renderer(
     , engineParams_(engineParams)
     , logger_(spdlog::get(LOGGER_NAME))
 {
-    vlk::initializeDispatch();
+    vk::DispatchLoaderDynamic& dispatchLoader_ = vlk::initializeDispatch();
     vkInstance_ = createVulkanInstance(appName, *mainWindow_);
-    vlk::initializeInstanceDispatch(*vkInstance_);
+    vlk::initializeInstanceDispatch(*vkInstance_, dispatchLoader_);
 
     vkDebugMessenger_
         = setupDebugMessenger(*vkInstance_, vlk::ENABLE_VALIDATION_LAYERS);
 
     vlkDevice_ = std::make_unique<vlk::Device>(*vkInstance_, logger_);
-    vlk::specializeDeviceDispatch(*vlkDevice_);
+    vlk::specializeDeviceDispatch(*vlkDevice_, dispatchLoader_);
+
+    memAllocator_ = std::make_unique<vlk::MemoryAllocator>(
+        *vkInstance_, *vlkDevice_, dispatchLoader_, VK_API_VERSION_1_0);
 
     imguiBackend_ = std::make_unique<ImguiBackend>(*vlkDevice_, window);
 

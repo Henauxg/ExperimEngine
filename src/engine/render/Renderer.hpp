@@ -6,12 +6,13 @@
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/RenderingContext.hpp>
 #include <engine/render/Window.hpp>
-#include <engine/render/imgui/impl/ImguiBackend.hpp>
-#include <engine/render/vlk/VlkDevice.hpp>
-#include <engine/render/vlk/VlkInclude.hpp>
+#include <engine/render/imgui/impl/ImGuiBackend.hpp>
+#include <engine/render/vlk/VlkMemoryAllocator.hpp>
 
 namespace expengine {
 namespace render {
+
+class vlk::Device;
 
 class Renderer {
 public:
@@ -32,6 +33,7 @@ private:
     vk::UniqueInstance vkInstance_;
     std::shared_ptr<const Window> mainWindow_;
     std::unique_ptr<vlk::Device> vlkDevice_;
+    std::unique_ptr<vlk::MemoryAllocator> memAllocator_;
     std::shared_ptr<RenderingContext> mainRenderingContext_;
 
     /* TODO : vk::UniqueDebugUtilsMessengerEXT */
