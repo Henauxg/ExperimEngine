@@ -144,7 +144,6 @@ Others:
 + [spdlog](https://github.com/gabime/spdlog) (V1.8.0)
 
 ### May be used in the future :
-+ [Vulkan Memory Allocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator)
 + [Bullet Physics](https://github.com/bulletphysics/bullet3)
 + [Doxygen](http://www.doxygen.nl/)
 + ENet, RakNet, [GameNetworkingSockets (Valve)](https://github.com/ValveSoftware/GameNetworkingSockets)
