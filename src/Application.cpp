@@ -3,7 +3,10 @@
 #include <iostream>
 
 #include <engine/utils/Utils.hpp>
+
+#ifndef __EMSCRIPTEN__
 #include <test/Quicktest.hpp>
+#endif // !__EMSCRIPTEN__
 
 /* File private constants */
 namespace {
@@ -36,8 +39,10 @@ Application::Application()
 
 void Application::run()
 {
+#ifndef __EMSCRIPTEN__
     expengine::quicktest::testSol();
     expengine::quicktest::testLuaJit();
+#endif // !__EMSCRIPTEN__
 
     engine_->run();
 }

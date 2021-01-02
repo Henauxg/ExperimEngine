@@ -1,15 +1,21 @@
 ﻿{
+  "environments": [
+    {
+      "emsdkPath": "..\\..\\..\\SDK\\emsdk",
+      "emsdkCMake": "${env.emsdkPath}\\upstream\\emscripten\\cmake\\Modules\\Platform\\Emscripten.cmake"
+    }
+  ],
   "configurations": [
     {
       "name": "x64-Debug",
       "generator": "Ninja",
       "configurationType": "Debug",
-      "inheritEnvironments": [ "msvc_x64_x64" ],
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
       "variables": []
     },
     {
@@ -23,6 +29,19 @@
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x64_x64" ],
       "variables": []
+    },
+    {
+      "name": "x64-Emscripten-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "-DWEB_TARGET:BOOL=ON",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "linux_x64" ],
+      "variables": [],
+      "cmakeToolchain": "${env.emsdkCMake}"
     }
   ]
 }

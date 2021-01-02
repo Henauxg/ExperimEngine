@@ -3,7 +3,10 @@
 #include <iostream>
 
 #include <SDL2/SDL.h>
+
+#ifndef __EMSCRIPTEN__
 #include <spdlog\sinks\rotating_file_sink.h>
+#endif
 #include <spdlog\sinks\stdout_color_sinks.h>
 
 #include <ExperimEngineConfig.h>
@@ -21,15 +24,25 @@ Engine::Engine(const std::string& appName, const uint32_t appVersion)
     /* ------------------------------------------- */
     /* Initialize logging                          */
     /* ------------------------------------------- */
+
     try
     {
+        logger_ = std::make_shared<spdlog::logger>(LOGGER_NAME);
+        logger_->set_level(spdlog::level::trace);
+        logger_->flush_on(spdlog::level::err);
+        /* Globally register the loggers. Accessible with spdlog::get */
+        spdlog::register_logger(logger_);
+        /* Default accessible as spdlog::info() */
+        spdlog::set_default_logger(logger_);
+
+#ifndef __EMSCRIPTEN__
+        /* In native, redirect logs to a file */
         auto fileSink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
             LOG_FILE, 1024 * 1024 * 5, 3, true);
-        logger_ = std::make_shared<spdlog::logger>(LOGGER_NAME, fileSink);
-
         /* https://github.com/gabime/spdlog/issues/1318 */
-        logger_->set_level(spdlog::level::trace);
         fileSink->set_level(spdlog::level::info);
+        logger_->sinks().push_back(fileSink);
+#endif // __EMSCRIPTEN__
 
 #ifdef DEBUG
         /* In debug, also redirect logs to standard ouput */
@@ -37,13 +50,6 @@ Engine::Engine(const std::string& appName, const uint32_t appVersion)
         stdoutSink->set_level(spdlog::level::trace);
         logger_->sinks().push_back(stdoutSink);
 #endif // DEBUG
-
-        logger_->flush_on(spdlog::level::err);
-        /* Globally register the loggers. Accessible with spdlog::get */
-        spdlog::register_logger(logger_);
-        /* Default accessible as spdlog::info() */
-        spdlog::set_default_logger(logger_);
-
     } catch (const spdlog::spdlog_ex& ex)
     {
         std::cout << "Log initialization failed : " << ex.what() << std::endl;
@@ -53,22 +59,22 @@ Engine::Engine(const std::string& appName, const uint32_t appVersion)
     /* ------------------------------------------- */
     /* Initialize SDL components                   */
     /* ------------------------------------------- */
-
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER);
 
     /* ------------------------------------------- */
     /* Initialize main window & renderer           */
     /* ------------------------------------------- */
-
+#ifndef __EMSCRIPTEN__
     mainWindow_ = std::make_shared<render::Window>(
         DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, appName);
 
     renderer_ = std::make_unique<render::Renderer>(
         appName, appVersion, mainWindow_, engineParams_);
+#endif
 
     SPDLOG_LOGGER_INFO(
         logger_,
-        "ExperimEngine version : {}.{}.{}",
+        "ExperimEngine : engine created, version : {}.{}.{}",
         ExperimEngine_VERSION_MAJOR,
         ExperimEngine_VERSION_MINOR,
         ExperimEngine_VERSION_PATCH);
@@ -84,6 +90,8 @@ void Engine::run()
 {
     SPDLOG_LOGGER_INFO(logger_, "ExperimEngine : execution start");
     bool shouldStop = false;
+
+#ifndef __EMSCRIPTEN__
     while (!shouldStop)
     {
         /* Events */
@@ -91,6 +99,7 @@ void Engine::run()
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
+
             renderer_->handleEvent(event);
 
             /* SDL_QUIT is only present when the last window is closed.
@@ -107,16 +116,20 @@ void Engine::run()
 
         render();
     }
+#endif
+
+#ifndef __EMSCRIPTEN__
     renderer_->rendererWaitIdle();
+#endif
     SPDLOG_LOGGER_INFO(logger_, "ExperimEngine : execution ended");
 }
 
 void Engine::render()
 {
     auto timeStart = std::chrono::high_resolution_clock::now();
-
+#ifndef __EMSCRIPTEN__
     renderer_->render();
-
+#endif
     auto timeEnd = std::chrono::high_resolution_clock::now();
     auto msTimeDiff
         = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();

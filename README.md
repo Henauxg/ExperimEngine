@@ -69,7 +69,7 @@ Cons :
 
 Elements to investigate :
 + [UnrealCLR](https://github.com/nxrighthere/UnrealCLR) for C++/C# in Unreal Engine.
-+ Compatibility with emscriptem/webassembly ?
++ Compatibility with emscripten/webassembly ?
 
 #### Javascript :
 
@@ -101,8 +101,8 @@ Idealy, an ExperimEngine app should be able to run on a web-browser.
 
 Technologies being considered :
 + [Emscripten](https://github.com/emscripten-core/emscripten) to compile C++ to [WebAssembly](https://webassembly.org/).
-  + Emscriptem also provides support for the SLD2 API (already used as an OS abstraction in ExperimEngine).
-  + If OpenGL was a rendering target, Emscriptem could also be used to automatically convert it to WebGL.
+  + emscripten also provides support for the SLD2 API (already used as an OS abstraction in ExperimEngine).
+  + If OpenGL was a rendering target, emscripten could also be used to automatically convert it to WebGL.
 + [WebGPU](https://github.com/gpuweb/gpuweb), a modern API for GPU rendering on the web. It is pretty similar to (and relies on) APIs such as Metal, Vulkan and DirectX12, although a bit higher level, and with web safety in mind.
   + As of today (06/12/2020) WebGPU is still in a really early stage and only available in experimentals features of some web-browsers, which does not seem like an issue :  by the time I would be able to develop a back-end for it, it could be stabilized/mature enough.
   + Supporting WebGPU and Vulkan would mean implementing/supporting **2** rendering backends in ExperimEngine (*)
