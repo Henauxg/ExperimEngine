@@ -17,7 +17,8 @@ class vlk::Device;
 class Renderer {
 public:
     Renderer(
-        const char* appName,
+        const std::string& appName,
+        const uint32_t appVersion,
         std::shared_ptr<Window> window,
         EngineParameters& engineParams);
     ~Renderer();
@@ -47,7 +48,8 @@ private:
     std::shared_ptr<spdlog::logger> logger_;
 
     vk::UniqueInstance createVulkanInstance(
-        const char* appName,
+        const std::string& appName,
+        const uint32_t appVersion,
         const Window& window) const;
     vk::DebugUtilsMessengerEXT setupDebugMessenger(
         vk::Instance instance,

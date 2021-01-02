@@ -1,3 +1,5 @@
 #define ExperimEngine_VERSION_MAJOR @ExperimEngine_VERSION_MAJOR@
 #define ExperimEngine_VERSION_MINOR @ExperimEngine_VERSION_MINOR@
 #define ExperimEngine_VERSION_PATCH @ExperimEngine_VERSION_PATCH@
+
+#define EXPERIMENGINE_NAME "ExperimEngine"

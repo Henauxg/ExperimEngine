@@ -9,11 +9,16 @@
 #include <engine/render/vlk/VlkDispatch.hpp>
 #include <engine/render/vlk/VlkMemoryAllocator.hpp>
 
+namespace {
+const uint32_t ENGINE_VULKAN_API_VERSION = VK_API_VERSION_1_0;
+}
+
 namespace expengine {
 namespace render {
 
 Renderer::Renderer(
-    const char* appName,
+    const std::string& appName,
+    const uint32_t appVersion,
     std::shared_ptr<Window> window,
     EngineParameters& engineParams)
     : mainWindow_(window)
@@ -21,7 +26,7 @@ Renderer::Renderer(
     , logger_(spdlog::get(LOGGER_NAME))
 {
     vk::DispatchLoaderDynamic& dispatchLoader_ = vlk::initializeDispatch();
-    vkInstance_ = createVulkanInstance(appName, *mainWindow_);
+    vkInstance_ = createVulkanInstance(appName, appVersion, *mainWindow_);
     vlk::initializeInstanceDispatch(*vkInstance_, dispatchLoader_);
 
     vkDebugMessenger_
@@ -31,7 +36,7 @@ Renderer::Renderer(
     vlk::specializeDeviceDispatch(*vlkDevice_, dispatchLoader_);
 
     memAllocator_ = std::make_unique<vlk::MemoryAllocator>(
-        *vkInstance_, *vlkDevice_, dispatchLoader_, VK_API_VERSION_1_0);
+        *vkInstance_, *vlkDevice_, dispatchLoader_, ENGINE_VULKAN_API_VERSION);
 
     imguiBackend_ = std::make_unique<ImguiBackend>(*vlkDevice_, window);
 
@@ -71,7 +76,8 @@ void Renderer::handleEvent(const SDL_Event& event)
 void Renderer::rendererWaitIdle() { vlkDevice_->waitIdle(); }
 
 vk::UniqueInstance Renderer::createVulkanInstance(
-    const char* appName,
+    const std::string& appName,
+    const uint32_t appVersion,
     const Window& window) const
 {
     /* Check layer support */
@@ -94,14 +100,14 @@ vk::UniqueInstance Renderer::createVulkanInstance(
 
     /* Instance structs */
     vk::ApplicationInfo applicationInfo {
-        .pApplicationName = appName,
-        .applicationVersion = VK_MAKE_VERSION(
+        .pApplicationName = appName.data(),
+        .applicationVersion = appVersion,
+        .pEngineName = EXPERIMENGINE_NAME,
+        .engineVersion = VK_MAKE_VERSION(
             ExperimEngine_VERSION_MAJOR,
             ExperimEngine_VERSION_MINOR,
             ExperimEngine_VERSION_PATCH),
-        .pEngineName = "No Engine",
-        .engineVersion = VK_MAKE_VERSION(1, 0, 0),
-        .apiVersion = VK_API_VERSION_1_0};
+        .apiVersion = ENGINE_VULKAN_API_VERSION};
 
     vk::InstanceCreateInfo createInfo {
         .pApplicationInfo = &applicationInfo,

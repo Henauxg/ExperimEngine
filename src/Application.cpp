@@ -2,12 +2,14 @@
 
 #include <iostream>
 
+#include <engine/utils/Utils.hpp>
 #include <test/Quicktest.hpp>
 
 /* File private constants */
 namespace {
 
-const char* APPLICATION_NAME = "ExperimEngineApplication";
+const std::string APPLICATION_NAME = "ExperimEngineApplication";
+const uint32_t APPLICATION_VERSION = EXPENGINE_MAKE_VERSION(1, 0, 0);
 
 } // namespace
 
@@ -28,7 +30,8 @@ int main(int argc, char* argv[])
 
 Application::Application()
 {
-    engine_ = std::make_unique<expengine::Engine>(APPLICATION_NAME);
+    engine_
+        = std::make_unique<expengine::Engine>(APPLICATION_NAME, APPLICATION_VERSION);
 }
 
 void Application::run()

@@ -16,7 +16,7 @@ const float ONE_SEC_IN_MILLI_F = 1000.0f;
 
 namespace expengine {
 
-Engine::Engine(const char* appName)
+Engine::Engine(const std::string& appName, const uint32_t appVersion)
 {
     /* ------------------------------------------- */
     /* Initialize logging                          */
@@ -63,8 +63,8 @@ Engine::Engine(const char* appName)
     mainWindow_ = std::make_shared<render::Window>(
         DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, appName);
 
-    renderer_
-        = std::make_unique<render::Renderer>(appName, mainWindow_, engineParams_);
+    renderer_ = std::make_unique<render::Renderer>(
+        appName, appVersion, mainWindow_, engineParams_);
 
     SPDLOG_LOGGER_INFO(
         logger_,

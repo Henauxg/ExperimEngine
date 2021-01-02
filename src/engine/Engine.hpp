@@ -11,7 +11,7 @@ namespace expengine {
 
 class Engine {
 public:
-    Engine(const char* appName);
+    Engine(const std::string& appName, const uint32_t appVersion);
     ~Engine();
 
     void run();

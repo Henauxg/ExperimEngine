@@ -11,8 +11,8 @@ namespace render {
 
 class Window {
 public:
-    Window(int width, int height, const char* title);
-    Window(int width, int height, const char* title, uint32_t flags);
+    Window(int width, int height, const std::string& title);
+    Window(int width, int height, const std::string& title, uint32_t flags);
     Window();
     ~Window();
 

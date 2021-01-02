@@ -11,18 +11,23 @@
 namespace expengine {
 namespace render {
 
-Window::Window(int width, int height, const char* title, uint32_t flags)
+Window::Window(int width, int height, const std::string& title, uint32_t flags)
 {
     /* Calls SDL_Vulkan_LoadLibrary */
     sdlWindow_ = SDL_CreateWindow(
-        title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
+        title.data(),
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        width,
+        height,
+        flags);
 
     /* TODO Error handling since we will create windows on the fly
      */
     EXPENGINE_ASSERT(sdlWindow_, "Failed to create an SDL window");
 }
 
-Window::Window(int width, int height, const char* title)
+Window::Window(int width, int height, const std::string& title)
     : Window(
         width,
         height,
