@@ -6,15 +6,6 @@ project(ExperimEngine VERSION 0.0.1)
  set(CMAKE_CXX_STANDARD 20)
  set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-if(CMAKE_BUILD_TYPE STREQUAL Debug)
-	add_compile_definitions(DEBUG)
-elseif(CMAKE_BUILD_TYPE STREQUAL Release)
-	# Disable console in Windows release
-	IF(WIN32)
-		SET(GUI_TYPE WIN32)
-	ENDIF(WIN32)
-endif()
-
 configure_file(ExperimEngineConfig.h.in ExperimEngineConfig.h)
 add_executable(ExperimEngine "")
 add_subdirectory(src)
@@ -42,14 +33,23 @@ target_include_directories(ExperimEngine PUBLIC
 	${PROJECT_SOURCE_DIR}/src
 )
 
+# Windows specific
+if(WIN32)
+	if(CMAKE_BUILD_TYPE STREQUAL Release)
+		message("Console disabled in win32-release build")
+		set_target_properties(
+			ExperimEngine PROPERTIES
+			LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE"
+			LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+	endif()
+endif()
+
+# Web specific
 if(WEB_TARGET)
 	SET(CMAKE_EXECUTABLE_SUFFIX ".html")
-	set_target_properties(
-	   ExperimEngine
-		PROPERTIES
-		LINK_FLAGS
-		"-O2 -s USE_SDL=2"
-	) 
+	set_target_properties(ExperimEngine PROPERTIES LINK_FLAGS "-O2 -s USE_SDL=2") 
+
+# Native specific
 else()
 	# Link with libraries.
 	# TODO : x64/x86 flags

@@ -44,12 +44,12 @@ Engine::Engine(const std::string& appName, const uint32_t appVersion)
         logger_->sinks().push_back(fileSink);
 #endif // __EMSCRIPTEN__
 
-#ifdef DEBUG
+#ifndef NDEBUG
         /* In debug, also redirect logs to standard ouput */
         auto stdoutSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
         stdoutSink->set_level(spdlog::level::trace);
         logger_->sinks().push_back(stdoutSink);
-#endif // DEBUG
+#endif // NDEBUG
     } catch (const spdlog::spdlog_ex& ex)
     {
         std::cout << "Log initialization failed : " << ex.what() << std::endl;
