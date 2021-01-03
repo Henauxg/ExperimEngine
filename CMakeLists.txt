@@ -48,8 +48,13 @@ endif()
 
 # Web specific
 if(WEB_TARGET)
-	SET(CMAKE_EXECUTABLE_SUFFIX ".html")
 	set_target_properties(ExperimEngine PROPERTIES LINK_FLAGS "-O2 -s USE_SDL=2") 
+
+	set(TOOLS_DIR ${PROJECT_SOURCE_DIR}/tools)
+	add_custom_command(TARGET ExperimEngine POST_BUILD
+		# Web html template
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${TOOLS_DIR}/emscripten/index.html ${CMAKE_BINARY_DIR}
+	)
 
 # Native specific
 else()
@@ -73,8 +78,6 @@ endif()
 
 # Commands after each build
 add_custom_command(TARGET ExperimEngine POST_BUILD
-	# Lua Scripts
-	COMMAND ${CMAKE_COMMAND} -E copy_directory  ${PROJECT_SOURCE_DIR}/scripts ${CMAKE_BINARY_DIR}/scripts
 	# Data files
 	COMMAND ${CMAKE_COMMAND} -E copy_directory  ${PROJECT_SOURCE_DIR}/data ${CMAKE_BINARY_DIR}/data
 )

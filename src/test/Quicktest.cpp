@@ -17,7 +17,7 @@ void testSol()
 
 	lua["foo"] = lua.create_table_with(1, 24, 2, 25, 3, 26);
 
-	lua.script_file("scripts/BasicScript.lua");
+	lua.script_file("data/scripts/BasicScript.lua");
 }
 
 void testLuaJit()
@@ -35,7 +35,7 @@ void testLuaJit()
 	luaL_openlibs(L); /* Load Lua libraries */
 
 	/* Load the file containing the script we are going to run */
-	status = luaL_loadfile(L, "scripts/BasicScript.lua");
+	status = luaL_loadfile(L, "data/scripts/BasicScript.lua");
 	if (status)
 	{
 		/* If something went wrong, error message is at the top of */
