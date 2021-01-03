@@ -43,6 +43,19 @@
       "inheritEnvironments": [ "linux_x64" ],
       "variables": [],
       "cmakeToolchain": "${emsdk.cmakePath}"
+    },
+    {
+      "name": "x64-Emscripten-Release",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "-DWEB_TARGET:BOOL=ON",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "linux_x64" ],
+      "variables": [],
+      "cmakeToolchain": "${emsdk.cmakePath}"
     }
   ]
 }
