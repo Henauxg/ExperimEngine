@@ -6,8 +6,11 @@ project(ExperimEngine VERSION 0.0.1)
  set(CMAKE_CXX_STANDARD 20)
  set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Executable and header configuration
 configure_file(ExperimEngineConfig.h.in ExperimEngineConfig.h)
 add_executable(ExperimEngine "")
+
+# Sources & headers inclusion
 add_subdirectory(src)
 add_subdirectory(src/engine)
 add_subdirectory(src/engine/log)
@@ -24,9 +27,10 @@ else()
 	add_subdirectory(src/engine/render/wgpu)
 endif()
 
-# Add external CMake build files :
+# Here if needed : add external CMake build files :
 # add_subdirectory(external/shaderc)
 
+# Common includes
 target_include_directories(ExperimEngine PUBLIC
 	# For CMake generated headers
     ${PROJECT_BINARY_DIR}
@@ -34,8 +38,15 @@ target_include_directories(ExperimEngine PUBLIC
 	${PROJECT_SOURCE_DIR}/includes/lua
 	${PROJECT_SOURCE_DIR}/src
 )
+# Web-target includes
+if(WEB_TARGET)
+	target_include_directories(ExperimEngine PUBLIC
+		# Emscripten headers
+		"${EMSCRIPTEN_ROOT_PATH}/system/include"
+	)
+endif()
 
-# Windows specific
+# Windows specific : linking
 if(WIN32)
 	if(CMAKE_BUILD_TYPE STREQUAL Release)
 		message("Console disabled in win32-release build")
@@ -46,9 +57,9 @@ if(WIN32)
 	endif()
 endif()
 
-# Web specific
+#  Web-target specific : linking and post-build commands
 if(WEB_TARGET)
-	set_target_properties(ExperimEngine PROPERTIES LINK_FLAGS "-O2 -s USE_SDL=2") 
+	set_target_properties(ExperimEngine PROPERTIES LINK_FLAGS "-s USE_SDL=2") 
 
 	set(TOOLS_DIR ${PROJECT_SOURCE_DIR}/tools)
 	add_custom_command(TARGET ExperimEngine POST_BUILD
@@ -56,7 +67,7 @@ if(WEB_TARGET)
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${TOOLS_DIR}/emscripten/index.html ${CMAKE_BINARY_DIR}
 	)
 
-# Native specific
+# Native specific : linking and post-build commands
 else()
 	# Link with libraries.
 	# TODO : x64/x86 flags
@@ -76,7 +87,7 @@ else()
 	)
 endif()
 
-# Commands after each build
+# Common commands after build
 add_custom_command(TARGET ExperimEngine POST_BUILD
 	# Data files
 	COMMAND ${CMAKE_COMMAND} -E copy_directory  ${PROJECT_SOURCE_DIR}/data ${CMAKE_BINARY_DIR}/data
