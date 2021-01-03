@@ -26,6 +26,12 @@ private:
     std::shared_ptr<spdlog::logger> logger_;
 
     void render();
+    /** Executes 1 engine tick. Returns false if the engine should stop. */
+    bool tick();
+#ifdef __EMSCRIPTEN__
+    /** Called by the JavaScript environment */
+    friend void emscriptenTick(class Engine* engine);
+#endif
 };
 
 } // namespace expengine

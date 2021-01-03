@@ -4,20 +4,23 @@
 
 #include <SDL2/SDL.h>
 
-#ifndef __EMSCRIPTEN__
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#include <engine/render/wgpu/WebGPURenderer.hpp>
+#else
 #include <engine/render/vlk/VlkRenderer.hpp>
 #include <spdlog/sinks/rotating_file_sink.h>
-#else
-#include <engine/render/wgpu/WebGPURenderer.hpp>
 #endif
 
 #include <ExperimEngineConfig.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace {
+
 const int DEFAULT_WINDOW_WIDTH = 800;
 const int DEFAULT_WINDOW_HEIGHT = 600;
 const float ONE_SEC_IN_MILLI_F = 1000.0f;
+
 } // namespace
 
 namespace expengine {
@@ -99,57 +102,69 @@ Engine::~Engine()
     SDL_Quit();
 }
 
+#ifdef __EMSCRIPTEN__
+void emscriptenTick(Engine* engine) { engine->tick(); }
+#endif
+
 void Engine::run()
 {
     SPDLOG_LOGGER_INFO(logger_, "ExperimEngine : execution start");
-    bool shouldStop = false;
 
-#ifndef __EMSCRIPTEN__
-    while (!shouldStop)
-    {
-        /* Events */
-        /* TODO : May wrap SDL event */
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-
-            renderer_->handleEvent(event);
-
-            /* SDL_QUIT is only present when the last window is closed.
-             * Since we may have multiple windows, we check for our
-             * main window close event too. */
-            if (event.type == SDL_QUIT
-                || (event.type == SDL_WINDOWEVENT
-                    && event.window.event == SDL_WINDOWEVENT_CLOSE
-                    && event.window.windowID == mainWindow_->getWindowId()))
-            {
-                shouldStop = true;
-            }
-        }
-
-        render();
-    }
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop_arg(
+        (em_arg_callback_func) emscriptenTick, this, 0, true);
+#else
+    while (tick()) { }
 #endif
 
     renderer_->rendererWaitIdle();
     SPDLOG_LOGGER_INFO(logger_, "ExperimEngine : execution ended");
 }
 
+bool Engine::tick()
+{
+    bool shouldContinue = true;
+
+    /* Events */
+    /* TODO : May wrap SDL event */
+    SDL_Event event;
+    while (SDL_PollEvent(&event))
+    {
+        renderer_->handleEvent(event);
+
+        /* SDL_QUIT is only present when the last window is closed.
+         * Since we may have multiple windows, we check for our
+         * main window close event too. */
+        if (event.type == SDL_QUIT
+            || (event.type == SDL_WINDOWEVENT
+                && event.window.event == SDL_WINDOWEVENT_CLOSE
+                && event.window.windowID == mainWindow_->getWindowId()))
+        {
+
+            shouldContinue = false;
+        }
+    }
+
+    render();
+
+    return shouldContinue;
+}
+
 void Engine::render()
 {
-    auto timeStart = std::chrono::high_resolution_clock::now();
-
+    auto timeStart = std::chrono::steady_clock::now();
     renderer_->render();
-
-    auto timeEnd = std::chrono::high_resolution_clock::now();
-    auto msTimeDiff
-        = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
+    auto timeEnd = std::chrono::steady_clock::now();
 
     EngineTimings* timings = &engineParams_.timings;
-    timings->frameDuration = (float) msTimeDiff / ONE_SEC_IN_MILLI_F;
+    timings->frameDuration
+        = (float) std::chrono::duration_cast<std::chrono::microseconds>(
+              timeEnd - timeStart)
+              .count()
+        / 1000.0F;
     if (!timings->paused)
     {
-        timings->timer += timings->timerSpeed * timings->frameDuration;
+        timings->timer += timings->timerSpeed * timings->frameDuration / 1000.0F;
         if (timings->timer > 1.0)
         {
             timings->timer -= 1.0f;
@@ -158,7 +173,7 @@ void Engine::render()
 
     EngineStatistics* stats = &engineParams_.statistics;
     stats->frameCounter++;
-    stats->fpsTimer += (float) msTimeDiff;
+    stats->fpsTimer += timings->frameDuration;
     if (stats->fpsTimer > stats->fpsRefreshPeriod)
     {
         stats->fpsValue = static_cast<uint32_t>(
@@ -168,10 +183,12 @@ void Engine::render()
 
         SPDLOG_LOGGER_INFO(
             logger_,
-            "Update FPS value : {} ; frames : {} ; timer : {}",
+            "Update FPS value : {:4} ; frames : {:3} ; timer : {:.5f}, "
+            "last frame duration : {:.3f} ms",
             stats->fpsValue,
             stats->frameCounter,
-            timings->timer);
+            timings->timer,
+            timings->frameDuration);
 
         stats->fpsTimer = 0.0f;
         stats->frameCounter = 0;

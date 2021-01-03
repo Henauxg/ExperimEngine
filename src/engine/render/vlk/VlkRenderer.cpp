@@ -1,6 +1,7 @@
 #include "VlkRenderer.hpp"
 
 #include <stdexcept>
+#include <random>
 
 #include <ExperimEngineConfig.h>
 #include <engine/render/vlk/VlkCapabilities.hpp>
@@ -61,7 +62,13 @@ VulkanRenderer::~VulkanRenderer()
     }
 }
 
-void VulkanRenderer::render() { /* TODO Implement */ }
+void VulkanRenderer::render()
+{
+    static std::random_device rd;
+    static std::mt19937 rng(rd());
+    std::uniform_int_distribution<int> uni(10, 17);
+    std::this_thread::sleep_for(std::chrono::milliseconds(uni(rng)));
+}
 
 void VulkanRenderer::handleEvent(const SDL_Event& event)
 {

@@ -1,5 +1,7 @@
 #include "WebGPURenderer.hpp"
 
+#include <random>
+
 #include <ExperimEngineConfig.h>
 
 namespace {
@@ -18,6 +20,8 @@ WebGPURenderer::WebGPURenderer(
     EngineParameters& engineParams)
     : Renderer(engineParams)
 {
+    mainWindow_ = std::make_shared<Window>(windowWidth, windoHeight, appName, 0);
+
     /* TODO implement */
 }
 
@@ -27,7 +31,11 @@ WebGPURenderer::~WebGPURenderer()
 }
 
 void WebGPURenderer::render()
-{ /* TODO Implement */
+{
+    static std::random_device rd;
+    static std::mt19937 rng(rd());
+    std::uniform_int_distribution<int> uni(10, 17);
+    std::this_thread::sleep_for(std::chrono::milliseconds(uni(rng)));
 }
 
 void WebGPURenderer::handleEvent(const SDL_Event& event)
@@ -38,11 +46,7 @@ void WebGPURenderer::rendererWaitIdle()
 { /* TODO implement */
 }
 
-std::shared_ptr<Window> WebGPURenderer::getMainWindow()
-{
-    /* TODO implement */
-    return std::make_shared<Window>(10,10,"No title", 0);
-}
+std::shared_ptr<Window> WebGPURenderer::getMainWindow() { return mainWindow_; }
 
 } // namespace wgpu
 } // namespace render
