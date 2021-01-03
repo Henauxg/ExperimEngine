@@ -1,8 +1,9 @@
 ﻿{
   "environments": [
     {
-      "emsdkPath": "..\\..\\..\\SDK\\emsdk",
-      "emsdkCMake": "${env.emsdkPath}\\upstream\\emscripten\\cmake\\Modules\\Platform\\Emscripten.cmake"
+      "namespace": "emsdk",
+      "sdkPath": "${projectDir}\\..\\..\\..\\SDK\\emsdk",
+      "cmakePath": "${emsdk.sdkPath}\\upstream\\emscripten\\cmake\\Modules\\Platform\\Emscripten.cmake"
     }
   ],
   "configurations": [
@@ -41,7 +42,7 @@
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "linux_x64" ],
       "variables": [],
-      "cmakeToolchain": "${env.emsdkCMake}"
+      "cmakeToolchain": "${emsdk.cmakePath}"
     }
   ]
 }
