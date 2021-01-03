@@ -19,12 +19,15 @@ namespace render {
 Renderer::Renderer(
     const std::string& appName,
     const uint32_t appVersion,
-    std::shared_ptr<Window> window,
+    int windowWidth,
+    int windoHeight,
     EngineParameters& engineParams)
-    : mainWindow_(window)
-    , engineParams_(engineParams)
+    : engineParams_(engineParams)
     , logger_(spdlog::get(LOGGER_NAME))
 {
+    mainWindow_
+        = std::make_shared<vlk::VulkanWindow>(windowWidth, windoHeight, appName);
+
     vk::DispatchLoaderDynamic& dispatchLoader_ = vlk::initializeDispatch();
     vkInstance_ = createVulkanInstance(appName, appVersion, *mainWindow_);
     vlk::initializeInstanceDispatch(*vkInstance_, dispatchLoader_);
@@ -38,12 +41,12 @@ Renderer::Renderer(
     memAllocator_ = std::make_unique<vlk::MemoryAllocator>(
         *vkInstance_, *vlkDevice_, dispatchLoader_, ENGINE_VULKAN_API_VERSION);
 
-    imguiBackend_ = std::make_unique<ImguiBackend>(*vlkDevice_, window);
+    imguiBackend_ = std::make_unique<ImguiBackend>(*vlkDevice_, mainWindow_);
 
     mainRenderingContext_ = std::make_shared<RenderingContext>(
         *vkInstance_,
         *vlkDevice_,
-        window,
+        mainWindow_,
         imguiBackend_->getRenderingBackend(),
         AttachmentsFlagBits::eColorAttachment);
 
@@ -75,10 +78,15 @@ void Renderer::handleEvent(const SDL_Event& event)
 
 void Renderer::rendererWaitIdle() { vlkDevice_->waitIdle(); }
 
+std::shared_ptr<Window> Renderer::getMainWindow()
+{
+    return std::static_pointer_cast<Window>(mainWindow_);
+}
+
 vk::UniqueInstance Renderer::createVulkanInstance(
     const std::string& appName,
     const uint32_t appVersion,
-    const Window& window) const
+    const vlk::VulkanWindow& window) const
 {
     /* Check layer support */
     EXPENGINE_ASSERT(

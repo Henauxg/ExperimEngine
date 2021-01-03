@@ -4,16 +4,15 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
-#include <SDL2/SDL_vulkan.h>
 
-#include <engine/render/vlk/VlkDebug.hpp>
+#include <engine/log/ExpengineLog.hpp>
 
 namespace expengine {
 namespace render {
 
 Window::Window(int width, int height, const std::string& title, uint32_t flags)
 {
-    /* Calls SDL_Vulkan_LoadLibrary */
+    /* Calls SDL_Vulkan_LoadLibrary if flags has SDL_WINDOW_VULKAN */
     sdlWindow_ = SDL_CreateWindow(
         title.data(),
         SDL_WINDOWPOS_CENTERED,
@@ -22,62 +21,24 @@ Window::Window(int width, int height, const std::string& title, uint32_t flags)
         height,
         flags);
 
-    /* TODO Error handling since we will create windows on the fly
-     */
+    /* TODO Better error handling since we will create windows on the fly */
     EXPENGINE_ASSERT(sdlWindow_, "Failed to create an SDL window");
-}
-
-Window::Window(int width, int height, const std::string& title)
-    : Window(
-        width,
-        height,
-        title,
-        SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI)
-{
-}
-
-Window::Window()
-    : Window(
-        100,
-        100,
-        "",
-        SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
-            | SDL_WINDOW_HIDDEN)
-{
 }
 
 Window::~Window()
 {
-    /* Calls SDL_Vulkan_UnloadLibrary*/
+    SPDLOG_DEBUG("SDL Window destruction");
+    /* Calls SDL_Vulkan_UnloadLibrary if created with SDL_WINDOW_VULKAN */
     SDL_DestroyWindow(sdlWindow_);
 }
 
-bool Window::shouldClose() const
+std::shared_ptr<Window> Window::clone(
+    int width,
+    int height,
+    const std::string& title,
+    uint32_t flags)
 {
-    /* TODO Implement */
-    const int TMP_TIMEOUT_COUNT = 100;
-    static int tmpTimeout = 0;
-    tmpTimeout++;
-
-    return tmpTimeout > TMP_TIMEOUT_COUNT;
-}
-
-std::pair<bool, vk::SurfaceKHR> Window::createVkSurface(
-    vk::Instance vkInstance) const
-{
-    vk::SurfaceKHR surface;
-    bool result
-        = SDL_Vulkan_CreateSurface(sdlWindow_, vkInstance, (VkSurfaceKHR*) &surface);
-
-    return {result, surface};
-}
-
-bool Window::createVkSurface(vk::Instance vkInstance, vk::SurfaceKHR& surfaceCreated)
-    const
-{
-    bool res;
-    std::tie(res, surfaceCreated) = createVkSurface(vkInstance);
-    return res;
+    return std::make_shared<Window>(width, height, title, flags);
 }
 
 void Window::pollEvents()
@@ -117,13 +78,6 @@ std::pair<int, int> Window::getSize() const
     return {w, h};
 }
 
-std::pair<uint32_t, uint32_t> Window::getDrawableSizeInPixels() const
-{
-    int w = 0, h = 0;
-    SDL_Vulkan_GetDrawableSize(sdlWindow_, &w, &h);
-    return {(uint32_t) w, (uint32_t) h};
-}
-
 bool Window::isFocused() const
 {
     return (SDL_GetWindowFlags(sdlWindow_) & SDL_WINDOW_INPUT_FOCUS) != 0;
@@ -139,26 +93,6 @@ void Window::hide() { SDL_HideWindow(sdlWindow_); }
 void Window::show() { SDL_ShowWindow(sdlWindow_); }
 
 uint32_t Window::getWindowId() const { return SDL_GetWindowID(sdlWindow_); }
-
-std::vector<const char*> Window::getRequiredVkExtensions() const
-{
-    uint32_t extensionCount;
-    /* TODO Error handling since we will create windows on the fly */
-    EXPENGINE_ASSERT(
-        SDL_Vulkan_GetInstanceExtensions(sdlWindow_, &extensionCount, nullptr),
-        "Failed to get the count of required Vulkan extensions "
-        "by the SDL window");
-
-    std::vector<const char*> windowExtensions(extensionCount);
-    /* TODO Error handling since we will create windows on the fly */
-    EXPENGINE_ASSERT(
-        SDL_Vulkan_GetInstanceExtensions(
-            sdlWindow_, &extensionCount, windowExtensions.data()),
-        "Failed to get the names of the Vulkan extensions required by the "
-        "SDL window");
-
-    return windowExtensions;
-}
 
 void* Window::getPlatformHandle() const { return (void*) sdlWindow_; }
 

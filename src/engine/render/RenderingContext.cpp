@@ -26,7 +26,7 @@ RenderingContext::RenderingContext(
     std::shared_ptr<Window> window,
     const UIRendererBackendVulkan& imguiRenderBackend,
     AttachmentsFlags attachmentsFlags)
-    : window_(window)
+    : window_(std::dynamic_pointer_cast<const vlk::VulkanWindow>(window))
     , device_(device)
     , imguiRenderBackend_(imguiRenderBackend)
     , attachmentsFlags_(attachmentsFlags)

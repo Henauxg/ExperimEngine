@@ -3,11 +3,11 @@
 #include <memory>
 #include <vector>
 
-#include <engine/render/Window.hpp>
 #include <engine/render/imgui/impl/UIRendererBackendVulkan.hpp>
 #include <engine/render/vlk/VlkDevice.hpp>
 #include <engine/render/vlk/VlkFrameCommandBuffer.hpp>
 #include <engine/render/vlk/VlkSwapchain.hpp>
+#include <engine/render/vlk/VlkWindow.hpp>
 #include <engine/utils/Flags.hpp>
 
 namespace expengine {
@@ -64,7 +64,7 @@ private:
     AttachmentsFlags attachmentsFlags_;
 
     /* Owned objects */
-    std::shared_ptr<const Window> window_;
+    std::shared_ptr<const vlk::VulkanWindow> window_;
     vk::UniqueSurfaceKHR windowSurface_;
     std::unique_ptr<vlk::Swapchain> vlkSwapchain_;
     vk::UniqueRenderPass renderPass_;

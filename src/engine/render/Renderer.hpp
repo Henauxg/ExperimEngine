@@ -5,9 +5,9 @@
 #include <engine/EngineParameters.hpp>
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/RenderingContext.hpp>
-#include <engine/render/Window.hpp>
 #include <engine/render/imgui/impl/ImGuiBackend.hpp>
 #include <engine/render/vlk/VlkMemoryAllocator.hpp>
+#include <engine/render/vlk/VlkWindow.hpp>
 
 namespace expengine {
 namespace render {
@@ -19,20 +19,22 @@ public:
     Renderer(
         const std::string& appName,
         const uint32_t appVersion,
-        std::shared_ptr<Window> window,
+        int windowWidth,
+        int windoHeight,
         EngineParameters& engineParams);
     ~Renderer();
 
     void render();
     void handleEvent(const SDL_Event& event);
     void rendererWaitIdle();
+    std::shared_ptr<Window> getMainWindow();
 
 private:
     EngineParameters& engineParams_;
 
     /* Vulkan objects */
     vk::UniqueInstance vkInstance_;
-    std::shared_ptr<const Window> mainWindow_;
+    std::shared_ptr<vlk::VulkanWindow> mainWindow_;
     std::unique_ptr<vlk::Device> vlkDevice_;
     std::unique_ptr<vlk::MemoryAllocator> memAllocator_;
     std::shared_ptr<RenderingContext> mainRenderingContext_;
@@ -50,7 +52,7 @@ private:
     vk::UniqueInstance createVulkanInstance(
         const std::string& appName,
         const uint32_t appVersion,
-        const Window& window) const;
+        const vlk::VulkanWindow& window) const;
     vk::DebugUtilsMessengerEXT setupDebugMessenger(
         vk::Instance instance,
         bool enableValidationLayers) const;

@@ -65,11 +65,14 @@ Engine::Engine(const std::string& appName, const uint32_t appVersion)
     /* Initialize main window & renderer           */
     /* ------------------------------------------- */
 #ifndef __EMSCRIPTEN__
-    mainWindow_ = std::make_shared<render::Window>(
-        DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, appName);
-
     renderer_ = std::make_unique<render::Renderer>(
-        appName, appVersion, mainWindow_, engineParams_);
+        appName,
+        appVersion,
+        DEFAULT_WINDOW_WIDTH,
+        DEFAULT_WINDOW_HEIGHT,
+        engineParams_);
+
+    mainWindow_ = renderer_->getMainWindow();
 #endif
 
     SPDLOG_LOGGER_INFO(

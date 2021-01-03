@@ -6,8 +6,8 @@
 #include <set>
 #include <string>
 
-#include <engine/render/Window.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
+#include <engine/render/vlk/VlkWindow.hpp>
 
 namespace expengine {
 namespace render {
@@ -23,7 +23,7 @@ Device::Device(vk::Instance vkInstance, std::shared_ptr<spdlog::logger> logger)
      * about surface compatibility between the Vulkan devices
      * selected/created and the surfaces that will be in use during the
      * application runtime. */
-    auto dummyWindow = std::make_unique<render::Window>();
+    auto dummyWindow = std::make_unique<VulkanWindow>();
     auto [surfaceCreated, dummySurface] = dummyWindow->createVkSurface(vkInstance);
     EXPENGINE_ASSERT(surfaceCreated, "Failed to create a VkSurface");
     auto windowSurface_ = vk::UniqueSurfaceKHR(dummySurface, vkInstance);

@@ -21,8 +21,8 @@ public:
 
 private:
 #ifndef __EMSCRIPTEN__
-    std::shared_ptr<render::Window> mainWindow_;
     std::unique_ptr<render::Renderer> renderer_;
+    std::shared_ptr<render::Window> mainWindow_;
 #endif
     EngineParameters engineParams_;
 

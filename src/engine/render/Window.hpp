@@ -1,8 +1,7 @@
 #pragma once
 
-#include <vector>
-
-#include <engine/render/vlk/VlkInclude.hpp>
+#include <memory>
+#include <string>
 
 struct SDL_Window;
 
@@ -11,12 +10,9 @@ namespace render {
 
 class Window {
 public:
-    Window(int width, int height, const std::string& title);
     Window(int width, int height, const std::string& title, uint32_t flags);
-    Window();
     ~Window();
 
-    bool shouldClose() const;
     void pollEvents();
     void waitEvents() const;
     void setOpacity(float opacity);
@@ -27,24 +23,24 @@ public:
     void setFocus();
     std::pair<int, int> getPosition() const;
     std::pair<int, int> getSize() const;
-    std::pair<uint32_t, uint32_t> getDrawableSizeInPixels() const;
     bool isFocused() const;
     bool isMinimized() const;
     void hide();
     void show();
     uint32_t getWindowId() const;
 
+    /* Virtual methods */
+    virtual std::shared_ptr<Window> clone(
+        int width,
+        int height,
+        const std::string& title,
+        uint32_t flags);
+
     /* Platform/OS specific */
     void* getPlatformHandle() const;
     void* getPlatformHandleRaw() const;
 
-    /* Vulkan only */
-    std::pair<bool, vk::SurfaceKHR> createVkSurface(vk::Instance vkInstance) const;
-    bool createVkSurface(vk::Instance vkInstance, vk::SurfaceKHR& surfaceCreated)
-        const;
-    std::vector<const char*> getRequiredVkExtensions() const;
-
-private:
+protected:
     struct SDL_Window* sdlWindow_;
 };
 

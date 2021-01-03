@@ -20,4 +20,6 @@ target_sources(ExperimEngine
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkSwapchain.hpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkTools.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkTools.hpp
+		${CMAKE_CURRENT_SOURCE_DIR}/VlkWindow.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/VlkWindow.hpp
 )

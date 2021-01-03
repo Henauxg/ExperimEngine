@@ -137,13 +137,13 @@ const uint32_t __glsl_shader_frag_spv[]
 namespace expengine {
 namespace render {
 
-/* Static used to give acces to vulkan device/instance to imgui static
+/** Static used to give acces to vulkan device/instance to imgui static
  * callbacks. Set only once in UIRendererBackendVulkan constructor. Device
  * is destroyed after imgui backend and thus it cannot point to an invalid
  * object.
  */
 static const vlk::Device* gVlkDevice = nullptr;
-/* Static used to give acces to vulkan imgui rendering backend to imgui
+/** Static used to give acces to vulkan imgui rendering backend to imgui
  * static callbacks. Set only once in UIRendererBackendVulkan
  * constructor. No RenderinContext can be built by UIRendererBackendVulkan
  * after UIRendererBackendVulkan destruction, thus it cannot point to an

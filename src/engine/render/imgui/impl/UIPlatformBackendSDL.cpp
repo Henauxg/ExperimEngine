@@ -4,7 +4,6 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
-#include <SDL2/SDL_vulkan.h>
 
 #include <engine/render/imgui/impl/ImGuiViewportPlatformData.hpp>
 
@@ -12,7 +11,7 @@ namespace {
 
 const std::string PLATFORM_BACKEND_NAME = "ExperimEngine_SDL_Platform";
 
-}
+} // namespace
 
 namespace expengine {
 namespace render {
@@ -28,14 +27,16 @@ static void ImGui_ImplExpengine_SetWindowPos(ImGuiViewport* viewport, ImVec2 pos
 static ImVec2 ImGui_ImplExpengine_GetWindowSize(ImGuiViewport* viewport);
 static void ImGui_ImplExpengine_SetWindowSize(ImGuiViewport* viewport, ImVec2 size);
 static void ImGui_ImplExpengine_SetWindowTitle(
-    ImGuiViewport* viewport, const char* title);
+    ImGuiViewport* viewport,
+    const char* title);
 static void ImGui_ImplExpengine_SetWindowAlpha(ImGuiViewport* viewport, float alpha);
 static void ImGui_ImplExpengine_SetWindowFocus(ImGuiViewport* viewport);
 static bool ImGui_ImplExpengine_GetWindowFocus(ImGuiViewport* viewport);
 static bool ImGui_ImplExpengine_GetWindowMinimized(ImGuiViewport* viewport);
 
 UIPlatformBackendSDL::UIPlatformBackendSDL(
-    std::shared_ptr<ImGuiContextWrapper> context, std::shared_ptr<Window> window)
+    std::shared_ptr<ImGuiContextWrapper> context,
+    std::shared_ptr<Window> mainWindow)
     : context_(context)
     , clipboardTextData_(nullptr)
     , mouseCanUseGlobalState_(true)
@@ -113,8 +114,8 @@ UIPlatformBackendSDL::UIPlatformBackendSDL(
     /* Mouse update function expect PlatformHandle to be filled for the
      * main viewport */
     ImGuiViewport* mainViewport = ImGui::GetMainViewport();
-    mainViewport->PlatformHandle = window->getPlatformHandle();
-    mainViewport->PlatformHandleRaw = window->getPlatformHandleRaw();
+    mainViewport->PlatformHandle = mainWindow->getPlatformHandle();
+    mainViewport->PlatformHandleRaw = mainWindow->getPlatformHandleRaw();
 
     /* ------------------------------------------- */
     /* Register monitors                           */
@@ -170,8 +171,6 @@ UIPlatformBackendSDL::UIPlatformBackendSDL(
         plt_io.Platform_SetWindowTitle = ImGui_ImplExpengine_SetWindowTitle;
         plt_io.Platform_SetWindowAlpha = ImGui_ImplExpengine_SetWindowAlpha;
         /* Surface creation handled by the RenderingContext */
-        /* plt_io.Platform_CreateVkSurface
-                = ImGui_ImplExpengine_CreateVkSurface; */
         /* TODO : Unused with Vulkan. No OpenGl backend planned. */
         /* plt_io.Platform_RenderWindow = */
         /* plt_io.Platform_SwapBuffers = */
@@ -182,7 +181,7 @@ UIPlatformBackendSDL::UIPlatformBackendSDL(
         SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 
         /* Note : cleared by ImGui_ImplExpengine_DestroyWindow */
-        ImGuiViewportPlatformData* data = new ImGuiViewportPlatformData(window);
+        ImGuiViewportPlatformData* data = new ImGuiViewportPlatformData(mainWindow);
         mainViewport->PlatformUserData = data;
     }
 }
@@ -285,7 +284,6 @@ static void ImGui_ImplSDL2_SetClipboardText(void* userData, const char* text)
 static void ImGui_ImplSDL2_CreateWindow(ImGuiViewport* viewport)
 {
     Uint32 sdl_flags = 0;
-    sdl_flags |= SDL_WINDOW_VULKAN;
     sdl_flags |= SDL_WINDOW_ALLOW_HIGHDPI;
     sdl_flags |= SDL_WINDOW_HIDDEN;
     sdl_flags |= (viewport->Flags & ImGuiViewportFlags_NoDecoration)
@@ -304,7 +302,10 @@ static void ImGui_ImplSDL2_CreateWindow(ImGuiViewport* viewport)
         ? SDL_WINDOW_ALWAYS_ON_TOP
         : 0;
 
-    auto window = std::make_shared<render::Window>(
+    /* Use the main viewport window to create a new renderer-specific window */
+    auto mainViewportData
+        = (ImGuiViewportPlatformData*) ImGui::GetMainViewport()->PlatformUserData;
+    auto window = mainViewportData->window_->clone(
         (int) viewport->Size.x, (int) viewport->Size.y, "No Title Yet", sdl_flags);
     window->setPosition((int) viewport->Pos.x, (int) viewport->Pos.y);
 
@@ -375,7 +376,8 @@ static void ImGui_ImplExpengine_SetWindowSize(ImGuiViewport* viewport, ImVec2 si
 }
 
 static void ImGui_ImplExpengine_SetWindowTitle(
-    ImGuiViewport* viewport, const char* title)
+    ImGuiViewport* viewport,
+    const char* title)
 {
     auto data = (ImGuiViewportPlatformData*) viewport->PlatformUserData;
     data->window_->setTitle(title);
