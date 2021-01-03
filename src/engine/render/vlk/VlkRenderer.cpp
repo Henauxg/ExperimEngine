@@ -1,9 +1,8 @@
-#include "Renderer.hpp"
+#include "VlkRenderer.hpp"
 
 #include <stdexcept>
 
 #include <ExperimEngineConfig.h>
-#include <engine/render/imgui/impl/ImGuiBackend.hpp>
 #include <engine/render/vlk/VlkCapabilities.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
 #include <engine/render/vlk/VlkDispatch.hpp>
@@ -15,15 +14,15 @@ const uint32_t ENGINE_VULKAN_API_VERSION = VK_API_VERSION_1_0;
 
 namespace expengine {
 namespace render {
+namespace vlk {
 
-Renderer::Renderer(
+VulkanRenderer::VulkanRenderer(
     const std::string& appName,
     const uint32_t appVersion,
     int windowWidth,
     int windoHeight,
     EngineParameters& engineParams)
-    : engineParams_(engineParams)
-    , logger_(spdlog::get(LOGGER_NAME))
+    : Renderer(engineParams)
 {
     mainWindow_
         = std::make_shared<vlk::VulkanWindow>(windowWidth, windoHeight, appName);
@@ -53,20 +52,18 @@ Renderer::Renderer(
     imguiBackend_->bindMainRenderingContext(mainRenderingContext_);
 }
 
-Renderer::~Renderer()
+VulkanRenderer::~VulkanRenderer()
 {
-    SPDLOG_LOGGER_DEBUG(logger_, "Renderer destruction");
+    SPDLOG_LOGGER_DEBUG(logger_, "Vulkan renderer destruction");
     if (vlk::ENABLE_VALIDATION_LAYERS)
     {
         vlk::destroyDebugUtilsMessengerEXT(*vkInstance_, vkDebugMessenger_);
     }
 }
 
-void Renderer::render()
-{ /* TODO Implement */
-}
+void VulkanRenderer::render() { /* TODO Implement */ }
 
-void Renderer::handleEvent(const SDL_Event& event)
+void VulkanRenderer::handleEvent(const SDL_Event& event)
 {
     bool handled = imguiBackend_->handleEvent(event);
 
@@ -76,14 +73,14 @@ void Renderer::handleEvent(const SDL_Event& event)
     }
 }
 
-void Renderer::rendererWaitIdle() { vlkDevice_->waitIdle(); }
+void VulkanRenderer::rendererWaitIdle() { vlkDevice_->waitIdle(); }
 
-std::shared_ptr<Window> Renderer::getMainWindow()
+std::shared_ptr<Window> VulkanRenderer::getMainWindow()
 {
     return std::static_pointer_cast<Window>(mainWindow_);
 }
 
-vk::UniqueInstance Renderer::createVulkanInstance(
+vk::UniqueInstance VulkanRenderer::createVulkanInstance(
     const std::string& appName,
     const uint32_t appVersion,
     const vlk::VulkanWindow& window) const
@@ -140,7 +137,7 @@ vk::UniqueInstance Renderer::createVulkanInstance(
     return std::move(instance);
 }
 
-vk::DebugUtilsMessengerEXT Renderer::setupDebugMessenger(
+vk::DebugUtilsMessengerEXT VulkanRenderer::setupDebugMessenger(
     vk::Instance instance,
     bool enableValidationLayers) const
 {
@@ -152,5 +149,6 @@ vk::DebugUtilsMessengerEXT Renderer::setupDebugMessenger(
     return vlk::createDebugUtilsMessengerEXT(instance, logger_.get());
 }
 
+} // namespace vlk
 } // namespace render
 } // namespace expengine

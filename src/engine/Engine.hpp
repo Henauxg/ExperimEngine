@@ -3,12 +3,9 @@
 #include <memory>
 
 #include <engine/EngineParameters.hpp>
-
 #include <engine/log/ExpengineLog.hpp>
-#ifndef __EMSCRIPTEN__
 #include <engine/render/Renderer.hpp>
 #include <engine/render/Window.hpp>
-#endif
 
 namespace expengine {
 
@@ -20,10 +17,9 @@ public:
     void run();
 
 private:
-#ifndef __EMSCRIPTEN__
     std::unique_ptr<render::Renderer> renderer_;
     std::shared_ptr<render::Window> mainWindow_;
-#endif
+
     EngineParameters engineParams_;
 
     /* Logging */

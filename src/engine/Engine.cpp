@@ -5,11 +5,14 @@
 #include <SDL2/SDL.h>
 
 #ifndef __EMSCRIPTEN__
-#include <spdlog\sinks\rotating_file_sink.h>
+#include <engine/render/vlk/VlkRenderer.hpp>
+#include <spdlog/sinks/rotating_file_sink.h>
+#else
+#include <engine/render/wgpu/WebGPURenderer.hpp>
 #endif
-#include <spdlog\sinks\stdout_color_sinks.h>
 
 #include <ExperimEngineConfig.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace {
 const int DEFAULT_WINDOW_WIDTH = 800;
@@ -65,15 +68,22 @@ Engine::Engine(const std::string& appName, const uint32_t appVersion)
     /* Initialize main window & renderer           */
     /* ------------------------------------------- */
 #ifndef __EMSCRIPTEN__
-    renderer_ = std::make_unique<render::Renderer>(
+    renderer_ = std::make_unique<render::vlk::VulkanRenderer>(
         appName,
         appVersion,
         DEFAULT_WINDOW_WIDTH,
         DEFAULT_WINDOW_HEIGHT,
         engineParams_);
+#else
+    renderer_ = std::make_unique<render::wgpu::WebGPURenderer>(
+        appName,
+        appVersion,
+        DEFAULT_WINDOW_WIDTH,
+        DEFAULT_WINDOW_HEIGHT,
+        engineParams_);
+#endif
 
     mainWindow_ = renderer_->getMainWindow();
-#endif
 
     SPDLOG_LOGGER_INFO(
         logger_,
@@ -121,18 +131,16 @@ void Engine::run()
     }
 #endif
 
-#ifndef __EMSCRIPTEN__
     renderer_->rendererWaitIdle();
-#endif
     SPDLOG_LOGGER_INFO(logger_, "ExperimEngine : execution ended");
 }
 
 void Engine::render()
 {
     auto timeStart = std::chrono::high_resolution_clock::now();
-#ifndef __EMSCRIPTEN__
+
     renderer_->render();
-#endif
+
     auto timeEnd = std::chrono::high_resolution_clock::now();
     auto msTimeDiff
         = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
