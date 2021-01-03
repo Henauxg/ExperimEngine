@@ -17,8 +17,8 @@
 
 namespace {
 
-const int DEFAULT_WINDOW_WIDTH = 800;
-const int DEFAULT_WINDOW_HEIGHT = 600;
+const int DEFAULT_WINDOW_WIDTH = 1280;
+const int DEFAULT_WINDOW_HEIGHT = 720;
 const float ONE_SEC_IN_MILLI_F = 1000.0f;
 
 } // namespace

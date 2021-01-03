@@ -20,7 +20,13 @@ WebGPURenderer::WebGPURenderer(
     EngineParameters& engineParams)
     : Renderer(engineParams)
 {
-    mainWindow_ = std::make_shared<Window>(windowWidth, windoHeight, appName, 0);
+    /* TODO, could also fetch html template sizes with
+     * "document.getElementById('canvas').width;" */
+    mainWindow_ = std::make_shared<Window>(
+        windowWidth,
+        windoHeight,
+        appName,
+        SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
     /* TODO implement */
 }
