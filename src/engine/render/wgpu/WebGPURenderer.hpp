@@ -2,12 +2,16 @@
 
 #include <SDL2\SDL_events.h>
 
+#ifdef __EMSCRIPTEN__
+#include <webgpu/webgpu_cpp.h>
+#endif
+
 #include <engine/render/Renderer.hpp>
 #include <engine/render/Window.hpp>
 
 namespace expengine {
 namespace render {
-namespace wgpu {
+namespace webgpu {
 
 class WebGPURenderer : public Renderer {
 public:
@@ -26,8 +30,10 @@ public:
 
 private:
     std::shared_ptr<Window> mainWindow_;
+    wgpu::Device device_;
+    wgpu::Queue queue_;
 };
 
-} // namespace wgpu
+} // namespace webgpu
 } // namespace render
 } // namespace expengine

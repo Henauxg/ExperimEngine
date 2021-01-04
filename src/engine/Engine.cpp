@@ -78,7 +78,7 @@ Engine::Engine(const std::string& appName, const uint32_t appVersion)
         DEFAULT_WINDOW_HEIGHT,
         engineParams_);
 #else
-    renderer_ = std::make_unique<render::wgpu::WebGPURenderer>(
+    renderer_ = std::make_unique<render::webgpu::WebGPURenderer>(
         appName,
         appVersion,
         DEFAULT_WINDOW_WIDTH,

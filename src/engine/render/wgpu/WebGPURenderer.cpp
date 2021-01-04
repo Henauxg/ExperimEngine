@@ -2,15 +2,21 @@
 
 #include <random>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#include <emscripten/html5_webgpu.h>
+#endif
+
 #include <ExperimEngineConfig.h>
 
 namespace {
 
 }
 
+/* Inspired by https://github.com/kainino0x/webgpu-cross-platform-demo */
 namespace expengine {
 namespace render {
-namespace wgpu {
+namespace webgpu {
 
 WebGPURenderer::WebGPURenderer(
     const std::string& appName,
@@ -20,6 +26,7 @@ WebGPURenderer::WebGPURenderer(
     EngineParameters& engineParams)
     : Renderer(engineParams)
 {
+    /* Window */
     /* TODO, could also fetch html template sizes with
      * "document.getElementById('canvas').width;" */
     mainWindow_ = std::make_shared<Window>(
@@ -28,7 +35,19 @@ WebGPURenderer::WebGPURenderer(
         appName,
         SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
-    /* TODO implement */
+    /* Device */
+    device_ = wgpu::Device::Acquire(emscripten_webgpu_get_device());
+    device_.SetUncapturedErrorCallback(
+        [](WGPUErrorType errorType, const char* message, void* pUserData) {
+            auto logger = (spdlog::logger*) pUserData;
+            SPDLOG_LOGGER_CALL(
+                logger,
+                spdlog::level::err,
+                "WGPU UncapturedErrorCallback {} : {}",
+                message);
+        },
+        nullptr);
+    queue_ = device_.GetDefaultQueue();
 }
 
 WebGPURenderer::~WebGPURenderer()
@@ -54,6 +73,6 @@ void WebGPURenderer::rendererWaitIdle()
 
 std::shared_ptr<Window> WebGPURenderer::getMainWindow() { return mainWindow_; }
 
-} // namespace wgpu
+} // namespace webgpu
 } // namespace render
 } // namespace expengine
