@@ -6,9 +6,9 @@ Along the way, I aim to learn many things such as 3D graphics with [Vulkan](http
 
 ### Current work :
 
-+ Integration of [Dear ImGui](https://github.com/ocornut/imgui) docking branch
++ Integration of [Dear ImGui](https://github.com/ocornut/imgui) docking branch in the native Vulkan Renderer
 + Investigation for a [scripting language](#modding-and-scripting)
-+ Investigation for [web-support](#web-support)
++ [web-support](#web-support) : WebGPU renderer implementation
 
 ## Modding and Scripting
 

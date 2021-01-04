@@ -38,12 +38,15 @@ target_include_directories(ExperimEngine PUBLIC
 	${PROJECT_SOURCE_DIR}/includes/lua
 	${PROJECT_SOURCE_DIR}/src
 )
-# Web-target includes
+# Web-target includes/compile definitions
 if(WEB_TARGET)
 	target_include_directories(ExperimEngine PUBLIC
 		# Emscripten headers
 		"${EMSCRIPTEN_ROOT_PATH}/system/include"
 	)
+	# This is already defined by the toolchain,
+	# but redefined here for Visual Studio/Intellisense to pick it up
+	add_compile_definitions(__EMSCRIPTEN__)
 endif()
 
 # Windows specific : linking
@@ -59,7 +62,7 @@ endif()
 
 #  Web-target specific : linking and post-build commands
 if(WEB_TARGET)
-	set_target_properties(ExperimEngine PROPERTIES LINK_FLAGS "-s USE_SDL=2") 
+	set_target_properties(ExperimEngine PROPERTIES LINK_FLAGS "-s USE_SDL=2 -s USE_WEBGPU=1") 
 
 	set(TOOLS_DIR ${PROJECT_SOURCE_DIR}/tools)
 	add_custom_command(TARGET ExperimEngine POST_BUILD
