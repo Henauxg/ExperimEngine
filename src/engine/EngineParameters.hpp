@@ -23,7 +23,7 @@ struct EngineStatistics {
     /** @brief Timer used to compute the FPS. */
     float fpsTimer = 0.0f;
     /** @brief Period (in ms) used to compute the average FPS value. */
-    float fpsRefreshPeriod = 50.0f;
+    float fpsRefreshPeriod = 1000.0f;
     /** @brief Number of frames since the last FPS timer refresh. */
     uint32_t frameCounter = 0;
     /** @brief FPS value during the last second. */
