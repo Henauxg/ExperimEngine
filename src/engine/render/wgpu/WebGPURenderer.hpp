@@ -8,6 +8,7 @@
 
 #include <engine/render/Renderer.hpp>
 #include <engine/render/Window.hpp>
+#include <engine/render/imgui/ImGuiBackend.hpp>
 
 namespace expengine {
 namespace render {
@@ -30,8 +31,13 @@ public:
 
 private:
     std::shared_ptr<Window> mainWindow_;
+
+    /* WebGPU objects */
     wgpu::Device device_;
     wgpu::Queue queue_;
+
+    /* UI */
+    std::unique_ptr<ImguiBackend> imguiBackend_;
 };
 
 } // namespace webgpu

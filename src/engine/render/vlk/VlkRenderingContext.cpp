@@ -1,10 +1,11 @@
-#include "RenderingContext.hpp"
+#include "VlkRenderingContext.hpp"
 
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
 
 namespace expengine {
 namespace render {
+namespace vlk {
 
 /* Vulkan objects per RenderingContext :
  * All the objects except the surface are recreated on resize.
@@ -20,35 +21,42 @@ namespace render {
  * --> Image view  (BackbufferView)
  * --> Framebuffer */
 
-RenderingContext::RenderingContext(
-    const vk::Instance vkInstance,
+VulkanRenderingContext::VulkanRenderingContext(
     const vlk::Device& device,
-    std::shared_ptr<Window> window,
-    const UIRendererBackendVulkan& imguiRenderBackend,
+    std::shared_ptr<VulkanWindow> window,
     AttachmentsFlags attachmentsFlags)
-    : window_(std::dynamic_pointer_cast<const vlk::VulkanWindow>(window))
+    : RenderingContext()
+    , window_(window)
     , device_(device)
-    , imguiRenderBackend_(imguiRenderBackend)
     , attachmentsFlags_(attachmentsFlags)
     , frameIndex_(0)
     , semaphoreIndex_(0)
-    , logger_(spdlog::get(LOGGER_NAME))
 {
     /* Create surface */
-    auto [surfaceCreated, surface] = window_->createVkSurface(vkInstance);
+    auto [surfaceCreated, surface]
+        = window_->createVkSurface(device.instanceHandle());
     EXPENGINE_ASSERT(surfaceCreated, "Failed to create a VkSurface");
-    windowSurface_ = vk::UniqueSurfaceKHR(surface, vkInstance);
+    windowSurface_ = vk::UniqueSurfaceKHR(surface, device.instanceHandle());
 
     auto [w, h] = window_->getDrawableSizeInPixels();
     buildSwapchainObjects({w, h});
 }
 
-RenderingContext::~RenderingContext()
+VulkanRenderingContext::~VulkanRenderingContext()
 {
     SPDLOG_LOGGER_DEBUG(logger_, "RenderingContext destruction");
 }
 
-void RenderingContext::buildSwapchainObjects(vk::Extent2D requestedExtent)
+std::shared_ptr<RenderingContext> VulkanRenderingContext::clone(
+    std::shared_ptr<Window> window,
+    AttachmentsFlags attachmentFlags)
+{
+    auto renderingContext = std::make_shared<VulkanRenderingContext>(
+        device_, std::dynamic_pointer_cast<VulkanWindow>(window), attachmentFlags);
+    return renderingContext;
+}
+
+void VulkanRenderingContext::buildSwapchainObjects(vk::Extent2D requestedExtent)
 {
     /* Create SwapChain with images */
     vlkSwapchain_ = std::make_unique<vlk::Swapchain>(
@@ -57,17 +65,20 @@ void RenderingContext::buildSwapchainObjects(vk::Extent2D requestedExtent)
     /* Create Render pass */
     renderPass_ = createRenderPass(device_, *vlkSwapchain_, attachmentsFlags_);
 
-    /* Create Graphics pipeline(s)  */
+#if 0
+    // TODO Should be in Ui Rendering backend
+    /* Create Graphics pipeline(s) */
     auto uiPipelineInfo = imguiRenderBackend_.getPipelineInfo();
     uiGraphicsPipeline_
         = createGraphicsPipeline(device_, uiPipelineInfo, *renderPass_);
+#endif // 0
 
     /* Create frame objects : Image views, Framebuffers, Command pools,
      * Command buffers and Sync objects */
     createFrameObjects(frames_, *vlkSwapchain_, *renderPass_, attachmentsFlags_);
 }
 
-void RenderingContext::createFrameObjects(
+void VulkanRenderingContext::createFrameObjects(
     std::vector<FrameObjects>& frames,
     const vlk::Swapchain& swapchain,
     vk::RenderPass& renderPass,
@@ -177,7 +188,7 @@ void RenderingContext::createFrameObjects(
     }
 }
 
-vk::UniqueRenderPass RenderingContext::createRenderPass(
+vk::UniqueRenderPass VulkanRenderingContext::createRenderPass(
     const vlk::Device& device,
     const vlk::Swapchain& swapchain,
     AttachmentsFlags attachmentsFlags)
@@ -258,7 +269,7 @@ vk::UniqueRenderPass RenderingContext::createRenderPass(
     return std::move(renderPass);
 }
 
-vk::UniquePipeline RenderingContext::createGraphicsPipeline(
+vk::UniquePipeline VulkanRenderingContext::createGraphicsPipeline(
     const vlk::Device& device,
     vk::GraphicsPipelineCreateInfo& pipelineInfos,
     vk::RenderPass& renderPass)
@@ -272,7 +283,7 @@ vk::UniquePipeline RenderingContext::createGraphicsPipeline(
     return std::move(graphicsPipeline);
 }
 
-void RenderingContext::handleSurfaceChanges()
+void VulkanRenderingContext::handleSurfaceChanges()
 {
     auto [result, surfaceProperties]
         = device_.getSurfaceCapabilities(windowSurface_.get());
@@ -285,7 +296,7 @@ void RenderingContext::handleSurfaceChanges()
     }
 }
 
-vlk::FrameCommandBuffer& RenderingContext::beginFrame()
+void VulkanRenderingContext::beginFrame()
 {
     /* Here we check for the semaphore availability. If semaphoreIndex_ is
      * still used by a frame not yet submitted, we wait for its frame to be
@@ -330,13 +341,21 @@ vlk::FrameCommandBuffer& RenderingContext::beginFrame()
 
     /* Reset command pool/buffers */
     device_.deviceHandle().resetCommandPool(frame.commandPool_.get(), {});
+}
 
+vlk::FrameCommandBuffer& VulkanRenderingContext::requestCommandBuffer()
+{
+    auto& frame = frames_.at(frameIndex_);
     /* Start and return a command buffer for this frame */
     frame.commandBuffer_->begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
+
+    /* TODO Should maintain a collection, not just one buffer */
+    /* TODO Should check for frame started and not yet submitted */
+
     return *frame.commandBuffer_;
 }
 
-void RenderingContext::submitFrame()
+void VulkanRenderingContext::submitFrame()
 {
     auto& frame = frames_.at(frameIndex_);
 
@@ -383,5 +402,6 @@ void RenderingContext::submitFrame()
     }
 }
 
+} // namespace vlk
 } // namespace render
 } // namespace expengine

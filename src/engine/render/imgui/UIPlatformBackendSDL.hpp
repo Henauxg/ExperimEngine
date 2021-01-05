@@ -1,12 +1,13 @@
 #pragma once
 
 #include <array>
+#include <memory>
 
 #include <SDL2\SDL_events.h>
 
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/Window.hpp>
-#include <engine/render/imgui/impl/ImGuiContextWrapper.hpp>
+#include <engine/render/imgui/ImGuiContextWrapper.hpp>
 #include <engine/render/imgui/lib/imgui.h>
 
 struct SDL_Cursor;
@@ -18,8 +19,8 @@ namespace render {
 class UIPlatformBackendSDL {
 public:
     UIPlatformBackendSDL(
-        std::shared_ptr<ImGuiContextWrapper> context,
-        std::shared_ptr<Window> window);
+        std::shared_ptr<ImGuiContextWrapper> imguiContext,
+        std::shared_ptr<Window> mainWindow);
     ~UIPlatformBackendSDL();
 
     void eraseClipboardData();
@@ -28,7 +29,7 @@ public:
 
 private:
     /* ImGui */
-    const std::shared_ptr<ImGuiContextWrapper> context_;
+    const std::shared_ptr<ImGuiContextWrapper> imguiContext_;
 
     /* Platform */
     char* clipboardTextData_;

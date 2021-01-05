@@ -5,7 +5,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 
-#include <engine/render/imgui/impl/ImGuiViewportPlatformData.hpp>
+#include <engine/render/imgui/ImGuiViewportPlatformData.hpp>
 
 namespace {
 
@@ -35,9 +35,9 @@ static bool ImGui_ImplExpengine_GetWindowFocus(ImGuiViewport* viewport);
 static bool ImGui_ImplExpengine_GetWindowMinimized(ImGuiViewport* viewport);
 
 UIPlatformBackendSDL::UIPlatformBackendSDL(
-    std::shared_ptr<ImGuiContextWrapper> context,
+    std::shared_ptr<ImGuiContextWrapper> imguiContext,
     std::shared_ptr<Window> mainWindow)
-    : context_(context)
+    : imguiContext_(imguiContext)
     , clipboardTextData_(nullptr)
     , mouseCanUseGlobalState_(true)
     , mousePressed_({false, false, false})

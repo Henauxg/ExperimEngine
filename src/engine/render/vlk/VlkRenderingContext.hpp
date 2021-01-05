@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-#include <engine/render/imgui/impl/UIRendererBackendVulkan.hpp>
+#include <engine/render/RenderingContext.hpp>
 #include <engine/render/vlk/VlkDevice.hpp>
 #include <engine/render/vlk/VlkFrameCommandBuffer.hpp>
 #include <engine/render/vlk/VlkSwapchain.hpp>
@@ -12,25 +12,17 @@
 
 namespace expengine {
 namespace render {
-
-enum class AttachmentsFlagBits : uint32_t
-{
-    eColorAttachment = 1,
-    eDepthAttachments = 1 << 1
-};
-using AttachmentsFlags = Flags<AttachmentsFlagBits>;
+namespace vlk {
 
 struct FrameObjects;
 
-class RenderingContext {
+class VulkanRenderingContext : public RenderingContext {
 public:
-    RenderingContext(
-        const vk::Instance vkInstance,
+    VulkanRenderingContext(
         const vlk::Device& device,
-        std::shared_ptr<Window> window,
-        const UIRendererBackendVulkan& imguiRenderBackend,
+        std::shared_ptr<VulkanWindow> window,
         AttachmentsFlags attachmentFlags);
-    ~RenderingContext();
+    ~VulkanRenderingContext();
 
     /* Accessors */
     inline const vk::SurfaceKHR surface() const { return windowSurface_.get(); };
@@ -39,9 +31,17 @@ public:
     /* Call to make the RenderingContext check its surface and adapt its objects to
      * it. */
     void handleSurfaceChanges();
+
     /* Frame rendering */
-    vlk::FrameCommandBuffer& beginFrame();
+    void beginFrame();
+    /** Must not be called more than once per frame for now.
+     * TODO : should have a common buffer interfaces between backends */
+    vlk::FrameCommandBuffer& requestCommandBuffer();
     void submitFrame();
+
+    std::shared_ptr<RenderingContext> clone(
+        std::shared_ptr<Window> window,
+        AttachmentsFlags attachmentFlags);
 
 private:
     struct FrameObjects {
@@ -58,7 +58,6 @@ private:
     };
 
     const vlk::Device& device_;
-    const UIRendererBackendVulkan& imguiRenderBackend_;
 
     /* Configuration */
     AttachmentsFlags attachmentsFlags_;
@@ -79,9 +78,6 @@ private:
      * Semaphore Group ID -> Frame Fence
      * We can wait on the fence to make sure that the semaphore group is available */
     std::unordered_map<uint32_t, vk::Fence> semaphoreToFrameFence_;
-
-    /* Logging */
-    std::shared_ptr<spdlog::logger> logger_;
 
     /* Objects creation */
     vk::UniqueRenderPass createRenderPass(
@@ -111,5 +107,6 @@ private:
     void buildSwapchainObjects(vk::Extent2D requestedExtent);
 };
 
+} // namespace vlk
 } // namespace render
 } // namespace expengine

@@ -73,8 +73,8 @@ public:
     void waitIdle() const;
 
 private:
-    /* Instance reference */
-    const vk::Instance& vkInstance_;
+    /* Instance handle */
+    const vk::Instance vkInstance_;
 
     PhysicalDeviceDetails physDevice_;
     vk::UniqueDevice logicalDevice_;

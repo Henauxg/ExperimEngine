@@ -7,7 +7,7 @@
 namespace expengine {
 namespace render {
 
-/* Helper structure stored in the void* PlatformUserData field of each
+/** Helper structure stored in the void* PlatformUserData field of each
  * ImGuiViewport to easily retrieve platfrom backend data. */
 struct ImGuiViewportPlatformData {
     std::shared_ptr<Window> window_;

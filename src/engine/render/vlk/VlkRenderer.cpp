@@ -1,7 +1,7 @@
 #include "VlkRenderer.hpp"
 
-#include <stdexcept>
 #include <random>
+#include <stdexcept>
 
 #include <ExperimEngineConfig.h>
 #include <engine/render/vlk/VlkCapabilities.hpp>
@@ -41,16 +41,11 @@ VulkanRenderer::VulkanRenderer(
     memAllocator_ = std::make_unique<vlk::MemoryAllocator>(
         *vkInstance_, *vlkDevice_, dispatchLoader_, ENGINE_VULKAN_API_VERSION);
 
-    imguiBackend_ = std::make_unique<ImguiBackend>(*vlkDevice_, mainWindow_);
+    mainRenderingContext_ = std::make_shared<VulkanRenderingContext>(
+        *vlkDevice_, mainWindow_, AttachmentsFlagBits::eColorAttachment);
 
-    mainRenderingContext_ = std::make_shared<RenderingContext>(
-        *vkInstance_,
-        *vlkDevice_,
-        mainWindow_,
-        imguiBackend_->getRenderingBackend(),
-        AttachmentsFlagBits::eColorAttachment);
-
-    imguiBackend_->bindMainRenderingContext(mainRenderingContext_);
+    imguiBackend_
+        = std::make_unique<ImguiBackend>(*this, mainRenderingContext_, mainWindow_);
 }
 
 VulkanRenderer::~VulkanRenderer()

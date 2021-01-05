@@ -10,7 +10,10 @@ public:
     using MaskType = typename std::underlying_type<BitType>::type;
 
     /* Constructors */
-    constexpr Flags() VULKAN_HPP_NOEXCEPT : m_mask(0) { }
+    constexpr Flags() noexcept
+        : m_mask(0)
+    {
+    }
 
     constexpr Flags(BitType bit) noexcept
         : m_mask(static_cast<MaskType>(bit))
@@ -46,8 +49,7 @@ public:
         return Flags<BitType>(m_mask | rhs.m_mask);
     }
 
-    VULKAN_HPP_CONSTEXPR Flags<BitType> operator^(
-        Flags<BitType> const& rhs) const noexcept
+    constexpr Flags<BitType> operator^(Flags<BitType> const& rhs) const noexcept
     {
         return Flags<BitType>(m_mask ^ rhs.m_mask);
     }

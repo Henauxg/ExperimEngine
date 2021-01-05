@@ -48,6 +48,13 @@ WebGPURenderer::WebGPURenderer(
         },
         nullptr);
     queue_ = device_.GetDefaultQueue();
+
+    /* TODO main rendering context*/
+
+    /* ImGui */
+#if 0
+     imguiBackend_ = std::make_unique<ImguiBackend>(this, mainRenderingContext, mainWindow_);
+#endif // 0
 }
 
 WebGPURenderer::~WebGPURenderer()

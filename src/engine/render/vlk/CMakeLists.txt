@@ -1,7 +1,5 @@
 target_sources(ExperimEngine
     PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingContext.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/RenderingContext.hpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkCapabilities.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkCapabilities.hpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkCommandBuffer.cpp
@@ -20,6 +18,8 @@ target_sources(ExperimEngine
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkMemoryImplementation.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkRenderer.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkRenderer.hpp
+		${CMAKE_CURRENT_SOURCE_DIR}/VlkRenderingContext.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/VlkRenderingContext.hpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkSwapchain.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkSwapchain.hpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VlkTools.cpp

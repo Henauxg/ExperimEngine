@@ -70,15 +70,15 @@ Engine::Engine(const std::string& appName, const uint32_t appVersion)
     /* ------------------------------------------- */
     /* Initialize main window & renderer           */
     /* ------------------------------------------- */
-#ifndef __EMSCRIPTEN__
-    renderer_ = std::make_unique<render::vlk::VulkanRenderer>(
+#ifdef __EMSCRIPTEN__
+    renderer_ = std::make_unique<render::webgpu::WebGPURenderer>(
         appName,
         appVersion,
         DEFAULT_WINDOW_WIDTH,
         DEFAULT_WINDOW_HEIGHT,
         engineParams_);
 #else
-    renderer_ = std::make_unique<render::webgpu::WebGPURenderer>(
+    renderer_ = std::make_unique<render::vlk::VulkanRenderer>(
         appName,
         appVersion,
         DEFAULT_WINDOW_WIDTH,

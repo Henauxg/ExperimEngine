@@ -6,6 +6,6 @@ target_sources(ExperimEngine
         ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiViewportPlatformData.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/UIPlatformBackendSDL.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/UIPlatformBackendSDL.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/UIRendererBackendVulkan.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/UIRendererBackendVulkan.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/UIRendererBackend.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/UIRendererBackend.hpp
 )

@@ -1,5 +1,11 @@
 #include "ImGuiBackend.hpp"
 
+#ifdef __EMSCRIPTEN__
+#include <engine/render/imgui/wgpu/UIRendererBackendWebGPU.hpp>
+#else
+#include <engine/render/imgui/vlk/UIRendererBackendVulkan.hpp>
+#endif
+
 #include <engine/log/ExpengineLog.hpp>
 
 namespace {
@@ -13,8 +19,9 @@ namespace expengine {
 namespace render {
 
 ImguiBackend::ImguiBackend(
-    const vlk::Device& vlkDevice,
-    std::shared_ptr<Window> window)
+    const Renderer& renderer,
+    std::shared_ptr<RenderingContext> mainRenderingContext,
+    std::shared_ptr<Window> mainWindow)
     : logger_(spdlog::get(LOGGER_NAME))
 {
     /* ------------------------------------------- */
@@ -22,8 +29,8 @@ ImguiBackend::ImguiBackend(
     /* ------------------------------------------- */
 
     IMGUI_CHECKVERSION();
-    /* Shared ownership with platform and rendering bakcends */
-    context_ = std::make_shared<ImGuiContextWrapper>();
+    /* Shared ownership with platform and rendering backends */
+    imguiContext_ = std::make_shared<ImGuiContextWrapper>();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
@@ -52,14 +59,20 @@ ImguiBackend::ImguiBackend(
     /* Setup Platform bindings                     */
     /* ------------------------------------------- */
 
-    platformBackend_ = std::make_unique<UIPlatformBackendSDL>(context_, window);
+    platformBackend_
+        = std::make_unique<UIPlatformBackendSDL>(imguiContext_, mainWindow);
 
     /* ------------------------------------------- */
     /* Setup Renderer bindings                     */
     /* ------------------------------------------- */
 
-    renderingBackend_
-        = std::make_unique<UIRendererBackendVulkan>(context_, vlkDevice);
+#ifdef __EMSCRIPTEN__
+    renderingBackend_ = std::make_unique<UIRendererBackendWebGPU>(
+        imguiContext_, renderer, mainRenderingContext);
+#else
+    renderingBackend_ = std::make_unique<vlk::UIRendererBackendVulkan>(
+        imguiContext_, renderer, mainRenderingContext);
+#endif
 
     /* ------------------------------------------- */
     /* Fonts loading & Uploading                   */
@@ -71,7 +84,7 @@ ImguiBackend::ImguiBackend(
         fontRegular_ != nullptr, "Failed to load font : {}", OPEN_SANS_FONT);
 
     /* Upload to GPU */
-    renderingBackend_->uploadFonts(vlkDevice);
+    renderingBackend_->uploadFonts();
 }
 
 ImguiBackend::~ImguiBackend()

@@ -1,16 +1,14 @@
 #pragma once
 
-#include <engine/render/Window.hpp>
-#include <engine/render/imgui/impl/ImGuiContextWrapper.hpp>
-#include <engine/render/imgui/lib/imgui.h>
+#include <engine/render/imgui/UIRendererBackend.hpp>
 #include <engine/render/vlk/VlkDevice.hpp>
 #include <engine/render/vlk/VlkFrameCommandBuffer.hpp>
+#include <engine/render/vlk/VlkRenderer.hpp>
 #include <engine/render/vlk/resources/VlkTexture.hpp>
 
 namespace expengine {
 namespace render {
-
-class RenderingContext;
+namespace vlk {
 
 /* Shared device objects at backend level : */
 /* -> Font Texture (Image + ImageView + Memory) */
@@ -21,32 +19,24 @@ class RenderingContext;
 /* -> Shader modules and stage info */
 
 /** Custom back-end inspired by imgui_impl_vulkan. */
-class UIRendererBackendVulkan {
+class UIRendererBackendVulkan : public UIRendererBackend {
 public:
     UIRendererBackendVulkan(
-        std::shared_ptr<ImGuiContextWrapper> context,
-        const vlk::Device& vlkDevice);
+        std::shared_ptr<ImGuiContextWrapper> imguiContext,
+        const Renderer& renderer,
+        std::shared_ptr<RenderingContext> mainRenderingContext);
     ~UIRendererBackendVulkan();
 
-    void uploadFonts(const vlk::Device& vlkDevice);
+    void uploadFonts();
 
-    /* This function should be called after the constructor and before
-     * rendering. Provides ImGui with access to the main RenderingContext
-     * from the main viewport. */
-    void bindMainRenderingContext(
-        std::shared_ptr<RenderingContext> mainRenderingContext);
-
-    /* Returns a modifiable copy of the backend prepared
-     * vk::GraphicsPipelineCreateInfo */
-    vk::GraphicsPipelineCreateInfo getPipelineInfo() const;
-
-    /* Called by ImGui callbacks for secondary viewports */
-    void renderUI(ImDrawData* draw_data, vlk::FrameCommandBuffer& commandBuffer)
-        const;
+    /** Called by ImGui callbacks for secondary viewports.
+     * TODO make it shared between rendering backends */
+    void renderUI(RenderingContext& renderingContext, ImDrawData* drawData) const;
 
 private:
-    /* ImGui */
-    const std::shared_ptr<ImGuiContextWrapper> context_;
+    /* References */
+    const vlk::VulkanRenderer& renderer_;
+    const vlk::Device& device_;
 
     /* Vulkan objects shared by all the RenderingContext(s) */
     std::unique_ptr<vlk::Texture> fontTexture_;
@@ -79,10 +69,8 @@ private:
      * a Pipeline is a RenderPass which is provided by each
      * RenderingContext. */
     vk::GraphicsPipelineCreateInfo graphicsPipelineInfo_;
-
-    /* Logging */
-    std::shared_ptr<spdlog::logger> logger_;
 };
 
+} // namespace vlk
 } // namespace render
 } // namespace expengine

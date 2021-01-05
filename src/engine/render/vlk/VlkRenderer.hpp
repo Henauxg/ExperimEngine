@@ -3,9 +3,9 @@
 #include <SDL2\SDL_events.h>
 
 #include <engine/render/Renderer.hpp>
-#include <engine/render/imgui/impl/ImGuiBackend.hpp>
-#include <engine/render/vlk/RenderingContext.hpp>
+#include <engine/render/imgui/ImGuiBackend.hpp>
 #include <engine/render/vlk/VlkMemoryAllocator.hpp>
+#include <engine/render/vlk/VlkRenderingContext.hpp>
 #include <engine/render/vlk/VlkWindow.hpp>
 
 namespace expengine {
@@ -27,15 +27,18 @@ public:
     void render();
     void handleEvent(const SDL_Event& event);
     void rendererWaitIdle();
+
     std::shared_ptr<Window> getMainWindow();
+
+    inline const vlk::Device& getDevice() const { return *vlkDevice_; };
 
 private:
     /* Vulkan objects */
     vk::UniqueInstance vkInstance_;
-    std::shared_ptr<vlk::VulkanWindow> mainWindow_;
+    std::shared_ptr<VulkanWindow> mainWindow_;
     std::unique_ptr<vlk::Device> vlkDevice_;
     std::unique_ptr<vlk::MemoryAllocator> memAllocator_;
-    std::shared_ptr<RenderingContext> mainRenderingContext_;
+    std::shared_ptr<vlk::VulkanRenderingContext> mainRenderingContext_;
 
     /* UI */
     std::unique_ptr<ImguiBackend> imguiBackend_;
