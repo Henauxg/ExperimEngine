@@ -75,7 +75,7 @@ void VulkanRenderer::handleEvent(const SDL_Event& event)
     }
 }
 
-void VulkanRenderer::rendererWaitIdle() { vlkDevice_->waitIdle(); }
+void VulkanRenderer::waitIdle() { vlkDevice_->waitIdle(); }
 
 std::shared_ptr<Window> VulkanRenderer::getMainWindow()
 {

@@ -16,7 +16,7 @@ public:
 
     virtual void render() = 0;
     virtual void handleEvent(const SDL_Event& event) = 0;
-    virtual void rendererWaitIdle() = 0;
+    virtual void waitIdle() = 0;
     virtual std::shared_ptr<Window> getMainWindow() = 0;
 
 protected:

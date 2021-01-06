@@ -26,7 +26,7 @@ public:
 
     void render();
     void handleEvent(const SDL_Event& event);
-    void rendererWaitIdle();
+    void waitIdle();
     std::shared_ptr<Window> getMainWindow();
 
 private:

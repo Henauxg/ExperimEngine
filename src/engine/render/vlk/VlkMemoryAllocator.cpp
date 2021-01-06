@@ -35,7 +35,7 @@ MemoryAllocator::MemoryAllocator(
         .vkCmdCopyBuffer = dispatchLoader.vkCmdCopyBuffer};
 
     VmaAllocatorCreateInfo allocatorInfo {
-        .physicalDevice = device.getPhysicalHandle(),
+        .physicalDevice = device.physicalHandle(),
         .device = device.deviceHandle(),
         .pVulkanFunctions = &vulkanFunctions,
         .instance = instance,
