@@ -13,8 +13,6 @@
 namespace expengine {
 namespace render {
 
-class RenderingContext;
-
 /** Custom back-end */
 class ImguiBackend {
 public:

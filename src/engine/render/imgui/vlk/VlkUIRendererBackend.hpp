@@ -19,13 +19,13 @@ namespace vlk {
 /* -> Shader modules and stage info */
 
 /** Custom back-end inspired by imgui_impl_vulkan. */
-class UIRendererBackendVulkan : public UIRendererBackend {
+class VulkanUIRendererBackend : public UIRendererBackend {
 public:
-    UIRendererBackendVulkan(
+    VulkanUIRendererBackend(
         std::shared_ptr<ImGuiContextWrapper> imguiContext,
         const Renderer& renderer,
         std::shared_ptr<RenderingContext> mainRenderingContext);
-    ~UIRendererBackendVulkan();
+    ~VulkanUIRendererBackend();
 
     void uploadFonts();
 

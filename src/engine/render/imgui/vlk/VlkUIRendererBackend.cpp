@@ -1,4 +1,4 @@
-#include "UIRendererBackendVulkan.hpp"
+#include "VlkUIRendererBackend.hpp"
 
 #include <string>
 
@@ -17,7 +17,7 @@ namespace expengine {
 namespace render {
 namespace vlk {
 
-UIRendererBackendVulkan::UIRendererBackendVulkan(
+VulkanUIRendererBackend::VulkanUIRendererBackend(
     std::shared_ptr<ImGuiContextWrapper> imguiContext,
     const Renderer& renderer,
     std::shared_ptr<RenderingContext> mainRenderingContext)
@@ -179,12 +179,12 @@ UIRendererBackendVulkan::UIRendererBackendVulkan(
            .layout = pipelineLayout_.get()};
 }
 
-UIRendererBackendVulkan::~UIRendererBackendVulkan()
+VulkanUIRendererBackend::~VulkanUIRendererBackend()
 {
-    SPDLOG_LOGGER_DEBUG(logger_, "UIRendererBackendVulkan destruction");
+    SPDLOG_LOGGER_DEBUG(logger_, "VulkanUIRendererBackend destruction");
 }
 
-void UIRendererBackendVulkan::uploadFonts()
+void VulkanUIRendererBackend::uploadFonts()
 {
     /* Get texture data from ImGui */
     ImGuiIO& io = ImGui::GetIO();
@@ -209,7 +209,7 @@ void UIRendererBackendVulkan::uploadFonts()
     io.Fonts->TexID = (ImTextureID)(intptr_t)(VkImage) fontTexture_->imageHandle();
 }
 
-void UIRendererBackendVulkan::renderUI(
+void VulkanUIRendererBackend::renderUI(
     RenderingContext& renderingContext,
     ImDrawData* drawData) const
 {
