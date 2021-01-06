@@ -8,7 +8,6 @@
 #include <engine/utils/Flags.hpp>
 
 namespace expengine {
-namespace render {
 
 enum class AttachmentsFlagBits : uint32_t
 {
@@ -16,6 +15,16 @@ enum class AttachmentsFlagBits : uint32_t
     eDepthAttachments = 1 << 1
 };
 using AttachmentsFlags = Flags<AttachmentsFlagBits>;
+
+template <> struct FlagTraits<AttachmentsFlagBits> {
+    enum : uint32_t
+    {
+        allFlags = uint32_t(AttachmentsFlagBits::eColorAttachment)
+            | uint32_t(AttachmentsFlagBits::eDepthAttachments)
+    };
+};
+
+namespace render {
 
 class RenderingContext {
 public:
