@@ -1,7 +1,7 @@
 #include "ImGuiBackend.hpp"
 
 #ifdef __EMSCRIPTEN__
-#include <engine/render/imgui/wgpu/WebGpuUIRendererBackend.hpp>
+#include <engine/render/imgui/wgpu/WGpuUIRendererBackend.hpp>
 #else
 #include <engine/render/imgui/vlk/VlkUIRendererBackend.hpp>
 #endif
@@ -67,7 +67,7 @@ ImguiBackend::ImguiBackend(
     /* ------------------------------------------- */
 
 #ifdef __EMSCRIPTEN__
-    renderingBackend_ = std::make_unique<UIRendererBackendWebGPU>(
+    renderingBackend_ = std::make_unique<webgpu::WebGpuUIRendererBackend>(
         imguiContext_, renderer, mainRenderingContext);
 #else
     renderingBackend_ = std::make_unique<vlk::VulkanUIRendererBackend>(

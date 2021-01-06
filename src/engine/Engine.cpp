@@ -6,7 +6,7 @@
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
-#include <engine/render/wgpu/WebGPURenderer.hpp>
+#include <engine/render/wgpu/WGpuRenderer.hpp>
 #else
 #include <engine/render/vlk/VlkRenderer.hpp>
 #include <spdlog/sinks/rotating_file_sink.h>
@@ -71,7 +71,7 @@ Engine::Engine(const std::string& appName, const uint32_t appVersion)
     /* Initialize main window & renderer           */
     /* ------------------------------------------- */
 #ifdef __EMSCRIPTEN__
-    renderer_ = std::make_unique<render::webgpu::WebGPURenderer>(
+    renderer_ = std::make_unique<render::webgpu::WebGpuRenderer>(
         appName,
         appVersion,
         DEFAULT_WINDOW_WIDTH,
@@ -117,7 +117,7 @@ void Engine::run()
     while (tick()) { }
 #endif
 
-    renderer_->rendererWaitIdle();
+    renderer_->waitIdle();
     SPDLOG_LOGGER_INFO(logger_, "ExperimEngine : execution ended");
 }
 

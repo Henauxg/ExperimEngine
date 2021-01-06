@@ -1,4 +1,4 @@
-#include "WebGPURenderer.hpp"
+#include "WGpuRenderer.hpp"
 
 #include <random>
 
@@ -7,6 +7,7 @@
 #include <emscripten/html5_webgpu.h>
 #endif
 
+#include "WGpuRenderer.hpp"
 #include <ExperimEngineConfig.h>
 
 namespace {
@@ -18,7 +19,7 @@ namespace expengine {
 namespace render {
 namespace webgpu {
 
-WebGPURenderer::WebGPURenderer(
+WebGpuRenderer::WebGpuRenderer(
     const std::string& appName,
     const uint32_t appVersion,
     int windowWidth,
@@ -50,6 +51,7 @@ WebGPURenderer::WebGPURenderer(
     queue_ = device_.GetDefaultQueue();
 
     /* TODO main rendering context*/
+    SPDLOG_LOGGER_WARN(logger_, "TODO Implement");
 
     /* ImGui */
 #if 0
@@ -57,12 +59,12 @@ WebGPURenderer::WebGPURenderer(
 #endif // 0
 }
 
-WebGPURenderer::~WebGPURenderer()
+WebGpuRenderer::~WebGpuRenderer()
 {
     SPDLOG_LOGGER_DEBUG(logger_, "WebGPU renderer destruction");
 }
 
-void WebGPURenderer::render()
+void WebGpuRenderer::render()
 {
     static std::random_device rd;
     static std::mt19937 rng(rd());
@@ -70,15 +72,15 @@ void WebGPURenderer::render()
     std::this_thread::sleep_for(std::chrono::milliseconds(uni(rng)));
 }
 
-void WebGPURenderer::handleEvent(const SDL_Event& event)
-{ /* TODO implement */
+void WebGpuRenderer::handleEvent(const SDL_Event& event) { /* TODO implement */ }
+
+void WebGpuRenderer::waitIdle()
+{
+    /* TODO implement */
+    SPDLOG_LOGGER_WARN(logger_, "TODO Implement");
 }
 
-void WebGPURenderer::rendererWaitIdle()
-{ /* TODO implement */
-}
-
-std::shared_ptr<Window> WebGPURenderer::getMainWindow() { return mainWindow_; }
+std::shared_ptr<Window> WebGpuRenderer::getMainWindow() { return mainWindow_; }
 
 } // namespace webgpu
 } // namespace render

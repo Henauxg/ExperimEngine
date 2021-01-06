@@ -14,15 +14,15 @@ namespace expengine {
 namespace render {
 namespace webgpu {
 
-class WebGPURenderer : public Renderer {
+class WebGpuRenderer : public Renderer {
 public:
-    WebGPURenderer(
+    WebGpuRenderer(
         const std::string& appName,
         const uint32_t appVersion,
         int windowWidth,
         int windoHeight,
         EngineParameters& engineParams);
-    ~WebGPURenderer();
+    ~WebGpuRenderer();
 
     void render();
     void handleEvent(const SDL_Event& event);
