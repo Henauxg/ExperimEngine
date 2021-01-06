@@ -1,14 +1,16 @@
 #pragma once
 
+#include <engine/render/Renderer.hpp>
 #include <engine/render/imgui/UIRendererBackend.hpp>
 #include <engine/render/vlk/VlkDevice.hpp>
 #include <engine/render/vlk/VlkFrameCommandBuffer.hpp>
-#include <engine/render/vlk/VlkRenderer.hpp>
 #include <engine/render/vlk/resources/VlkTexture.hpp>
 
 namespace expengine {
 namespace render {
 namespace vlk {
+
+class VulkanRenderer;
 
 /* Shared device objects at backend level : */
 /* -> Font Texture (Image + ImageView + Memory) */

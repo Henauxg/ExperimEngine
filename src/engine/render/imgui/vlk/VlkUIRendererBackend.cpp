@@ -5,6 +5,7 @@
 #include <engine/render/imgui/ImGuiViewportPlatformData.hpp>
 #include <engine/render/imgui/spirv/imgui_shaders_spirv.h>
 #include <engine/render/vlk/VlkDebug.hpp>
+#include <engine/render/vlk/VlkRenderer.hpp>
 #include <engine/render/vlk/VlkRenderingContext.hpp>
 
 namespace {
@@ -230,6 +231,8 @@ void VulkanUIRendererBackend::renderUI(
     // frames
 
     /* TODO Setup render state */
+
+    SPDLOG_LOGGER_WARN(logger_, "TODO Implement");
 
     /* TODO Draw commands */
     auto& vlkRenderingContext
