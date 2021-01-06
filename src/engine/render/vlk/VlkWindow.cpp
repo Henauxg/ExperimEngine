@@ -57,15 +57,6 @@ std::pair<bool, vk::SurfaceKHR> VulkanWindow::createVkSurface(
     return {result, surface};
 }
 
-bool VulkanWindow::createVkSurface(
-    vk::Instance vkInstance,
-    vk::SurfaceKHR& surfaceCreated) const
-{
-    bool res;
-    std::tie(res, surfaceCreated) = createVkSurface(vkInstance);
-    return res;
-}
-
 std::vector<const char*> VulkanWindow::getRequiredVkExtensions() const
 {
     uint32_t extensionCount;

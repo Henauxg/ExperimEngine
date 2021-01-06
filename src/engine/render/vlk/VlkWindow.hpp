@@ -19,8 +19,6 @@ public:
     /* Vulkan only */
     std::pair<uint32_t, uint32_t> getDrawableSizeInPixels() const;
     std::pair<bool, vk::SurfaceKHR> createVkSurface(vk::Instance vkInstance) const;
-    bool createVkSurface(vk::Instance vkInstance, vk::SurfaceKHR& surfaceCreated)
-        const;
     std::vector<const char*> getRequiredVkExtensions() const;
 
     /* Window virtual methods implementation */
