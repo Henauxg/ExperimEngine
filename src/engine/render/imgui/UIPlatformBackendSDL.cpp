@@ -5,6 +5,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 
+#include <engine/log/ExpengineLog.hpp>
+#include <engine/render/Window.hpp>
+#include <engine/render/imgui/ImGuiContextWrapper.hpp>
 #include <engine/render/imgui/ImGuiViewportPlatformData.hpp>
 
 namespace {

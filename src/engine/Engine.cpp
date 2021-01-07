@@ -13,6 +13,8 @@
 #endif
 
 #include <ExperimEngineConfig.h>
+#include <engine/render/Renderer.hpp>
+#include <engine/render/Window.hpp>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace {

@@ -2,12 +2,17 @@
 
 #include <vector>
 
-#include <engine/render/vlk/VlkDevice.hpp>
 #include <engine/render/vlk/VlkInclude.hpp>
+
+namespace spdlog {
+class logger;
+}
 
 namespace expengine {
 namespace render {
 namespace vlk {
+
+class Device;
 
 class Swapchain {
 public:

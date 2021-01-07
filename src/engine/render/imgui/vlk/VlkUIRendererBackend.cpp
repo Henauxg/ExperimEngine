@@ -5,8 +5,11 @@
 #include <engine/render/imgui/ImGuiViewportPlatformData.hpp>
 #include <engine/render/imgui/spirv/imgui_shaders_spirv.h>
 #include <engine/render/vlk/VlkDebug.hpp>
+#include <engine/render/vlk/VlkDevice.hpp>
+#include <engine/render/vlk/VlkFrameCommandBuffer.hpp>
 #include <engine/render/vlk/VlkRenderer.hpp>
 #include <engine/render/vlk/VlkRenderingContext.hpp>
+#include <engine/render/vlk/resources/VlkTexture.hpp>
 
 namespace {
 

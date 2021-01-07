@@ -3,15 +3,20 @@
 #include <memory>
 
 #include <engine/render/Renderer.hpp>
-#include <engine/render/RenderingContext.hpp>
-#include <engine/render/Window.hpp>
-#include <engine/render/imgui/ImGuiContextWrapper.hpp>
-#include <engine/render/imgui/UIPlatformBackendSDL.hpp>
-#include <engine/render/imgui/UIRendererBackend.hpp>
 #include <engine/render/imgui/lib/imgui.h>
+
+namespace spdlog {
+class logger;
+}
 
 namespace expengine {
 namespace render {
+
+class RenderingContext;
+class Window;
+class ImGuiContextWrapper;
+class UIPlatformBackendSDL;
+class UIRendererBackend;
 
 /** Custom back-end */
 class ImguiBackend {
@@ -23,10 +28,7 @@ public:
     ~ImguiBackend();
 
     /* TODO : Could swap ImGuiContext if multiple contexts are used. */
-    inline bool handleEvent(const SDL_Event& event)
-    {
-        return platformBackend_->handleEvent(event);
-    };
+    bool handleEvent(const SDL_Event& event);
 
 private:
     /* ImGui */

@@ -2,7 +2,9 @@
 
 #include <algorithm>
 
+#include <engine/log/ExpengineLog.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
+#include <engine/render/vlk/VlkDevice.hpp>
 
 namespace {
 

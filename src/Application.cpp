@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include <engine/Engine.hpp>
 #include <engine/utils/Utils.hpp>
 
 #ifndef __EMSCRIPTEN__

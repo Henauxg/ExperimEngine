@@ -3,16 +3,19 @@
 #include <SDL2\SDL_events.h>
 
 #include <engine/render/Renderer.hpp>
-#include <engine/render/imgui/ImGuiBackend.hpp>
-#include <engine/render/vlk/VlkMemoryAllocator.hpp>
-#include <engine/render/vlk/VlkRenderingContext.hpp>
-#include <engine/render/vlk/VlkWindow.hpp>
+#include <engine/render/vlk/VlkInclude.hpp>
 
 namespace expengine {
 namespace render {
+
+class ImguiBackend;
+
 namespace vlk {
 
-class vlk::Device;
+class Device;
+class VulkanWindow;
+class MemoryAllocator;
+class VulkanRenderingContext;
 
 class VulkanRenderer : public Renderer {
 public:

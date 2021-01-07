@@ -1,5 +1,8 @@
 #include "VlkMemoryAllocator.hpp"
 
+#include <engine/log/ExpengineLog.hpp>
+#include <engine/render/vlk/VlkDevice.hpp>
+
 namespace expengine {
 namespace render {
 namespace vlk {
@@ -34,6 +37,7 @@ MemoryAllocator::MemoryAllocator(
         .vkDestroyImage = dispatchLoader.vkDestroyImage,
         .vkCmdCopyBuffer = dispatchLoader.vkCmdCopyBuffer};
 
+    /* TODO Should also fill used extension if any */
     VmaAllocatorCreateInfo allocatorInfo {
         .physicalDevice = device.physicalHandle(),
         .device = device.deviceHandle(),

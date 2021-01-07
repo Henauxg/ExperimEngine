@@ -2,6 +2,9 @@
 
 #include <string>
 
+#include <engine/log/ExpengineLog.hpp>
+#include <engine/render/RenderingContext.hpp>
+#include <engine/render/imgui/ImGuiContextWrapper.hpp>
 #include <engine/render/imgui/ImGuiViewportPlatformData.hpp>
 
 namespace {

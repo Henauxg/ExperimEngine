@@ -1,12 +1,18 @@
 #pragma once
 
-#include <engine/render/RenderingContext.hpp>
-#include <engine/render/imgui/ImGuiContextWrapper.hpp>
+#include <memory>
+#include <string>
+
 #include <engine/render/imgui/lib/imgui.h>
+
+namespace spdlog {
+class logger;
+}
 
 namespace expengine {
 namespace render {
 
+class ImGuiContextWrapper;
 class RenderingContext;
 
 class UIRendererBackend {

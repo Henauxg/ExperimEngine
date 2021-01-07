@@ -2,13 +2,17 @@
 
 #include <vma/vk_mem_alloc.h>
 
-#include <engine/log/ExpengineLog.hpp>
-#include <engine/render/vlk/VlkDevice.hpp>
 #include <engine/render/vlk/VlkInclude.hpp>
+
+namespace spdlog {
+class logger;
+}
 
 namespace expengine {
 namespace render {
 namespace vlk {
+
+class Device;
 
 class MemoryAllocator {
 public:

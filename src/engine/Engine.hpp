@@ -4,10 +4,13 @@
 
 #include <engine/EngineParameters.hpp>
 #include <engine/log/ExpengineLog.hpp>
-#include <engine/render/Renderer.hpp>
-#include <engine/render/Window.hpp>
 
 namespace expengine {
+
+namespace render {
+class Renderer;
+class Window;
+} // namespace render
 
 class Engine {
 public:

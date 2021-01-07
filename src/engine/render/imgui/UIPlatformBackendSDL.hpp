@@ -5,15 +5,19 @@
 
 #include <SDL2\SDL_events.h>
 
-#include <engine/log/ExpengineLog.hpp>
-#include <engine/render/Window.hpp>
-#include <engine/render/imgui/ImGuiContextWrapper.hpp>
 #include <engine/render/imgui/lib/imgui.h>
 
 struct SDL_Cursor;
 
+namespace spdlog {
+class logger;
+}
+
 namespace expengine {
 namespace render {
+
+class Window;
+class ImGuiContextWrapper;
 
 /** Custom back-end based on imgui_impl_sdl */
 class UIPlatformBackendSDL {

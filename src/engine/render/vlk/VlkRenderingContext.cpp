@@ -2,6 +2,10 @@
 
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
+#include <engine/render/vlk/VlkDevice.hpp>
+#include <engine/render/vlk/VlkFrameCommandBuffer.hpp>
+#include <engine/render/vlk/VlkSwapchain.hpp>
+#include <engine/render/vlk/VlkWindow.hpp>
 
 namespace expengine {
 namespace render {
@@ -46,6 +50,8 @@ VulkanRenderingContext::~VulkanRenderingContext()
 {
     SPDLOG_LOGGER_DEBUG(logger_, "RenderingContext destruction");
 }
+
+inline const Window& VulkanRenderingContext::window() const { return *window_; }
 
 std::shared_ptr<RenderingContext> VulkanRenderingContext::clone(
     std::shared_ptr<Window> window,

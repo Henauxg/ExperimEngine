@@ -1,10 +1,12 @@
 #pragma once
 
-#include <engine/render/Renderer.hpp>
 #include <engine/render/imgui/UIRendererBackend.hpp>
 
 namespace expengine {
 namespace render {
+
+class Renderer;
+
 namespace webgpu {
 
 class WebGpuRenderer;

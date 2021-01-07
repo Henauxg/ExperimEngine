@@ -7,8 +7,8 @@
 #include <emscripten/html5_webgpu.h>
 #endif
 
-#include "WGpuRenderer.hpp"
 #include <ExperimEngineConfig.h>
+#include <engine/render/imgui/ImGuiBackend.hpp>
 
 namespace {
 
@@ -72,7 +72,9 @@ void WebGpuRenderer::render()
     std::this_thread::sleep_for(std::chrono::milliseconds(uni(rng)));
 }
 
-void WebGpuRenderer::handleEvent(const SDL_Event& event) { /* TODO implement */ }
+void WebGpuRenderer::handleEvent(const SDL_Event& event)
+{ /* TODO implement */
+}
 
 void WebGpuRenderer::waitIdle()
 {

@@ -8,10 +8,12 @@
 
 #include <engine/render/Renderer.hpp>
 #include <engine/render/Window.hpp>
-#include <engine/render/imgui/ImGuiBackend.hpp>
 
 namespace expengine {
 namespace render {
+
+class ImguiBackend;
+
 namespace webgpu {
 
 class WebGpuRenderer : public Renderer {

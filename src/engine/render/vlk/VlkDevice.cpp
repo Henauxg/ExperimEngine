@@ -6,6 +6,7 @@
 #include <set>
 #include <string>
 
+#include <engine/log/ExpengineLog.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
 #include <engine/render/vlk/VlkWindow.hpp>
 

@@ -3,9 +3,12 @@
 #include <memory>
 #include <vector>
 
-#include <engine/log/ExpengineLog.hpp>
 #include <engine/render/Window.hpp>
 #include <engine/utils/Flags.hpp>
+
+namespace spdlog {
+class logger;
+}
 
 namespace expengine {
 
@@ -46,8 +49,7 @@ public:
         = 0;
 
 protected:
-    RenderingContext()
-        : logger_(spdlog::get(LOGGER_NAME)) {};
+    RenderingContext();
 
     /* Logging */
     std::shared_ptr<spdlog::logger> logger_;

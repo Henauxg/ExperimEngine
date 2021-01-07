@@ -4,16 +4,19 @@
 #include <vector>
 
 #include <engine/render/RenderingContext.hpp>
-#include <engine/render/vlk/VlkDevice.hpp>
-#include <engine/render/vlk/VlkFrameCommandBuffer.hpp>
-#include <engine/render/vlk/VlkSwapchain.hpp>
-#include <engine/render/vlk/VlkWindow.hpp>
+#include <engine/render/Window.hpp>
+#include <engine/render/vlk/VlkInclude.hpp>
 #include <engine/utils/Flags.hpp>
 
 namespace expengine {
 namespace render {
 namespace vlk {
 
+class Swapchain;
+class Device;
+class FrameCommandBuffer;
+class VulkanWindow;
+class MemoryAllocator;
 struct FrameObjects;
 
 class VulkanRenderingContext : public RenderingContext {
@@ -26,7 +29,7 @@ public:
 
     /* Accessors */
     inline const vk::SurfaceKHR surface() const { return windowSurface_.get(); };
-    inline const Window& window() const { return *window_; };
+    inline const Window& window() const;
 
     /* Call to make the RenderingContext check its surface and adapt its objects to
      * it. */

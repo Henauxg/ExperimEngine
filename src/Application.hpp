@@ -2,7 +2,9 @@
 
 #include <memory>
 
-#include <engine/Engine.hpp>
+namespace expengine {
+class Engine;
+}
 
 class Application {
 public:

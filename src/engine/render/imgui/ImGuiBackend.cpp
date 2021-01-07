@@ -7,6 +7,11 @@
 #endif
 
 #include <engine/log/ExpengineLog.hpp>
+#include <engine/render/RenderingContext.hpp>
+#include <engine/render/Window.hpp>
+#include <engine/render/imgui/ImGuiContextWrapper.hpp>
+#include <engine/render/imgui/UIPlatformBackendSDL.hpp>
+#include <engine/render/imgui/UIRendererBackend.hpp>
 
 namespace {
 
@@ -91,6 +96,11 @@ ImguiBackend::~ImguiBackend()
 {
     SPDLOG_LOGGER_DEBUG(logger_, "ImguiBackend destruction");
 }
+
+bool ImguiBackend::handleEvent(const SDL_Event& event)
+{
+    return platformBackend_->handleEvent(event);
+};
 
 } // namespace render
 } // namespace expengine

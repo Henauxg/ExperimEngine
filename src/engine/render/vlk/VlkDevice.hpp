@@ -2,11 +2,14 @@
 
 #include <vector>
 
-#include <engine/log/ExpengineLog.hpp>
 #include <engine/render/vlk/VlkCapabilities.hpp>
 #include <engine/render/vlk/VlkCommandBuffer.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
 #include <engine/render/vlk/resources/VlkBuffer.hpp>
+
+namespace spdlog {
+class logger;
+}
 
 namespace expengine {
 namespace render {

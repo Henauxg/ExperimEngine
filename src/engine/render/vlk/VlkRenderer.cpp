@@ -4,10 +4,14 @@
 #include <stdexcept>
 
 #include <ExperimEngineConfig.h>
+#include <engine/render/imgui/ImGuiBackend.hpp>
 #include <engine/render/vlk/VlkCapabilities.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
+#include <engine/render/vlk/VlkDevice.hpp>
 #include <engine/render/vlk/VlkDispatch.hpp>
 #include <engine/render/vlk/VlkMemoryAllocator.hpp>
+#include <engine/render/vlk/VlkRenderingContext.hpp>
+#include <engine/render/vlk/VlkWindow.hpp>
 
 namespace {
 const uint32_t ENGINE_VULKAN_API_VERSION = VK_API_VERSION_1_0;
