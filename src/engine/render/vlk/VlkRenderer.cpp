@@ -8,12 +8,10 @@
 #include <engine/render/vlk/VlkCapabilities.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
 #include <engine/render/vlk/VlkDispatch.hpp>
-#include <engine/render/vlk/VlkMemoryAllocator.hpp>
 #include <engine/render/vlk/VlkRenderingContext.hpp>
 #include <engine/render/vlk/VlkWindow.hpp>
 
 namespace {
-const uint32_t ENGINE_VULKAN_API_VERSION = VK_API_VERSION_1_0;
 }
 
 namespace expengine {
@@ -38,11 +36,10 @@ VulkanRenderer::VulkanRenderer(
     vkDebugMessenger_
         = setupDebugMessenger(*vkInstance_, vlk::ENABLE_VALIDATION_LAYERS);
 
-    vlkDevice_ = std::make_unique<vlk::Device>(*vkInstance_, logger_);
+    vlkDevice_
+        = std::make_unique<vlk::Device>(*vkInstance_, dispatchLoader_, logger_);
+    /* Only 1 device for now */
     vlk::specializeDeviceDispatch(*vlkDevice_, dispatchLoader_);
-
-    memAllocator_ = std::make_unique<vlk::MemoryAllocator>(
-        *vkInstance_, *vlkDevice_, dispatchLoader_, ENGINE_VULKAN_API_VERSION);
 
     mainRenderingContext_ = std::make_shared<VulkanRenderingContext>(
         *vlkDevice_, mainWindow_, AttachmentsFlagBits::eColorAttachment);

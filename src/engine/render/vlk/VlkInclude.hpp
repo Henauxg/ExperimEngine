@@ -6,3 +6,5 @@
 /* https://github.com/KhronosGroup/Vulkan-Hpp#designated-initializers */
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 #include <vulkan/vulkan.hpp>
+
+const static uint32_t ENGINE_VULKAN_API_VERSION = VK_API_VERSION_1_0;

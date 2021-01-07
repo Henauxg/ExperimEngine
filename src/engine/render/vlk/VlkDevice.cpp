@@ -8,6 +8,7 @@
 
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
+#include <engine/render/vlk/VlkMemoryAllocator.hpp>
 #include <engine/render/vlk/VlkWindow.hpp>
 
 namespace expengine {
@@ -16,7 +17,10 @@ namespace vlk {
 
 const std::vector<const char*> DEVICE_EXTENSIONS = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
-Device::Device(vk::Instance vkInstance, std::shared_ptr<spdlog::logger> logger)
+Device::Device(
+    vk::Instance vkInstance,
+    const vk::DispatchLoaderDynamic& dispatchLoader,
+    std::shared_ptr<spdlog::logger> logger)
     : vkInstance_(vkInstance)
     , logger_(logger)
 {
@@ -36,6 +40,10 @@ Device::Device(vk::Instance vkInstance, std::shared_ptr<spdlog::logger> logger)
         std::vector<vk::SurfaceKHR> {*windowSurface_});
     logicalDevice_ = createLogicalDevice(
         physDevice_.device, physDevice_.queuesIndices, DEVICE_EXTENSIONS);
+
+    /* Memory allocator */
+    memAllocator_ = std::make_unique<vlk::MemoryAllocator>(
+        vkInstance_, *this, dispatchLoader, ENGINE_VULKAN_API_VERSION);
 
     /* Queues handles */
     graphicsQueue_ = logicalDevice_->getQueue(

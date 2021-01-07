@@ -40,7 +40,6 @@ private:
     vk::UniqueInstance vkInstance_;
     std::shared_ptr<VulkanWindow> mainWindow_;
     std::unique_ptr<vlk::Device> vlkDevice_;
-    std::unique_ptr<vlk::MemoryAllocator> memAllocator_;
     std::shared_ptr<vlk::VulkanRenderingContext> mainRenderingContext_;
 
     /* UI */

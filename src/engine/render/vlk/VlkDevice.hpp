@@ -15,9 +15,14 @@ namespace expengine {
 namespace render {
 namespace vlk {
 
+class MemoryAllocator;
+
 class Device {
 public:
-    Device(vk::Instance vkInstance, std::shared_ptr<spdlog::logger> logger);
+    Device(
+        vk::Instance vkInstance,
+        const vk::DispatchLoaderDynamic& dispatchLoader,
+        std::shared_ptr<spdlog::logger> logger);
     ~Device();
 
     /* Accessors */
@@ -81,6 +86,7 @@ private:
 
     PhysicalDeviceDetails physDevice_;
     vk::UniqueDevice logicalDevice_;
+    std::unique_ptr<MemoryAllocator> memAllocator_;
     vk::UniqueDescriptorPool descriptorPool_;
     vk::UniqueCommandPool transientCommandPool_;
     vk::Queue graphicsQueue_;
