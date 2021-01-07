@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include <engine/log/ExpengineLog.hpp>
 #include <engine/render/imgui/ImGuiViewportPlatformData.hpp>
 #include <engine/render/imgui/spirv/imgui_shaders_spirv.h>
 #include <engine/render/wgpu/WGpuRenderer.hpp>

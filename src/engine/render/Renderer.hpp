@@ -2,11 +2,16 @@
 
 #include <SDL2\SDL_events.h>
 
-#include <engine/EngineParameters.hpp>
-#include <engine/log/ExpengineLog.hpp>
 #include <engine/render/Window.hpp>
 
+namespace spdlog {
+class logger;
+}
+
 namespace expengine {
+
+class EngineParameters;
+
 namespace render {
 
 /** Abstract class used to manipulate the rendering system. */
@@ -20,9 +25,7 @@ public:
     virtual std::shared_ptr<Window> getMainWindow() = 0;
 
 protected:
-    Renderer(EngineParameters& engineParams)
-        : engineParams_(engineParams)
-        , logger_(spdlog::get(LOGGER_NAME)) {};
+    Renderer(EngineParameters& engineParams);
 
     EngineParameters& engineParams_;
 

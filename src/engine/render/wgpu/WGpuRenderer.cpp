@@ -8,6 +8,7 @@
 #endif
 
 #include <ExperimEngineConfig.h>
+#include <engine/log/ExpengineLog.hpp>
 #include <engine/render/imgui/ImGuiBackend.hpp>
 
 namespace {
