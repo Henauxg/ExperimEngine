@@ -25,26 +25,26 @@ public:
         const vlk::Device& device,
         std::shared_ptr<VulkanWindow> window,
         AttachmentsFlags attachmentFlags);
-    ~VulkanRenderingContext();
+    ~VulkanRenderingContext() override;
 
     /* Accessors */
     inline const vk::SurfaceKHR surface() const { return windowSurface_.get(); };
-    inline const Window& window() const;
+    inline const Window& window() const override;
 
     /* Call to make the RenderingContext check its surface and adapt its objects to
      * it. */
-    void handleSurfaceChanges();
+    void handleSurfaceChanges() override;
 
     /* Frame rendering */
-    void beginFrame();
+    void beginFrame() override;
+    void submitFrame() override;
     /** Must not be called more than once per frame for now.
      * TODO : should have a common buffer interfaces between backends */
     vlk::FrameCommandBuffer& requestCommandBuffer();
-    void submitFrame();
 
     std::shared_ptr<RenderingContext> clone(
         std::shared_ptr<Window> window,
-        AttachmentsFlags attachmentFlags);
+        AttachmentsFlags attachmentFlags) override;
 
 private:
     struct FrameObjects {

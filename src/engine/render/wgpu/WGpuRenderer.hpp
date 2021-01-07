@@ -24,12 +24,13 @@ public:
         int windowWidth,
         int windoHeight,
         EngineParameters& engineParams);
-    ~WebGpuRenderer();
 
-    void render();
-    void handleEvent(const SDL_Event& event);
-    void waitIdle();
-    std::shared_ptr<Window> getMainWindow();
+    ~WebGpuRenderer() override;
+
+    void render() override;
+    void handleEvent(const SDL_Event& event) override;
+    void waitIdle() override;
+    std::shared_ptr<Window> getMainWindow() override;
 
 private:
     std::shared_ptr<Window> mainWindow_;

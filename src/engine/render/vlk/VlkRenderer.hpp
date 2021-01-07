@@ -3,7 +3,7 @@
 #include <SDL2\SDL_events.h>
 
 #include <engine/render/Renderer.hpp>
-#include <engine/render/vlk/VlkInclude.hpp>
+#include <engine/render/vlk/VlkDevice.hpp>
 
 namespace expengine {
 namespace render {
@@ -25,13 +25,13 @@ public:
         int windowWidth,
         int windoHeight,
         EngineParameters& engineParams);
-    ~VulkanRenderer();
 
-    void render();
-    void handleEvent(const SDL_Event& event);
-    void waitIdle();
+    ~VulkanRenderer() override;
 
-    std::shared_ptr<Window> getMainWindow();
+    void render() override;
+    void handleEvent(const SDL_Event& event) override;
+    void waitIdle() override;
+    std::shared_ptr<Window> getMainWindow() override;
 
     inline const vlk::Device& getDevice() const { return *vlkDevice_; };
 

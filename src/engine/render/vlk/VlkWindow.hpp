@@ -26,7 +26,7 @@ public:
         int width,
         int height,
         const std::string& title,
-        uint32_t flags);
+        uint32_t flags) override;
 };
 
 } // namespace vlk

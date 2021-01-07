@@ -39,6 +39,7 @@ public:
     /* Call to make the RenderingContext check its surface and adapt its objects to
      * it. */
     virtual void handleSurfaceChanges() = 0;
+
     /* Frame rendering */
     virtual void beginFrame() = 0;
     virtual void submitFrame() = 0;

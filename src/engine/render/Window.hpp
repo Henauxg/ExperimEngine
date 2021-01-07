@@ -29,16 +29,16 @@ public:
     void show();
     uint32_t getWindowId() const;
 
+    /* Platform/OS specific */
+    void* getPlatformHandle() const;
+    void* getPlatformHandleRaw() const;
+
     /* Virtual methods */
     virtual std::shared_ptr<Window> clone(
         int width,
         int height,
         const std::string& title,
         uint32_t flags);
-
-    /* Platform/OS specific */
-    void* getPlatformHandle() const;
-    void* getPlatformHandleRaw() const;
 
 protected:
     struct SDL_Window* sdlWindow_;

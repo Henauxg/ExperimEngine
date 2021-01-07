@@ -7,7 +7,6 @@
 #include <engine/render/imgui/ImGuiBackend.hpp>
 #include <engine/render/vlk/VlkCapabilities.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
-#include <engine/render/vlk/VlkDevice.hpp>
 #include <engine/render/vlk/VlkDispatch.hpp>
 #include <engine/render/vlk/VlkMemoryAllocator.hpp>
 #include <engine/render/vlk/VlkRenderingContext.hpp>
