@@ -32,7 +32,7 @@ static void ImGui_ImplExpengine_SetWindowSize(ImGuiViewport* viewport, ImVec2 si
 static void ImGui_ImplExpengine_RenderWindow(
     ImGuiViewport* viewport,
     void* renderer_render_arg);
-static void ImGui_ImplExpengine_SwapBuffers(ImGuiViewport* viewport, void*);
+static void ImGui_ImplExpengine_SwapBuffers(ImGuiViewport*, void*);
 
 UIRendererBackend::UIRendererBackend(
     std::shared_ptr<ImGuiContextWrapper> context,
@@ -156,18 +156,11 @@ static void ImGui_ImplExpengine_RenderWindow(
         uiRenderingBackend != nullptr, "Error, null UI RenderingBackend");
     /* Setup state and record draw commands */
     uiRenderingBackend->renderUI(*renderData->renderingContext_, viewport->DrawData);
-}
 
-static void ImGui_ImplExpengine_SwapBuffers(ImGuiViewport* viewport, void*)
-{
-    ImGuiViewportRendererData* renderData
-        = (ImGuiViewportRendererData*) viewport->RendererUserData;
-    EXPENGINE_ASSERT(renderData != nullptr, "Error, null RendererUserData");
-
-    /* Note : Queue submission for rendering is launched here instead of
-     * ImGui_ImplExpengine_RenderWindow */
     renderData->renderingContext_->submitFrame();
 }
+
+static void ImGui_ImplExpengine_SwapBuffers(ImGuiViewport*, void*) { }
 
 } // namespace render
 } // namespace expengine
