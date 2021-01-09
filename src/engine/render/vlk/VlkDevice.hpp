@@ -5,6 +5,7 @@
 #include <engine/render/vlk/VlkCapabilities.hpp>
 #include <engine/render/vlk/VlkCommandBuffer.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
+#include <engine/render/vlk/VlkMemoryAllocator.hpp>
 #include <engine/render/vlk/resources/VlkBuffer.hpp>
 
 namespace spdlog {
@@ -25,7 +26,7 @@ public:
         std::shared_ptr<spdlog::logger> logger);
     ~Device();
 
-    /* Accessors */
+    /* Public accessors */
     inline const vk::Instance instanceHandle() const { return vkInstance_; }
     inline const vk::Device deviceHandle() const { return logicalDevice_.get(); }
     inline const vk::PhysicalDevice physicalHandle() const
@@ -46,34 +47,18 @@ public:
     }
     inline const vk::Queue graphicsQueue() const { return graphicsQueue_; }
     inline const vk::Queue presentQueue() const { return presentQueue_; }
+    inline const MemoryAllocator& allocator() const { return *memAllocator_; }
 
-    inline const SwapChainSupportDetails querySwapChainSupport(
-        vk::SurfaceKHR& surface) const
-    {
-        return queryPhysicalDeviceSwapChainSupport(physDevice_.device, surface);
-    }
+    /* Surface support */
+    const SwapChainSupportDetails querySwapChainSupport(
+        vk::SurfaceKHR& surface) const;
+    VkBool32 getSurfaceSupport(vk::SurfaceKHR& surface) const;
+    vk::ResultValue<vk::SurfaceCapabilitiesKHR> getSurfaceCapabilities(
+        vk::SurfaceKHR& surface) const;
 
-    inline VkBool32 getSurfaceSupport(vk::SurfaceKHR& surface) const
-    {
-        auto support = physDevice_.device.getSurfaceSupportKHR(
-            queueIndices().presentFamily.value(), surface);
-        EXPENGINE_VK_ASSERT(support.result, "Failed to check for surface support");
-        return support.value;
-    }
-
-    inline auto getSurfaceCapabilities(vk::SurfaceKHR& surface) const
-    {
-        return physDevice_.device.getSurfaceCapabilitiesKHR(surface);
-    }
-
+    /* Command buffers */
     const CommandBuffer createTransientCommandBuffer() const;
     const void submitTransientCommandBuffer(CommandBuffer& commandBuffer) const;
-
-    std::unique_ptr<vlk::Buffer> createBuffer(
-        vk::DeviceSize size,
-        vk::BufferUsageFlags usageFlags,
-        vk::MemoryPropertyFlags memPropertyFlags,
-        void const* data) const;
 
     uint32_t findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
         const;
@@ -84,11 +69,14 @@ private:
     /* Instance handle */
     const vk::Instance vkInstance_;
 
+    /* Owned objects */
     PhysicalDeviceDetails physDevice_;
     vk::UniqueDevice logicalDevice_;
     std::unique_ptr<MemoryAllocator> memAllocator_;
     vk::UniqueDescriptorPool descriptorPool_;
     vk::UniqueCommandPool transientCommandPool_;
+
+    /* Handles */
     vk::Queue graphicsQueue_;
     vk::Queue presentQueue_;
 
@@ -98,12 +86,12 @@ private:
     PhysicalDeviceDetails pickPhysicalDevice(
         vk::Instance vkInstance,
         const std::vector<const char*> deviceExtensions,
-        const std::vector<vk::SurfaceKHR>& surfaces);
+        const std::vector<vk::SurfaceKHR>& surfaces) const;
 
     vk::UniqueDevice createLogicalDevice(
         vk::PhysicalDevice physicalDevice,
         QueueFamilyIndices queueFamilyIndices,
-        const std::vector<const char*> deviceExtensions);
+        const std::vector<const char*> deviceExtensions) const;
 
     vk::UniqueDescriptorPool createDescriptorPool() const;
 };

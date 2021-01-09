@@ -8,7 +8,6 @@
 
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
-#include <engine/render/vlk/VlkMemoryAllocator.hpp>
 #include <engine/render/vlk/VlkWindow.hpp>
 
 namespace expengine {
@@ -28,6 +27,8 @@ Device::Device(
      * about surface compatibility between the Vulkan devices
      * selected/created and the surfaces that will be in use during the
      * application runtime. */
+    SPDLOG_LOGGER_DEBUG(
+        logger_, "Dummy window creation for surface compatibility checks");
     auto dummyWindow = std::make_unique<VulkanWindow>();
     auto [surfaceCreated, dummySurface] = dummyWindow->createVkSurface(vkInstance);
     EXPENGINE_ASSERT(surfaceCreated, "Failed to create a VkSurface");
@@ -65,6 +66,26 @@ Device::Device(
 
 Device::~Device() { SPDLOG_LOGGER_DEBUG(logger_, "Device destruction"); }
 
+const SwapChainSupportDetails Device::querySwapChainSupport(
+    vk::SurfaceKHR& surface) const
+{
+    return queryPhysicalDeviceSwapChainSupport(physDevice_.device, surface);
+}
+
+VkBool32 Device::getSurfaceSupport(vk::SurfaceKHR& surface) const
+{
+    auto support = physDevice_.device.getSurfaceSupportKHR(
+        queueIndices().presentFamily.value(), surface);
+    EXPENGINE_VK_ASSERT(support.result, "Failed to check for surface support");
+    return support.value;
+}
+
+vk::ResultValue<vk::SurfaceCapabilitiesKHR> Device::getSurfaceCapabilities(
+    vk::SurfaceKHR& surface) const
+{
+    return physDevice_.device.getSurfaceCapabilitiesKHR(surface);
+}
+
 const CommandBuffer Device::createTransientCommandBuffer() const
 {
     CommandBuffer commandBuffer(*this, transientCommandPool_.get());
@@ -88,64 +109,6 @@ const void Device::submitTransientCommandBuffer(CommandBuffer& commandBuffer) co
     EXPENGINE_VK_ASSERT(res, "Failed to wait on the graphics queue to be idle");
 }
 
-std::unique_ptr<vlk::Buffer> Device::createBuffer(
-    vk::DeviceSize size,
-    vk::BufferUsageFlags usageFlags,
-    vk::MemoryPropertyFlags memPropertyFlags,
-    void const* dataToCopy) const
-{
-    /* Allocations */
-
-    auto [createBufferResult, vkBuffer]
-        = logicalDevice_->createBufferUnique({.size = size, .usage = usageFlags});
-    EXPENGINE_VK_ASSERT(createBufferResult, "Failed to create buffer");
-
-    auto memRequirements
-        = logicalDevice_->getBufferMemoryRequirements(vkBuffer.get());
-
-    vk::MemoryAllocateInfo allocInfo {
-        .allocationSize = memRequirements.size,
-        .memoryTypeIndex
-        = findMemoryType(memRequirements.memoryTypeBits, memPropertyFlags)};
-    /* If the buffer has VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT set we
-     * also need to enable the appropriate flag during allocation */
-    vk::MemoryAllocateFlagsInfoKHR allocFlagsInfo = {};
-    if ((usageFlags & vk::BufferUsageFlagBits::eShaderDeviceAddress)
-        == vk::BufferUsageFlagBits::eShaderDeviceAddress)
-    {
-        allocFlagsInfo.flags = vk::MemoryAllocateFlagBits::eDeviceAddress;
-        allocInfo.pNext = &allocFlagsInfo;
-    }
-    auto memAlloc = logicalDevice_->allocateMemoryUnique(allocInfo);
-    EXPENGINE_VK_ASSERT(memAlloc.result, "Failed to allocate memory for a buffer.");
-
-    /* Wrap in vlkBuffer object */
-
-    auto buffer = std::make_unique<vlk::Buffer>(
-        logicalDevice_.get(),
-        std::move(vkBuffer),
-        std::move(memAlloc.value),
-        memRequirements.alignment,
-        size,
-        usageFlags,
-        memPropertyFlags);
-
-    /* If available, upload dataToCopy to device */
-
-    if (dataToCopy != nullptr)
-    {
-        EXPENGINE_VK_ASSERT(buffer->map(), "Failed to map memory");
-        buffer->copyData(dataToCopy, size);
-        if ((memPropertyFlags & vk::MemoryPropertyFlagBits::eHostCoherent)
-            != vk::MemoryPropertyFlagBits::eHostCoherent)
-            buffer->flush();
-        buffer->unmap();
-    }
-    EXPENGINE_VK_ASSERT(buffer->bind(), "Failed to bind memory to buffer");
-
-    return std::move(buffer);
-}
-
 void Device::waitIdle() const
 {
     auto res = logicalDevice_->waitIdle();
@@ -155,7 +118,7 @@ void Device::waitIdle() const
 PhysicalDeviceDetails Device::pickPhysicalDevice(
     vk::Instance vkInstance,
     const std::vector<const char*> deviceExtensions,
-    const std::vector<vk::SurfaceKHR>& surfaces)
+    const std::vector<vk::SurfaceKHR>& surfaces) const
 {
     auto [result, physDevices] = vkInstance.enumeratePhysicalDevices();
     EXPENGINE_VK_ASSERT(result, "Failed to find a GPU with Vulkan support.");
@@ -194,7 +157,7 @@ PhysicalDeviceDetails Device::pickPhysicalDevice(
 vk::UniqueDevice Device::createLogicalDevice(
     vk::PhysicalDevice physicalDevice,
     QueueFamilyIndices queueFamilyIndices,
-    const std::vector<const char*> deviceExtensions)
+    const std::vector<const char*> deviceExtensions) const
 {
     std::vector<vk::DeviceQueueCreateInfo> queueCreatesInfos;
     std::set<uint32_t> uniqueQueueFamiliesIndexes

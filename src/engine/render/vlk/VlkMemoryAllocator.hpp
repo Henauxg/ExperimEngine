@@ -1,8 +1,11 @@
 #pragma once
 
+#include <memory>
+
 #include <vma/vk_mem_alloc.h>
 
 #include <engine/render/vlk/VlkInclude.hpp>
+#include <engine/render/vlk/resources/VlkBuffer.hpp>
 
 namespace spdlog {
 class logger;
@@ -33,7 +36,21 @@ public:
         uint32_t vulkanApiVersion);
     ~MemoryAllocator();
 
+    std::unique_ptr<vlk::Buffer> createStagingBuffer(
+        vk::DeviceSize size,
+        void const* dataToCopy) const;
+
+    std::unique_ptr<vlk::Buffer> createBuffer(
+        vk::DeviceSize size,
+        VmaMemoryUsage memoryUsage,
+        vk::BufferUsageFlags bufferUsage,
+        void const* dataToCopy) const;
+
 private:
+    /* References */
+    const Device& device_;
+
+    /* Owned objects */
     VmaAllocator allocator_;
 
     /* Logging */

@@ -12,7 +12,8 @@ MemoryAllocator::MemoryAllocator(
     const Device& device,
     const vk::DispatchLoaderDynamic& dispatchLoader,
     uint32_t vulkanApiVersion)
-    : logger_(spdlog::get(LOGGER_NAME))
+    : device_(device)
+    , logger_(spdlog::get(LOGGER_NAME))
 {
     VmaVulkanFunctions vulkanFunctions = {
         .vkGetPhysicalDeviceProperties
@@ -53,6 +54,44 @@ MemoryAllocator::~MemoryAllocator()
 {
     SPDLOG_LOGGER_DEBUG(logger_, "MemoryAllocator destruction");
     vmaDestroyAllocator(allocator_);
+}
+
+std::unique_ptr<vlk::Buffer> MemoryAllocator::createStagingBuffer(
+    vk::DeviceSize size,
+    void const* dataToCopy) const
+{
+    auto stagingBuffer = createBuffer(
+        size,
+        VMA_MEMORY_USAGE_CPU_ONLY,
+        vk::BufferUsageFlagBits::eTransferSrc,
+        dataToCopy);
+    return std::move(stagingBuffer);
+}
+
+std::unique_ptr<vlk::Buffer> MemoryAllocator::createBuffer(
+    vk::DeviceSize size,
+    VmaMemoryUsage memoryUsage,
+    vk::BufferUsageFlags bufferUsage,
+    void const* dataToCopy) const
+{
+    /* Create a vlk::Buffer object */
+
+    auto buffer = std::make_unique<vlk::Buffer>(
+        device_.deviceHandle(), allocator_, memoryUsage, bufferUsage, size);
+
+    /* If available, upload dataToCopy to device */
+
+    if (dataToCopy != nullptr)
+    {
+        EXPENGINE_VK_ASSERT(buffer->map(), "Failed to map memory");
+        buffer->copyData(dataToCopy, size);
+        /* We can flush in everycase, call will be ignored if the memory is
+         * host_coherent/visilbe */
+        buffer->flush();
+        buffer->unmap();
+    }
+
+    return std::move(buffer);
 }
 
 } // namespace vlk

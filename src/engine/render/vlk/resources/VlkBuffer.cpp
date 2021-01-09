@@ -9,21 +9,38 @@ namespace vlk {
 
 Buffer::Buffer(
     const vk::Device device,
-    vk::UniqueBuffer buffer,
-    vk::UniqueDeviceMemory memory,
-    vk::DeviceSize alignment,
-    vk::DeviceSize size,
-    vk::BufferUsageFlags usageFlags,
-    vk::MemoryPropertyFlags memoryPropertyFlags)
+    const VmaAllocator& allocator,
+    VmaMemoryUsage memoryUsage,
+    vk::BufferUsageFlags bufferUsage,
+    vk::DeviceSize size)
     : device_(device)
-    , buffer_(std::move(buffer))
-    , memory_(std::move(memory))
-    , alignment_(alignment)
+    , allocator_(allocator)
+    , memoryUsage_(memoryUsage)
+    , bufferUsage_(bufferUsage)
     , size_(size)
-    , usageFlags_(usageFlags)
-    , memoryPropertyFlags_(memoryPropertyFlags)
 {
+    /* Allocate and bind */
+
+    vk::BufferCreateInfo bufferInfo {.size = size, .usage = bufferUsage};
+    VmaAllocationCreateInfo allocRequestInfo = {.usage = memoryUsage};
+    vk::Buffer vkBuffer;
+    vmaCreateBuffer(
+        allocator_,
+        reinterpret_cast<VkBufferCreateInfo*>(&bufferInfo),
+        &allocRequestInfo,
+        reinterpret_cast<VkBuffer*>(&vkBuffer),
+        &allocation_,
+        &allocInfo_);
+
+    buffer_ = vk::UniqueBuffer(vkBuffer, device);
+
     setupDescriptor();
+}
+
+Buffer::~Buffer()
+{
+    /*  Buffer is released but we need to handle the VMA allocated memory manually */
+    vmaFreeMemory(allocator_, allocation_);
 }
 
 /**
@@ -38,10 +55,9 @@ Buffer::Buffer(
  */
 vk::Result Buffer::map(vk::DeviceSize size, vk::DeviceSize offset)
 {
-    auto mapResult = device_.mapMemory(memory_.get(), offset, size);
+    auto res = vmaMapMemory(allocator_, allocation_, &mapped_);
 
-    mapped_ = mapResult.value;
-    return mapResult.result;
+    return vk::Result(res);
 }
 
 /**
@@ -53,22 +69,9 @@ void Buffer::unmap()
 {
     if (mapped_)
     {
-        device_.unmapMemory(memory_.get());
+        vmaUnmapMemory(allocator_, allocation_);
         mapped_ = nullptr;
     }
-}
-
-/**
- * Attach the allocated memory block to the buffer
- *
- * @param offset (Optional) Byte offset (from the beginning) for the memory
- * region to bind
- *
- * @return vk::Result of the bindBufferMemory call
- */
-vk::Result Buffer::bind(vk::DeviceSize offset)
-{
-    return device_.bindBufferMemory(buffer_.get(), memory_.get(), offset);
 }
 
 void Buffer::setupDescriptor(vk::DeviceSize size, vk::DeviceSize offset)
@@ -104,9 +107,12 @@ void Buffer::copyData(void const* data, vk::DeviceSize size)
  */
 vk::Result Buffer::flush(vk::DeviceSize size, vk::DeviceSize offset)
 {
-    vk::MappedMemoryRange mappedRange
-        = {.memory = memory_.get(), .offset = offset, .size = size};
-    return device_.flushMappedMemoryRanges(mappedRange);
+    vmaFlushAllocation(allocator_, allocation_, offset, size);
+    /* TODO No return value from vmaFlushAllocation.
+     * There should be one according to the documentation
+     * https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/vk__mem__alloc_8h.html#a30c37c1eec6025f397be41644f48490f
+     */
+    return vk::Result::eSuccess;
 }
 
 /**
@@ -122,9 +128,13 @@ vk::Result Buffer::flush(vk::DeviceSize size, vk::DeviceSize offset)
  */
 vk::Result Buffer::invalidate(vk::DeviceSize size, vk::DeviceSize offset)
 {
-    vk::MappedMemoryRange mappedRange
-        = {.memory = memory_.get(), .offset = offset, .size = size};
-    return device_.invalidateMappedMemoryRanges(mappedRange);
+    vmaInvalidateAllocation(allocator_, allocation_, offset, size);
+
+    /* TODO No return value from vmaFlushAllocation.
+     * There should be one according to the documentation
+     * https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/vk__mem__alloc_8h.html#a30c37c1eec6025f397be41644f48490f
+     */
+    return vk::Result::eSuccess;
 }
 
 } // namespace vlk

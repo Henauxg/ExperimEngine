@@ -1,6 +1,7 @@
 #include "VlkTexture.hpp"
 
 #include <engine/render/vlk/VlkDebug.hpp>
+#include <engine/render/vlk/VlkMemoryAllocator.hpp>
 #include <engine/render/vlk/VlkTools.hpp>
 
 namespace expengine {
@@ -24,12 +25,7 @@ Texture::Texture(
     , layerCount_(1)
 {
     /* Upload texData to accessible device memory */
-    auto stagingBuffer = device.createBuffer(
-        bufferSize,
-        vk::BufferUsageFlagBits::eTransferSrc,
-        vk::MemoryPropertyFlagBits::eHostVisible
-            | vk::MemoryPropertyFlagBits::eHostCoherent,
-        texData);
+    auto stagingBuffer = device.allocator().createStagingBuffer(bufferSize, texData);
 
     /* TODO : consider linear tiling if there is no other way */
     /* Create image (as a transfer dest) */

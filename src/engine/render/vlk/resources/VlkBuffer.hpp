@@ -1,6 +1,7 @@
 #pragma once
 
 #include <engine/render/vlk/VlkInclude.hpp>
+#include <vma/vk_mem_alloc.h>
 
 namespace expengine {
 namespace render {
@@ -9,19 +10,16 @@ namespace vlk {
 class Device;
 
 /**
- * Vulkan buffer wrapper.
- * Based on VulkanBuffer by Sascha Willems examples -
- * https://github.com/SaschaWillems/Vulkan */
+ * Vulkan buffer wrapper using VMA */
 class Buffer {
 public:
     Buffer(
         const vk::Device device,
-        vk::UniqueBuffer buffer,
-        vk::UniqueDeviceMemory memory,
-        vk::DeviceSize alignment,
-        vk::DeviceSize size,
-        vk::BufferUsageFlags usageFlags,
-        vk::MemoryPropertyFlags memoryPropertyFlags);
+        const VmaAllocator& allocator,
+        VmaMemoryUsage memoryUsage,
+        vk::BufferUsageFlags bufferUsage,
+        vk::DeviceSize size);
+    ~Buffer();
 
     vk::Result map(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
     void unmap();
@@ -37,15 +35,22 @@ public:
     inline vk::Buffer getHandle() const { return buffer_.get(); };
 
 private:
+    /* Handles */
     const vk::Device device_;
+    const VmaAllocator allocator_;
+    VmaAllocation allocation_;
+
+    /* Owned objects */
     vk::UniqueBuffer buffer_;
-    vk::UniqueDeviceMemory memory_;
-    VkDescriptorBufferInfo descriptor_;
+
+    /* Info  */
+    VmaMemoryUsage memoryUsage_;
+    vk::BufferUsageFlags bufferUsage_;
     vk::DeviceSize size_ = 0;
-    vk::DeviceSize alignment_ = 0;
+    VmaAllocationInfo allocInfo_;
+
+    VkDescriptorBufferInfo descriptor_;
     void* mapped_ = nullptr;
-    vk::BufferUsageFlags usageFlags_;
-    vk::MemoryPropertyFlags memoryPropertyFlags_;
 };
 } // namespace vlk
 } // namespace render

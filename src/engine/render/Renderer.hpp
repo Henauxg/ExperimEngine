@@ -10,7 +10,7 @@ class logger;
 
 namespace expengine {
 
-class EngineParameters;
+struct EngineParameters;
 
 namespace render {
 
