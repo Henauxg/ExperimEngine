@@ -6,7 +6,7 @@ Along the way, I aim to learn many things such as 3D graphics with [Vulkan](http
 
 ### Current work :
 
-+ Integration of [Dear ImGui](https://github.com/ocornut/imgui) docking branch in the native Vulkan Renderer
++ Integration of [Dear ImGui](https://github.com/ocornut/imgui) docking/viewports branch in the native Vulkan Renderer, and with viewports disabled in the WebGPU renderer.
 + Investigation for a [scripting language](#modding-and-scripting)
 + [web-support](#web-support) : WebGPU renderer implementation
 
@@ -97,9 +97,9 @@ Right now, the build system is focused on Windows 64 bits only for practical rea
 
 Idealy, an ExperimEngine app should be able to run on a web-browser.
 
-**Current state** : Investigating technologies
+**Current state** : Implementation of a separate WebGPU rendering backend
 
-Technologies being considered :
+Technologies :
 + [Emscripten](https://github.com/emscripten-core/emscripten) to compile C++ to [WebAssembly](https://webassembly.org/).
   + emscripten also provides support for the SLD2 API (already used as an OS abstraction in ExperimEngine).
   + If OpenGL was a rendering target, emscripten could also be used to automatically convert it to WebGL.
