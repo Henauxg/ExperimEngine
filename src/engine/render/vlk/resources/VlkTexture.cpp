@@ -1,8 +1,9 @@
 #include "VlkTexture.hpp"
 
 #include <engine/render/vlk/VlkDebug.hpp>
+#include <engine/render/vlk/VlkDevice.hpp>
 #include <engine/render/vlk/VlkMemoryAllocator.hpp>
-#include <engine/render/vlk/VlkTools.hpp>
+#include <engine/render/vlk/resources/VlkImage.hpp>
 
 namespace expengine {
 namespace render {
@@ -18,55 +19,23 @@ Texture::Texture(
     const vk::Sampler sampler,
     vk::ImageUsageFlags imageUsageFlags,
     vk::ImageLayout targetImgLayout)
-    : width_(texWidth)
-    , height_(texHeight)
-    , sampler_(sampler)
-    , mipLevels_(1)
-    , layerCount_(1)
+    : sampler_(sampler)
 {
     /* Upload texData to accessible device memory */
     auto stagingBuffer = device.allocator().createStagingBuffer(bufferSize, texData);
 
-    /* TODO : consider linear tiling if there is no other way */
     /* Create image (as a transfer dest) */
-    vk::ImageCreateInfo imgCreateInfo
-        = {.imageType = vk::ImageType::e2D,
-           .format = format,
-           .extent = {width_, height_, 1},
-           .mipLevels = mipLevels_,
-           .arrayLayers = layerCount_,
-           .samples = vk::SampleCountFlagBits::e1,
-           .tiling = vk::ImageTiling::eOptimal,
-           .usage = (imageUsageFlags | vk::ImageUsageFlagBits::eTransferDst),
-           .sharingMode = vk::SharingMode::eExclusive,
-           .initialLayout = vk::ImageLayout::eUndefined};
-
-    auto createImgResult = device.deviceHandle().createImageUnique(imgCreateInfo);
-    EXPENGINE_VK_ASSERT(createImgResult.result, "Failed to create image");
-    image_ = std::move(createImgResult.value);
-
-    /* Allocate memory for the image (device local) and bind it */
-    auto memRequirements
-        = device.deviceHandle().getImageMemoryRequirements(image_.get());
-    vk::MemoryAllocateInfo memAllocInfo {
-        .allocationSize = memRequirements.size,
-        .memoryTypeIndex = device.findMemoryType(
-            memRequirements.memoryTypeBits,
-            vk::MemoryPropertyFlagBits::eDeviceLocal)};
-    auto memAlloc = device.deviceHandle().allocateMemoryUnique(memAllocInfo);
-    EXPENGINE_VK_ASSERT(memAlloc.result, "Failed to allocate memory for an image.");
-    memory_ = std::move(memAlloc.value);
-
-    auto bindResult
-        = device.deviceHandle().bindImageMemory(image_.get(), memory_.get(), 0);
-    EXPENGINE_VK_ASSERT(bindResult, "Failed to bind memory to an image.");
+    image_ = device.allocator().createTextureImage(
+        imageUsageFlags | vk::ImageUsageFlagBits::eTransferDst,
+        format,
+        texWidth,
+        texHeight);
 
     auto imageCopyCmdBuffer = device.createTransientCommandBuffer();
 
     /* Transition image layout to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL */
-    vlk::transitionImageLayout(
+    image_->transitionImageLayout(
         imageCopyCmdBuffer.getHandle(),
-        image_.get(),
         vk::ImageLayout::eUndefined,
         vk::ImageLayout::eTransferDstOptimal,
         vk::ImageAspectFlagBits::eColor);
@@ -78,26 +47,23 @@ Texture::Texture(
            .mipLevel = 0,
            .baseArrayLayer = 0,
            .layerCount = 1},
-        .imageExtent = {.width = width_, .height = height_, .depth = 1}};
+        .imageExtent = image_->getExtent()};
     imageCopyCmdBuffer.copyBufferToImage(
-        stagingBuffer->getHandle(), image_.get(), bufferCopyRegion);
+        stagingBuffer->getHandle(), image_->getHandle(), bufferCopyRegion);
 
-    /* Transition layout to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL */
-    vlk::transitionImageLayout(
+    /* Transition layout (defautl to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) */
+    image_->transitionImageLayout(
         imageCopyCmdBuffer.getHandle(),
-        image_.get(),
         vk::ImageLayout::eTransferDstOptimal,
-        vk::ImageLayout::eShaderReadOnlyOptimal,
+        targetImgLayout,
         vk::ImageAspectFlagBits::eColor);
-    /* Update texture info */
-    layout_ = vk::ImageLayout::eShaderReadOnlyOptimal;
 
     /* TODO Implement fence signaling in buffer sumbission */
     device.submitTransientCommandBuffer(imageCopyCmdBuffer);
 
     /* Create Image View */
     auto createViewResult = device.deviceHandle().createImageViewUnique(
-        {.image = image_.get(),
+        {.image = image_->getHandle(),
          .viewType = vk::ImageViewType::e2D,
          .format = format,
          .subresourceRange
@@ -112,7 +78,7 @@ Texture::Texture(
     /* Update descriptor */
     descriptorInfo_.sampler = sampler;
     descriptorInfo_.imageView = view_.get();
-    descriptorInfo_.imageLayout = layout_;
+    descriptorInfo_.imageLayout = image_->getLayout();
 }
 
 } // namespace vlk

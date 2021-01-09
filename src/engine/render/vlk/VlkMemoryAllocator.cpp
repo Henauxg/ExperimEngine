@@ -2,6 +2,8 @@
 
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/vlk/VlkDevice.hpp>
+#include <engine/render/vlk/resources/VlkBuffer.hpp>
+#include <engine/render/vlk/resources/VlkImage.hpp>
 
 namespace expengine {
 namespace render {
@@ -92,6 +94,51 @@ std::unique_ptr<vlk::Buffer> MemoryAllocator::createBuffer(
     }
 
     return std::move(buffer);
+}
+
+std::unique_ptr<vlk::Image> MemoryAllocator::createTextureImage(
+    vk::ImageUsageFlags imageUsageFlags,
+    vk::Format format,
+    uint32_t width,
+    uint32_t height,
+    uint32_t mipLevels,
+    uint32_t layerCount) const
+{
+    /* Create a vlk::Image object */
+    auto image = createImage(
+        VMA_MEMORY_USAGE_GPU_ONLY,
+        imageUsageFlags,
+        format,
+        width,
+        height,
+        mipLevels,
+        layerCount);
+
+    return std::move(image);
+}
+
+std::unique_ptr<vlk::Image> MemoryAllocator::createImage(
+    VmaMemoryUsage memoryUsage,
+    vk::ImageUsageFlags imageUsageFlags,
+    vk::Format format,
+    uint32_t width,
+    uint32_t height,
+    uint32_t mipLevels,
+    uint32_t layerCount) const
+{
+    /* Create a vlk::Image object */
+    auto image = std::make_unique<vlk::Image>(
+        device_.deviceHandle(),
+        allocator_,
+        memoryUsage,
+        imageUsageFlags,
+        format,
+        width,
+        height,
+        mipLevels,
+        layerCount);
+
+    return std::move(image);
 }
 
 } // namespace vlk

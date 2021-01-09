@@ -1,16 +1,67 @@
-#include "VlkTools.hpp"
+#include "VlkImage.hpp"
+
+#include <engine/render/vlk/VlkDebug.hpp>
+#include <engine/render/vlk/VlkDevice.hpp>
 
 namespace expengine {
 namespace render {
 namespace vlk {
 
+Image::Image(
+    const vk::Device device,
+    const VmaAllocator& allocator,
+    VmaMemoryUsage memoryUsage,
+    vk::ImageUsageFlags imageUsageFlags,
+    vk::Format format,
+    uint32_t width,
+    uint32_t height,
+    uint32_t mipLevels,
+    uint32_t layerCount)
+    : device_(device)
+    , allocator_(allocator)
+    , memoryUsage_(memoryUsage)
+    , layout_(vk::ImageLayout::eUndefined)
+{
+    /* Allocate and bind */
+
+    /* TODO : consider linear tiling if there is no other way */
+    imgInfo_
+        = {.imageType = vk::ImageType::e2D,
+           .format = format,
+           .extent = {width, height, 1},
+           .mipLevels = mipLevels,
+           .arrayLayers = layerCount,
+           .samples = vk::SampleCountFlagBits::e1,
+           .tiling = vk::ImageTiling::eOptimal,
+           .usage = imageUsageFlags,
+           .sharingMode = vk::SharingMode::eExclusive,
+           .initialLayout = layout_};
+
+    VmaAllocationCreateInfo allocRequestInfo = {.usage = memoryUsage};
+    vk::Image vkImage;
+    vmaCreateImage(
+        allocator_,
+        reinterpret_cast<VkImageCreateInfo*>(&imgInfo_),
+        &allocRequestInfo,
+        reinterpret_cast<VkImage*>(&vkImage),
+        &allocation_,
+        &allocInfo_);
+
+    image_ = vk::UniqueImage(vkImage, device);
+}
+
+Image::~Image()
+{
+    /* Image is released but we need to handle the VMA allocated memory manually */
+    vmaFreeMemory(allocator_, allocation_);
+}
+
 /** Based on setImageLayout by Sacha Willems & Vulkan-Samples and
 modified with vulkan-hpp :
 https://github.com/KhronosGroup/Vulkan-Samples/blob/master/framework/common/vk_common.cpp
 */
-void transitionImageLayout(
+void Image::transitionImageLayout(
     vk::CommandBuffer commandBuffer,
-    vk::Image image,
     vk::ImageLayout oldLayout,
     vk::ImageLayout newLayout,
     vk::ImageSubresourceRange subresourceRange,
@@ -23,7 +74,7 @@ void transitionImageLayout(
         .newLayout = newLayout,
         .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .image = image,
+        .image = *image_,
         .subresourceRange = subresourceRange};
 
     /* Source layout : Source access mask controls actions that have to be
@@ -124,11 +175,12 @@ void transitionImageLayout(
 
     /* Put barrier inside the command buffer */
     commandBuffer.pipelineBarrier(srcMask, dstMask, {}, nullptr, nullptr, barrier);
+
+    layout_ = newLayout;
 }
 
-void transitionImageLayout(
+void Image::transitionImageLayout(
     vk::CommandBuffer commandBuffer,
-    vk::Image image,
     vk::ImageLayout oldLayout,
     vk::ImageLayout newLayout,
     vk::ImageAspectFlags aspectMask,
@@ -140,8 +192,7 @@ void transitionImageLayout(
         .baseMipLevel = 0,
         .levelCount = 1,
         .layerCount = 1};
-    transitionImageLayout(
-        commandBuffer, image, oldLayout, newLayout, subresourceRange);
+    transitionImageLayout(commandBuffer, oldLayout, newLayout, subresourceRange);
 }
 
 } // namespace vlk

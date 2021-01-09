@@ -2,10 +2,14 @@
 
 #include <engine/render/vlk/VlkDevice.hpp>
 #include <engine/render/vlk/VlkInclude.hpp>
+#include <engine/render/vlk/resources/VlkImage.hpp>
 
 namespace expengine {
 namespace render {
 namespace vlk {
+
+class Image;
+class Device;
 
 class Texture {
 public:
@@ -21,21 +25,20 @@ public:
         vk::ImageUsageFlags imageUsageFlags = vk::ImageUsageFlagBits::eSampled,
         vk::ImageLayout targetImgLayout = vk::ImageLayout::eShaderReadOnlyOptimal);
 
-    inline vk::Image imageHandle() const { return image_.get(); };
+    inline vk::Image imageHandle() const { return image_->getHandle(); };
 
 private:
-    vk::UniqueImage image_;
-    vk::UniqueDeviceMemory memory_;
-    vk::UniqueImageView view_;
+    /* Handles */
     /* A sampler may be shared with multiples textures */
     /* TODO may create default sampler is none is provided ? */
     const vk::Sampler sampler_;
+
+    /* Owned objects */
+    std::unique_ptr<Image> image_;
+    vk::UniqueImageView view_;
+
+    /* Info */
     vk::DescriptorImageInfo descriptorInfo_;
-    vk::ImageLayout layout_;
-    uint32_t width_ = 0;
-    uint32_t height_ = 0;
-    uint32_t mipLevels_ = 0;
-    uint32_t layerCount_ = 0;
 };
 } // namespace vlk
 } // namespace render

@@ -5,7 +5,6 @@
 #include <vma/vk_mem_alloc.h>
 
 #include <engine/render/vlk/VlkInclude.hpp>
-#include <engine/render/vlk/resources/VlkBuffer.hpp>
 
 namespace spdlog {
 class logger;
@@ -16,6 +15,8 @@ namespace render {
 namespace vlk {
 
 class Device;
+class Buffer;
+class Image;
 
 class MemoryAllocator {
 public:
@@ -45,6 +46,23 @@ public:
         VmaMemoryUsage memoryUsage,
         vk::BufferUsageFlags bufferUsage,
         void const* dataToCopy) const;
+
+    std::unique_ptr<vlk::Image> createTextureImage(
+        vk::ImageUsageFlags imageUsageFlags,
+        vk::Format format,
+        uint32_t width,
+        uint32_t height,
+        uint32_t mipLevels = 1,
+        uint32_t layerCount = 1) const;
+
+    std::unique_ptr<vlk::Image> createImage(
+        VmaMemoryUsage memoryUsage,
+        vk::ImageUsageFlags imageUsageFlags,
+        vk::Format format,
+        uint32_t width,
+        uint32_t height,
+        uint32_t mipLevels = 1,
+        uint32_t layerCount = 1) const;
 
 private:
     /* References */

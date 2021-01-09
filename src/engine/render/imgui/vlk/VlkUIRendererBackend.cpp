@@ -198,16 +198,14 @@ void VulkanUIRendererBackend::uploadFonts()
     size_t bufferSize = (size_t) width * (size_t) height * 4 * sizeof(char);
 
     /* Create GPU texture */
-    fontTexture_ = std::make_unique<vlk::Texture>(
+    fontTexture_ = std::make_unique<Texture>(
         device_,
         pixelsBuffer,
         bufferSize,
         vk::Format::eR8G8B8A8Unorm,
         width,
         height,
-        fontSampler_.get(),
-        vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
-        vk::ImageLayout::eShaderReadOnlyOptimal);
+        fontSampler_.get());
 
     /* Store font texture identifier */
     io.Fonts->TexID = (ImTextureID)(intptr_t)(VkImage) fontTexture_->imageHandle();
