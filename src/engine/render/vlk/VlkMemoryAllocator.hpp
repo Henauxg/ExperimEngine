@@ -37,15 +37,23 @@ public:
         uint32_t vulkanApiVersion);
     ~MemoryAllocator();
 
+    std::unique_ptr<vlk::Buffer> createIndexBuffer(
+        vk::DeviceSize size,
+        void const* dataToCopy = nullptr) const;
+
+    std::unique_ptr<vlk::Buffer> createVertexBuffer(
+        vk::DeviceSize size,
+        void const* dataToCopy = nullptr) const;
+
     std::unique_ptr<vlk::Buffer> createStagingBuffer(
         vk::DeviceSize size,
-        void const* dataToCopy) const;
+        void const* dataToCopy = nullptr) const;
 
     std::unique_ptr<vlk::Buffer> createBuffer(
         vk::DeviceSize size,
         VmaMemoryUsage memoryUsage,
         vk::BufferUsageFlags bufferUsage,
-        void const* dataToCopy) const;
+        void const* dataToCopy = nullptr) const;
 
     std::unique_ptr<vlk::Image> createTextureImage(
         vk::ImageUsageFlags imageUsageFlags,

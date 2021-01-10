@@ -58,6 +58,66 @@ MemoryAllocator::~MemoryAllocator()
     vmaDestroyAllocator(allocator_);
 }
 
+/**
+ * Creates an index buffer and map it. Asserts that the mapping succeeded.
+ *
+ * @note The buffer is guaranteed to be host_visible
+ *
+ * @param size Size of the buffer to create
+ * @param offset (Optional) Data to be copied into the buffer, if data is present,
+ * the buffer will be mapped/filled/unmapped/flushed automatically.
+ *
+ * @return unique_ptr to the vlk::Buffer
+ */
+std::unique_ptr<vlk::Buffer> MemoryAllocator::createIndexBuffer(
+    vk::DeviceSize size,
+    void const* dataToCopy) const
+{
+    auto indexBuffer = createBuffer(
+        size,
+        VMA_MEMORY_USAGE_CPU_TO_GPU,
+        vk::BufferUsageFlagBits::eIndexBuffer,
+        dataToCopy);
+
+    /* If no data was copied, map the buffer */
+    if (dataToCopy == nullptr)
+    {
+        indexBuffer->assertMap();
+    }
+
+    return std::move(indexBuffer);
+}
+
+/**
+ * Creates a vertex buffer and map it. Asserts that the mapping succeeded.
+ *
+ * @note The buffer is guaranteed to be host_visible
+ *
+ * @param size Size of the buffer to create
+ * @param offset (Optional) Data to be copied into the buffer, if data is present,
+ * the buffer will be mapped/filled/unmapped/flushed automatically.
+ *
+ * @return unique_ptr to the vlk::Buffer
+ */
+std::unique_ptr<vlk::Buffer> MemoryAllocator::createVertexBuffer(
+    vk::DeviceSize size,
+    void const* dataToCopy) const
+{
+    auto vertexBuffer = createBuffer(
+        size,
+        VMA_MEMORY_USAGE_CPU_TO_GPU,
+        vk::BufferUsageFlagBits::eVertexBuffer,
+        dataToCopy);
+
+    /* If no data was copied, map the buffer */
+    if (dataToCopy == nullptr)
+    {
+        vertexBuffer->assertMap();
+    }
+
+    return std::move(vertexBuffer);
+}
+
 std::unique_ptr<vlk::Buffer> MemoryAllocator::createStagingBuffer(
     vk::DeviceSize size,
     void const* dataToCopy) const
@@ -67,6 +127,7 @@ std::unique_ptr<vlk::Buffer> MemoryAllocator::createStagingBuffer(
         VMA_MEMORY_USAGE_CPU_ONLY,
         vk::BufferUsageFlagBits::eTransferSrc,
         dataToCopy);
+
     return std::move(stagingBuffer);
 }
 
@@ -85,11 +146,11 @@ std::unique_ptr<vlk::Buffer> MemoryAllocator::createBuffer(
 
     if (dataToCopy != nullptr)
     {
-        EXPENGINE_VK_ASSERT(buffer->map(), "Failed to map memory");
+        buffer->assertMap();
         buffer->copyData(dataToCopy, size);
         /* We can flush in everycase, call will be ignored if the memory is
          * host_coherent/visilbe */
-        buffer->flush();
+        buffer->assertFlush();
         buffer->unmap();
     }
 

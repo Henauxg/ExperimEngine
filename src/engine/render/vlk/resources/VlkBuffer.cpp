@@ -18,6 +18,8 @@ Buffer::Buffer(
     , memoryUsage_(memoryUsage)
     , bufferUsage_(bufferUsage)
     , size_(size)
+    , mapped_(nullptr)
+    , data_(nullptr)
 {
     /* Allocate and bind */
 
@@ -56,8 +58,25 @@ Buffer::~Buffer()
 vk::Result Buffer::map(vk::DeviceSize size, vk::DeviceSize offset)
 {
     auto res = vmaMapMemory(allocator_, allocation_, &mapped_);
+    data_ = static_cast<uint8_t*>(mapped_);
 
     return vk::Result(res);
+}
+
+/**
+ * Map a memory range of this buffer. If successful, mapped points to the
+ * specified buffer range. This method asserts that the mapping succeeded
+ *
+ * @param size (Optional) Size of the memory range to map. Pass
+ * VK_WHOLE_SIZE to map the complete buffer range.
+ * @param offset (Optional) Byte offset from beginning
+ *
+ */
+void Buffer::assertMap(vk::DeviceSize size, vk::DeviceSize offset)
+{
+    auto res = vk::Result(vmaMapMemory(allocator_, allocation_, &mapped_));
+    data_ = static_cast<uint8_t*>(mapped_);
+    EXPENGINE_VK_ASSERT(res, "Failed to map memory for a buffer");
 }
 
 /**
@@ -71,6 +90,7 @@ void Buffer::unmap()
     {
         vmaUnmapMemory(allocator_, allocation_);
         mapped_ = nullptr;
+        data_ = nullptr;
     }
 }
 
@@ -91,7 +111,9 @@ void Buffer::setupDescriptor(vk::DeviceSize size, vk::DeviceSize offset)
 void Buffer::copyData(void const* data, vk::DeviceSize size)
 {
     EXPENGINE_ASSERT(data, "Null data copied to a VlkBuffer");
-    memcpy(mapped_, data, size);
+    EXPENGINE_ASSERT(mapped_, "Data copied to an unmapped VlkBuffer");
+    memcpy(data_, data, size);
+    data_ = data_ + size;
 }
 
 /**
@@ -115,6 +137,12 @@ vk::Result Buffer::flush(vk::DeviceSize size, vk::DeviceSize offset)
     return vk::Result::eSuccess;
 }
 
+void Buffer::assertFlush(vk::DeviceSize size, vk::DeviceSize offset)
+{
+    vmaFlushAllocation(allocator_, allocation_, offset, size);
+    /* TODO No return value from vmaFlushAllocation. */
+}
+
 /**
  * Invalidate a memory range of the buffer to make it visible to the host
  *
@@ -135,6 +163,12 @@ vk::Result Buffer::invalidate(vk::DeviceSize size, vk::DeviceSize offset)
      * https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/vk__mem__alloc_8h.html#a30c37c1eec6025f397be41644f48490f
      */
     return vk::Result::eSuccess;
+}
+
+void Buffer::assertInvalidate(vk::DeviceSize size, vk::DeviceSize offset)
+{
+    vmaInvalidateAllocation(allocator_, allocation_, offset, size);
+    /* TODO No return value from vmaFlushAllocation. */
 }
 
 } // namespace vlk

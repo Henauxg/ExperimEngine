@@ -21,6 +21,11 @@ namespace expengine {
 namespace render {
 namespace vlk {
 
+struct FrameRenderBuffers {
+    std::unique_ptr<Buffer> vertexBuffer = nullptr;
+    std::unique_ptr<Buffer> indexBuffer = nullptr;
+};
+
 /** The Vulkan-specific derived class  stored in the void*
  * RenderUserData field of each ImGuiViewport */
 class VkImGuiViewportRendererData : public ImGuiViewportRendererData {
@@ -46,9 +51,19 @@ public:
         onSurfaceChange();
     }
 
+    FrameRenderBuffers& requestFrameRenderBuffers()
+    {
+        return renderBuffers_.at(frameIndex_);
+        frameIndex_ = (frameIndex_ + 1) % renderBuffers_.size();
+    }
+
+    const vk::Pipeline pipeline() { return *uiGraphicsPipeline_; }
+
 protected:
     /* Owned objects */
     vk::UniquePipeline uiGraphicsPipeline_;
+    std::vector<FrameRenderBuffers> renderBuffers_;
+    uint32_t frameIndex_;
 
     /* Configuration */
     /* Hold a copy since it will be modified. */
@@ -64,8 +79,8 @@ protected:
             = vkRenderingContext->createGraphicsPipeline(graphicsPipelineInfo_);
 
         /* (Re)build buffers */
-        // TODO Implement
-        vkRenderingContext->imageCount();
+        frameIndex_ = 0;
+        renderBuffers_.resize(vkRenderingContext->imageCount());
     };
 };
 
@@ -268,34 +283,91 @@ void VulkanUIRendererBackend::uploadFonts()
     /* Store font texture identifier */
     io.Fonts->TexID = (ImTextureID)(intptr_t)(VkImage) fontTexture_->imageHandle();
 }
-//
-// void VulkanUIRendererBackend::onSurfaceChange() { }
 
 void VulkanUIRendererBackend::renderUI(
-    ImGuiViewportRendererData* renderData,
+    ImGuiViewportRendererData* rendererData,
     ImDrawData* drawData,
     uint32_t fbWidth,
     uint32_t fbHeight) const
 {
+    auto vlkViewportData = dynamic_cast<VkImGuiViewportRendererData*>(rendererData);
     auto& vlkRenderingContext
-        = dynamic_cast<VulkanRenderingContext&>(*renderData->renderingContext_);
+        = dynamic_cast<VulkanRenderingContext&>(*rendererData->renderingContext_);
+
+    /* Upload to index and vertex buffers */
+    auto& frame = vlkViewportData->requestFrameRenderBuffers();
+
+    if (drawData->TotalVtxCount > 0)
+    {
+        size_t vertexSize = drawData->TotalVtxCount * sizeof(ImDrawVert);
+        size_t indexSize = drawData->TotalIdxCount * sizeof(ImDrawIdx);
+        if (frame.vertexBuffer == nullptr || frame.vertexBuffer->size() < vertexSize)
+            frame.vertexBuffer = device_.allocator().createVertexBuffer(vertexSize);
+        if (frame.indexBuffer == nullptr || frame.indexBuffer->size() < indexSize)
+            frame.indexBuffer = device_.allocator().createIndexBuffer(indexSize);
+
+        for (int n = 0; n < drawData->CmdListsCount; n++)
+        {
+            const ImDrawList* cmdList = drawData->CmdLists[n];
+            frame.vertexBuffer->copyData(
+                cmdList->VtxBuffer.Data,
+                cmdList->VtxBuffer.Size * sizeof(ImDrawVert));
+            frame.indexBuffer->copyData(
+                cmdList->IdxBuffer.Data,
+                cmdList->IdxBuffer.Size * sizeof(ImDrawIdx));
+        }
+        /* TODO Could flush both allocation at once */
+        frame.vertexBuffer->assertFlush();
+        frame.indexBuffer->assertFlush();
+
+        frame.vertexBuffer->unmap();
+        frame.indexBuffer->unmap();
+    }
+
     auto& cmdBuffer = vlkRenderingContext.requestCommandBuffer();
+    cmdBuffer.beginRenderPass();
 
-    /* TODO Upload to index and vertex buffers */
-
-    /* need 1 index/vertex buffer pair for each frame for each viewport */
-    // renderContext.requestBuffer();
-    // Need to be able to reuse it if large enough, so it needs to stick between
-    // frames
-
-    /* TODO Setup render state */
-
-    SPDLOG_LOGGER_WARN(logger_, "TODO Implement");
+    /* Setup render state */
+    setupRenderState(
+        cmdBuffer, vlkViewportData->pipeline(), frame, drawData, fbWidth, fbHeight);
 
     /* TODO Draw commands */
+    SPDLOG_LOGGER_WARN(logger_, "TODO Implement");
 
     /* End RenderPass */
     cmdBuffer.endRenderPass();
+}
+
+void VulkanUIRendererBackend::setupRenderState(
+    FrameCommandBuffer& cmdBuffer,
+    const vk::Pipeline pipeline,
+    FrameRenderBuffers& frame,
+    ImDrawData* drawData,
+    uint32_t fbWidth,
+    uint32_t fbHeight) const
+{
+    /* Bind objects to command buffer */
+    cmdBuffer.bind(pipeline, *pipelineLayout_, descriptorSet_);
+    cmdBuffer.bindBuffers(
+        *frame.vertexBuffer,
+        *frame.indexBuffer,
+        sizeof(ImDrawIdx) == 2 ? vk::IndexType::eUint16 : vk::IndexType::eUint32);
+
+    /* Viewport */
+    cmdBuffer.setViewport(fbWidth, fbHeight);
+
+    /* Setup scale and translation:
+     * The visible imgui space lies from draw_data->DisplayPos (top left) to
+     * draw_data->DisplayPos + data_data->DisplaySize (bottom right). DisplayPos is
+     * (0,0) for single viewport apps. */
+    std::array<float, 2> scale
+        = {2.0f / drawData->DisplaySize.x, 2.0f / drawData->DisplaySize.y};
+    cmdBuffer.pushConstants<float>(vk::ShaderStageFlagBits::eVertex, scale);
+
+    std::array<float, 2> translate
+        = {-1.0f - drawData->DisplayPos.x * scale[0],
+           -1.0f - drawData->DisplayPos.y * scale[1]};
+    cmdBuffer.pushConstants<float>(vk::ShaderStageFlagBits::eVertex, translate);
 }
 
 } // namespace vlk

@@ -13,6 +13,8 @@ namespace vlk {
 class Device;
 class VulkanRenderer;
 class Texture;
+class FrameCommandBuffer;
+struct FrameRenderBuffers;
 
 /* Shared device objects at backend level : */
 /* -> Font Texture (Image + ImageView + Memory) */
@@ -78,7 +80,13 @@ private:
      * RenderingContext. */
     vk::GraphicsPipelineCreateInfo graphicsPipelineInfo_;
 
-    //void onSurfaceChange();
+    void setupRenderState(
+        FrameCommandBuffer& cmdBuffer,
+        const vk::Pipeline pipeline,
+        FrameRenderBuffers& frame,
+        ImDrawData* drawData,
+        uint32_t fbWidth,
+        uint32_t fbHeight) const;
 };
 
 } // namespace vlk

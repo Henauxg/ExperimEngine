@@ -22,17 +22,28 @@ public:
     ~Buffer();
 
     vk::Result map(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
+    void assertMap(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
     void unmap();
-    vk::Result bind(vk::DeviceSize offset = 0);
+
     void setupDescriptor(
         vk::DeviceSize size = VK_WHOLE_SIZE,
         vk::DeviceSize offset = 0);
     void copyData(void const* data, vk::DeviceSize size);
+
     vk::Result flush(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
+    void assertFlush(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
     vk::Result invalidate(
         vk::DeviceSize size = VK_WHOLE_SIZE,
         vk::DeviceSize offset = 0);
+    void assertInvalidate(
+        vk::DeviceSize size = VK_WHOLE_SIZE,
+        vk::DeviceSize offset = 0);
+
+    void push(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
+
+    /* Accessors */
     inline vk::Buffer getHandle() const { return buffer_.get(); };
+    inline size_t size() const { return size_; };
 
 private:
     /* Handles */
@@ -50,7 +61,10 @@ private:
     VmaAllocationInfo allocInfo_;
 
     VkDescriptorBufferInfo descriptor_;
-    void* mapped_ = nullptr;
+    /* Origin of the mapped memory */
+    void* mapped_;
+    /* Cursor to the mapped memory */
+    uint8_t* data_;
 };
 } // namespace vlk
 } // namespace render
