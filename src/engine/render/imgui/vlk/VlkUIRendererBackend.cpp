@@ -294,7 +294,10 @@ void VulkanUIRendererBackend::renderUI(
     auto& vlkRenderingContext
         = dynamic_cast<VulkanRenderingContext&>(*rendererData->renderingContext_);
 
-    /* Upload to index and vertex buffers */
+    /* ------------------
+     * Upload to index and vertex buffers
+     *------------------ */
+
     auto& frame = vlkViewportData->requestFrameRenderBuffers();
 
     if (drawData->TotalVtxCount > 0)
@@ -327,12 +330,86 @@ void VulkanUIRendererBackend::renderUI(
     auto& cmdBuffer = vlkRenderingContext.requestCommandBuffer();
     cmdBuffer.beginRenderPass();
 
-    /* Setup render state */
+    /* ------------------
+     * Setup render state
+     *------------------ */
+
     setupRenderState(
         cmdBuffer, vlkViewportData->pipeline(), frame, drawData, fbWidth, fbHeight);
 
-    /* TODO Draw commands */
-    SPDLOG_LOGGER_WARN(logger_, "TODO Implement");
+    /* ------------------
+     * Draw commands
+     *------------------ */
+
+    /* Will project scissor/clipping rectangles into framebuffer space */
+    ImVec2 clipOff = drawData->DisplayPos; // (0,0) unless using multi-viewports
+    ImVec2 clipScale = drawData->FramebufferScale; // (1,1) unless using retina
+                                                   // display which are often (2,2)
+
+    /* Because all buffers are merged into a single one, we maintain an offset into
+     * them */
+    uint32_t globalVertexOffset = 0;
+    uint32_t globalIndexOffset = 0;
+    for (uint32_t n = 0; n < (uint32_t) drawData->CmdListsCount; n++)
+    {
+        const ImDrawList* cmdList = drawData->CmdLists[n];
+        for (uint32_t cmd_i = 0; cmd_i < (uint32_t) cmdList->CmdBuffer.Size; cmd_i++)
+        {
+            const ImDrawCmd* pcmd = &cmdList->CmdBuffer[cmd_i];
+            if (pcmd->UserCallback != NULL)
+            {
+                /* User callback, registered via ImDrawList::AddCallback()
+                 * (ImDrawCallback_ResetRenderState is a special callback value used
+                 * by the user to request the renderer to reset render state.) */
+                if (pcmd->UserCallback == ImDrawCallback_ResetRenderState)
+                    setupRenderState(
+                        cmdBuffer,
+                        vlkViewportData->pipeline(),
+                        frame,
+                        drawData,
+                        fbWidth,
+                        fbHeight);
+                else
+                    pcmd->UserCallback(cmdList, pcmd);
+            }
+            else
+            {
+                /* Project scissor/clipping rectangles into framebuffer space */
+                ImVec4 clipRect {
+                    (pcmd->ClipRect.x - clipOff.x) * clipScale.x,
+                    (pcmd->ClipRect.y - clipOff.y) * clipScale.y,
+                    (pcmd->ClipRect.z - clipOff.x) * clipScale.x,
+                    (pcmd->ClipRect.w - clipOff.y) * clipScale.y};
+
+                if (clipRect.x < fbWidth && clipRect.y < fbHeight
+                    && clipRect.z >= 0.0f && clipRect.w >= 0.0f)
+                {
+                    /* Negative offsets are illegal for vkCmdSetScissor */
+                    if (clipRect.x < 0.0f)
+                        clipRect.x = 0.0f;
+                    if (clipRect.y < 0.0f)
+                        clipRect.y = 0.0f;
+
+                    /* Apply scissor/clipping rectangle */
+                    vk::Rect2D scissor {
+                        .offset
+                        = {.x = (int32_t)(clipRect.x), .y = (int32_t)(clipRect.y)},
+                        .extent
+                        = {.width = (uint32_t)(clipRect.z - clipRect.x),
+                           .height = (uint32_t)(clipRect.w - clipRect.y)}};
+                    cmdBuffer.getHandle().setScissor(0, scissor);
+
+                    /* Draw */
+                    cmdBuffer.drawIndexed(
+                        pcmd->ElemCount,
+                        pcmd->IdxOffset + globalIndexOffset,
+                        pcmd->VtxOffset + globalVertexOffset);
+                }
+            }
+        }
+        globalVertexOffset += cmdList->IdxBuffer.Size;
+        globalIndexOffset += cmdList->VtxBuffer.Size;
+    }
 
     /* End RenderPass */
     cmdBuffer.endRenderPass();

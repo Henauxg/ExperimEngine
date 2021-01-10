@@ -34,6 +34,13 @@ public:
 
     void setViewport(uint32_t width, uint32_t height);
 
+    void drawIndexed(
+        uint32_t indexCount,
+        uint32_t firstIndex,
+        int32_t vertexOffset,
+        uint32_t instanceCount = 1,
+        uint32_t firstInstance = 0);
+
     /** A PipelineLayout must have been binded to the buffer before pushing
      * *constants */
     template <typename T>

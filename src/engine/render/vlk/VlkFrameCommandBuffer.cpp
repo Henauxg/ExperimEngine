@@ -76,6 +76,17 @@ void FrameCommandBuffer::setViewport(uint32_t width, uint32_t height)
             .maxDepth = 1.0f});
 }
 
+void FrameCommandBuffer::drawIndexed(
+    uint32_t indexCount,
+    uint32_t firstIndex,
+    int32_t vertexOffset,
+    uint32_t instanceCount,
+    uint32_t firstInstance)
+{
+    commandBuffer_->drawIndexed(
+        indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+}
+
 } // namespace vlk
 } // namespace render
 } // namespace expengine
