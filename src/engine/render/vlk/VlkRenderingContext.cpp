@@ -8,7 +8,7 @@
 #include <engine/render/vlk/VlkWindow.hpp>
 
 namespace {
-/* 15 s*/
+/* Timeout when waiting on a synchronization fence : 15 s*/
 const uint64_t FENCE_WAIT_TIMEOUT_NANOSEC = 15000000000;
 } // namespace
 
@@ -18,17 +18,18 @@ namespace vlk {
 
 /* Vulkan objects per RenderingContext :
  * All the objects except the surface are recreated on resize.
- * -> Surface
- * -> SwapChain
+ * -> 1 Surface
+ * -> 1 SwapChain
  * -> 1 Render pass shared by UI and application
- * -> 2 Graphics pipeline (1 for ImGui, 1 for the application rendering)
+ * -> 2 Graphics pipeline : 1 owned by ImGui Viewport, 1 for the application
+ * rendering (not yet implemented)
  * -> Per Image (x image_count)
- * --> Command pool
- * --> Command buffer (x?)
- * --> Fence
- * --> Semaphores (x2)
- * --> Image view  (BackbufferView)
- * --> Framebuffer */
+ * --> 1 Command pool
+ * --> n Command buffer (1 for the UI for now)
+ * --> 1 Fence
+ * --> 2 Semaphores
+ * --> 1 Image view  (BackbufferView)
+ * --> 1 Framebuffer */
 
 VulkanRenderingContext::VulkanRenderingContext(
     const Device& device,
@@ -42,6 +43,7 @@ VulkanRenderingContext::VulkanRenderingContext(
     , frameIndex_(0)
     , semaphoreIndex_(0)
 {
+    SPDLOG_LOGGER_DEBUG(logger_, "VulkanRenderingContext creation");
     /* Create surface */
     auto [surfaceCreated, surface]
         = window_->createVkSurface(device.instanceHandle());
@@ -54,7 +56,7 @@ VulkanRenderingContext::VulkanRenderingContext(
 
 VulkanRenderingContext::~VulkanRenderingContext()
 {
-    SPDLOG_LOGGER_DEBUG(logger_, "RenderingContext destruction");
+    SPDLOG_LOGGER_DEBUG(logger_, "VulkanRenderingContext destruction");
 }
 
 inline const Window& VulkanRenderingContext::window() const { return *window_; }
@@ -70,6 +72,7 @@ std::shared_ptr<RenderingContext> VulkanRenderingContext::clone(
 
 void VulkanRenderingContext::buildSwapchainObjects(vk::Extent2D requestedExtent)
 {
+    SPDLOG_LOGGER_DEBUG(logger_, "buildSwapchainObjects");
     /* Create SwapChain with images */
     vlkSwapchain_ = std::make_unique<vlk::Swapchain>(
         device_, *windowSurface_, requestedExtent);
@@ -288,12 +291,15 @@ vk::UniquePipeline VulkanRenderingContext::createGraphicsPipeline(
 
 void VulkanRenderingContext::handleSurfaceChanges()
 {
+    SPDLOG_LOGGER_DEBUG(logger_, "handleSurfaceChanges");
+
     auto [result, surfaceProperties]
         = device_.getSurfaceCapabilities(windowSurface_.get());
     EXPENGINE_VK_ASSERT(result, "Failed to get surface capabilities");
 
     if (surfaceProperties.currentExtent != vlkSwapchain_->getRequestedExtent())
     {
+        /* TODO Can I do better than a device wait ? Queue / Last used fence ? */
         device_.waitIdle();
         buildSwapchainObjects(surfaceProperties.currentExtent);
         /* Signal that objects were rebuilt */
@@ -318,19 +324,20 @@ void VulkanRenderingContext::beginFrame()
     /* Acquire an image from the swapchain */
     vk::Semaphore& imgAcqSemaphore
         = semaphores_[semaphoreIndex_].imageAcquired_.get();
-    auto nextImage = vlkSwapchain_->acquireNextImage(imgAcqSemaphore);
+    auto acquiredImage = vlkSwapchain_->acquireNextImage(imgAcqSemaphore);
 
     /* Handle swapchain result : may recreate Context Objects */
-    if (nextImage.result == vk::Result::eSuboptimalKHR
-        || nextImage.result == vk::Result::eErrorOutOfDateKHR)
+    if (acquiredImage.result == vk::Result::eSuboptimalKHR
+        || acquiredImage.result == vk::Result::eErrorOutOfDateKHR)
     {
         handleSurfaceChanges();
-        /* Refresh the semaphore, the index may have been reset */
+        /* Refresh the semaphore, the index may have been reset by a surface
+         * change */
         imgAcqSemaphore = semaphores_[semaphoreIndex_].imageAcquired_.get();
-        nextImage = vlkSwapchain_->acquireNextImage(imgAcqSemaphore);
+        acquiredImage = vlkSwapchain_->acquireNextImage(imgAcqSemaphore);
     }
-    EXPENGINE_VK_ASSERT(nextImage.result, "Failed to acquire Swapchain image");
-    frameIndex_ = nextImage.value;
+    EXPENGINE_VK_ASSERT(acquiredImage.result, "Failed to acquire Swapchain image");
+    frameIndex_ = acquiredImage.value;
     auto& frame = frames_.at(frameIndex_);
 
     /* If this frame is already in use, we wait on its fence for the frame to be
@@ -349,18 +356,6 @@ void VulkanRenderingContext::beginFrame()
 
     /* Reset command pool/buffers */
     device_.deviceHandle().resetCommandPool(frame.commandPool_.get(), {});
-}
-
-vlk::FrameCommandBuffer& VulkanRenderingContext::requestCommandBuffer()
-{
-    auto& frame = frames_.at(frameIndex_);
-    /* Start and return a command buffer for this frame */
-    frame.commandBuffer_->begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
-
-    /* TODO Should maintain a collection, not just one buffer */
-    /* TODO Should check for frame started and not yet submitted */
-
-    return *frame.commandBuffer_;
 }
 
 void VulkanRenderingContext::submitFrame()
@@ -408,6 +403,27 @@ void VulkanRenderingContext::submitFrame()
         semaphoreIndex_
             = (semaphoreIndex_ + 1) % static_cast<uint32_t>(semaphores_.size());
     }
+}
+
+vlk::FrameCommandBuffer& VulkanRenderingContext::requestCommandBuffer()
+{
+    auto& frame = frames_.at(frameIndex_);
+    /* Start and return a command buffer for this frame */
+    frame.commandBuffer_->begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
+
+    /* TODO Should maintain a collection, not just one buffer */
+    /* TODO Should check for frame started and not yet submitted */
+
+    return *frame.commandBuffer_;
+}
+
+void VulkanRenderingContext::waitIdle()
+{
+    /* TODO Could do better
+     * 2 cases : frame prepared but not submitted, frame not prepared (similar to
+     * prepared and submitted). Wait on appropriate fence.
+     */
+    device_.waitIdle();
 }
 
 } // namespace vlk
