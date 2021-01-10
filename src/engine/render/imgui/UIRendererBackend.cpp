@@ -75,6 +75,23 @@ UIRendererBackend::~UIRendererBackend()
     mainViewport->RendererUserData = nullptr;
 }
 
+void UIRendererBackend::renderViewport(
+    ImGuiViewport* viewport,
+    ImGuiViewportRendererData* rendererData)
+{
+    /* Avoid rendering when minimized, scale coordinates for retina displays (screen
+     * coordinates != framebuffer coordinates) */
+    uint32_t fbWidth = static_cast<uint32_t>(
+        viewport->DrawData->DisplaySize.x * viewport->DrawData->FramebufferScale.x);
+    uint32_t fbHeight = static_cast<uint32_t>(
+        viewport->DrawData->DisplaySize.y * viewport->DrawData->FramebufferScale.y);
+    if (fbWidth != 0 && fbHeight != 0)
+    {
+        /* Setup state and record draw commands */
+        uploadBuffersAndDraw(rendererData, viewport->DrawData, fbWidth, fbHeight);
+    }
+}
+
 static void ImGui_ImplExpengine_CreateWindow(ImGuiViewport* viewport)
 {
     /* Get window from platform data */
@@ -98,56 +115,45 @@ static void ImGui_ImplExpengine_CreateWindow(ImGuiViewport* viewport)
 
 static void ImGui_ImplExpengine_DestroyWindow(ImGuiViewport* viewport)
 {
-    auto renderData = (ImGuiViewportRendererData*) viewport->RendererUserData;
-    if (renderData)
+    auto rendererData = (ImGuiViewportRendererData*) viewport->RendererUserData;
+    if (rendererData)
     {
-        delete renderData;
+        delete rendererData;
     }
     viewport->RendererUserData = nullptr;
 }
 
 static void ImGui_ImplExpengine_SetWindowSize(ImGuiViewport* viewport, ImVec2 size)
 {
-    ImGuiViewportRendererData* renderData
+    ImGuiViewportRendererData* rendererData
         = (ImGuiViewportRendererData*) viewport->RendererUserData;
-    EXPENGINE_ASSERT(renderData != nullptr, "Error, null RendererUserData");
+    EXPENGINE_ASSERT(rendererData != nullptr, "Error, null RendererUserData");
 
     /* TODO Here handle clear request : (viewport->Flags &
      * ImGuiViewportFlags_NoRendererClear) */
 
     /* Window size already set by platform backend. Simply notify the RC */
-    renderData->renderingContext_->handleSurfaceChanges();
+    rendererData->renderingContext_->handleSurfaceChanges();
 }
 
 static void ImGui_ImplExpengine_RenderWindow(
     ImGuiViewport* viewport,
     void* renderer_render_arg)
 {
-    ImGuiViewportRendererData* renderData
+    ImGuiViewportRendererData* rendererData
         = (ImGuiViewportRendererData*) viewport->RendererUserData;
-    EXPENGINE_ASSERT(renderData != nullptr, "Error, null RendererUserData");
+    EXPENGINE_ASSERT(rendererData != nullptr, "Error, null RendererUserData");
 
-    renderData->renderingContext_->beginFrame();
+    rendererData->renderingContext_->beginFrame();
 
     auto uiRenderingBackend
         = reinterpret_cast<UIRendererBackend*>(renderer_render_arg);
     EXPENGINE_ASSERT(
         uiRenderingBackend != nullptr, "Error, null UI RenderingBackend");
 
-    /* Avoid rendering when minimized, scale coordinates for retina displays (screen
-     * coordinates != framebuffer coordinates) */
-    uint32_t fbWidth = static_cast<uint32_t>(
-        viewport->DrawData->DisplaySize.x * viewport->DrawData->FramebufferScale.x);
-    uint32_t fbHeight = static_cast<uint32_t>(
-        viewport->DrawData->DisplaySize.y * viewport->DrawData->FramebufferScale.y);
-    if (fbWidth != 0 && fbHeight != 0)
-    {
-        /* Setup state and record draw commands */
-        uiRenderingBackend->renderUI(
-            renderData, viewport->DrawData, fbWidth, fbHeight);
-    }
+    uiRenderingBackend->renderViewport(viewport, rendererData);
 
-    renderData->renderingContext_->submitFrame();
+    rendererData->renderingContext_->submitFrame();
 }
 
 static void ImGui_ImplExpengine_SwapBuffers(ImGuiViewport*, void*) { }

@@ -26,6 +26,10 @@ public:
         vk::ImageLayout targetImgLayout = vk::ImageLayout::eShaderReadOnlyOptimal);
 
     inline vk::Image imageHandle() const { return image_->getHandle(); };
+    inline const vk::DescriptorImageInfo& descriptorInfo() const
+    {
+        return descriptorInfo_;
+    }
 
 private:
     /* Handles */

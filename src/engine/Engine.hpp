@@ -28,7 +28,10 @@ private:
     /* Logging */
     std::shared_ptr<spdlog::logger> logger_;
 
-    void render();
+    void prepareFrame();
+    void generateUI();
+    void renderFrame();
+
     /** Executes 1 engine tick. Returns false if the engine should stop. */
     bool tick();
 #ifdef __EMSCRIPTEN__

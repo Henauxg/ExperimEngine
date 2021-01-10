@@ -15,6 +15,7 @@
 #include <ExperimEngineConfig.h>
 #include <engine/render/Renderer.hpp>
 #include <engine/render/Window.hpp>
+#include <engine/render/imgui/lib/imgui.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace {
@@ -147,15 +148,29 @@ bool Engine::tick()
         }
     }
 
-    render();
+    prepareFrame();
+
+    /* Updates */
+    generateUI();
+
+    renderFrame();
 
     return shouldContinue;
 }
 
-void Engine::render()
+void Engine::prepareFrame() { renderer_->prepareFrame(); }
+
+void Engine::generateUI()
+{
+    static bool show_demo_window = true;
+    if (show_demo_window)
+        ImGui::ShowDemoWindow(&show_demo_window);
+}
+
+void Engine::renderFrame()
 {
     auto timeStart = std::chrono::steady_clock::now();
-    renderer_->render();
+    renderer_->renderFrame();
     auto timeEnd = std::chrono::steady_clock::now();
 
     EngineTimings* timings = &engineParams_.timings;

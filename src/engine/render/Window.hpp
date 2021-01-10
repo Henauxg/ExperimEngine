@@ -34,6 +34,7 @@ public:
     void* getPlatformHandleRaw() const;
 
     /* Virtual methods */
+    virtual std::pair<uint32_t, uint32_t> getDrawableSizeInPixels() const;
     virtual std::shared_ptr<Window> clone(
         int width,
         int height,

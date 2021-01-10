@@ -27,8 +27,10 @@ public:
 
     ~WebGpuRenderer() override;
 
-    void render() override;
     void handleEvent(const SDL_Event& event) override;
+    void prepareFrame() override;
+    void renderFrame() override;
+
     void waitIdle() override;
     std::shared_ptr<Window> getMainWindow() override;
 

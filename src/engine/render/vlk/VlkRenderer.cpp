@@ -57,12 +57,21 @@ VulkanRenderer::~VulkanRenderer()
     }
 }
 
-void VulkanRenderer::render()
+void VulkanRenderer::prepareFrame() { imguiBackend_->prepareFrame(); }
+
+void VulkanRenderer::renderFrame()
 {
+    mainRenderingContext_->beginFrame();
+    imguiBackend_->renderFrame();
+    /* TODO Main RC rendering here */
+    mainRenderingContext_->submitFrame();
+
+#if 0
     static std::random_device rd;
     static std::mt19937 rng(rd());
     std::uniform_int_distribution<int> uni(10, 17);
     std::this_thread::sleep_for(std::chrono::milliseconds(uni(rng)));
+#endif // 0
 }
 
 void VulkanRenderer::handleEvent(const SDL_Event& event)

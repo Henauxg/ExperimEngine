@@ -30,6 +30,13 @@ Window::~Window()
     SDL_DestroyWindow(sdlWindow_);
 }
 
+std::pair<uint32_t, uint32_t> Window::getDrawableSizeInPixels() const
+{
+    int w = 0, h = 0;
+    SDL_GL_GetDrawableSize(sdlWindow_, &w, &h);
+    return {(uint32_t) w, (uint32_t) h};
+}
+
 std::shared_ptr<Window> Window::clone(
     int width,
     int height,

@@ -124,7 +124,8 @@ Swapchain::Swapchain(
     swapchain_ = std::move(swapchainCreateResult.value);
 
     /* Retrieve images from the swapchain */
-    auto [result, images_]
+    vk::Result result;
+    std::tie(result, images_)
         = device_.deviceHandle().getSwapchainImagesKHR(swapchain_.get());
     EXPENGINE_VK_ASSERT(result, "Failed to retrieve swapchain images");
 }

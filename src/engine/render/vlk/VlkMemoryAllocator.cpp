@@ -59,7 +59,7 @@ MemoryAllocator::~MemoryAllocator()
 }
 
 /**
- * Creates an index buffer and map it. Asserts that the mapping succeeded.
+ * Creates an index buffer.
  *
  * @note The buffer is guaranteed to be host_visible
  *
@@ -79,17 +79,11 @@ std::unique_ptr<vlk::Buffer> MemoryAllocator::createIndexBuffer(
         vk::BufferUsageFlagBits::eIndexBuffer,
         dataToCopy);
 
-    /* If no data was copied, map the buffer */
-    if (dataToCopy == nullptr)
-    {
-        indexBuffer->assertMap();
-    }
-
     return std::move(indexBuffer);
 }
 
 /**
- * Creates a vertex buffer and map it. Asserts that the mapping succeeded.
+ * Creates a vertex buffer.
  *
  * @note The buffer is guaranteed to be host_visible
  *
@@ -108,12 +102,6 @@ std::unique_ptr<vlk::Buffer> MemoryAllocator::createVertexBuffer(
         VMA_MEMORY_USAGE_CPU_TO_GPU,
         vk::BufferUsageFlagBits::eVertexBuffer,
         dataToCopy);
-
-    /* If no data was copied, map the buffer */
-    if (dataToCopy == nullptr)
-    {
-        vertexBuffer->assertMap();
-    }
 
     return std::move(vertexBuffer);
 }

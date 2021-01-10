@@ -65,16 +65,20 @@ WebGpuRenderer::~WebGpuRenderer()
     SPDLOG_LOGGER_DEBUG(logger_, "WebGPU renderer destruction");
 }
 
-void WebGpuRenderer::render()
+void WebGpuRenderer::handleEvent(const SDL_Event& event)
+{ /* TODO implement */
+}
+
+void WebGpuRenderer::prepareFrame()
+{ /* TODO implement */
+}
+
+void WebGpuRenderer::renderFrame()
 {
     static std::random_device rd;
     static std::mt19937 rng(rd());
     std::uniform_int_distribution<int> uni(10, 17);
     std::this_thread::sleep_for(std::chrono::milliseconds(uni(rng)));
-}
-
-void WebGpuRenderer::handleEvent(const SDL_Event& event)
-{ /* TODO implement */
 }
 
 void WebGpuRenderer::waitIdle()

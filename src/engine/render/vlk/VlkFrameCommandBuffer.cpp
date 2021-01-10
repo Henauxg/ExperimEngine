@@ -28,11 +28,15 @@ FrameCommandBuffer::FrameCommandBuffer(
 
 void FrameCommandBuffer::beginRenderPass()
 {
-    /* TODO here set values for clear color */
+    /* TODO here get values for clear color */
+    std::array<float, 4> clearValue = {0.0f, 0.0f, 0.0f, 1.0f};
+    vk::ClearValue clearColor(clearValue);
     vk::RenderPassBeginInfo info
         = {.renderPass = renderPass_,
            .framebuffer = framebuffer_,
-           .renderArea = {.extent = extent_}};
+           .renderArea = {.extent = extent_},
+           .clearValueCount = 1,
+           .pClearValues = &clearColor};
 
     /* TODO here could check for optimality of render area against renderpass
      * granularity */
@@ -52,6 +56,7 @@ void FrameCommandBuffer::bind(
         vk::PipelineBindPoint::eGraphics, pipelineLayout, 0, descriptor, nullptr);
 
     bindedPipelineLayout_ = pipelineLayout;
+    pushOffset_ = 0;
 }
 
 void FrameCommandBuffer::bindBuffers(
@@ -59,7 +64,8 @@ void FrameCommandBuffer::bindBuffers(
     const Buffer& indexBuffer,
     vk::IndexType indexType)
 {
-    commandBuffer_->bindVertexBuffers(0, vertexBuffer.getHandle(), nullptr);
+    uint32_t vertexOffset = 0;
+    commandBuffer_->bindVertexBuffers(0, vertexBuffer.getHandle(), vertexOffset);
     commandBuffer_->bindIndexBuffer(indexBuffer.getHandle(), 0, indexType);
 }
 

@@ -102,5 +102,35 @@ bool ImguiBackend::handleEvent(const SDL_Event& event)
     return platformBackend_->handleEvent(event);
 };
 
+void ImguiBackend::prepareFrame()
+{
+    platformBackend_->newFrame();
+    ImGui::NewFrame();
+};
+
+void ImguiBackend::renderFrame()
+{
+    /* Render everything inside ImGui */
+    ImGui::Render();
+
+    /* Draw main viewport */
+    auto mainViewport = ImGui::GetMainViewport();
+    ImGuiViewportRendererData* rendererData
+        = (ImGuiViewportRendererData*) mainViewport->RendererUserData;
+    EXPENGINE_ASSERT(
+        rendererData != nullptr,
+        "Error, null RendererUserData for the main viewport");
+
+    renderingBackend_->renderViewport(mainViewport, rendererData);
+
+    /* Update and Render additional Platform Windows */
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+    }
+};
+
 } // namespace render
 } // namespace expengine

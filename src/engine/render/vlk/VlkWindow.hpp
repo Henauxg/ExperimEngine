@@ -17,11 +17,11 @@ public:
     VulkanWindow();
 
     /* Vulkan only */
-    std::pair<uint32_t, uint32_t> getDrawableSizeInPixels() const;
     std::pair<bool, vk::SurfaceKHR> createVkSurface(vk::Instance vkInstance) const;
     std::vector<const char*> getRequiredVkExtensions() const;
 
     /* Window virtual methods implementation */
+    std::pair<uint32_t, uint32_t> getDrawableSizeInPixels() const override;
     std::shared_ptr<Window> clone(
         int width,
         int height,

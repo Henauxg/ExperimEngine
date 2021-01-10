@@ -29,6 +29,8 @@ public:
 
     /* TODO : Could swap ImGuiContext if multiple contexts are used. */
     bool handleEvent(const SDL_Event& event);
+    void prepareFrame();
+    void renderFrame();
 
 private:
     /* ImGui */

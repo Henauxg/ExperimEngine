@@ -22,11 +22,10 @@ public:
     virtual ~UIRendererBackend();
 
     virtual void uploadFonts() = 0;
-    virtual void renderUI(
-        ImGuiViewportRendererData* renderData,
-        ImDrawData* drawData,
-        uint32_t fbWidth,
-        uint32_t fbHeight) const = 0;
+
+    void renderViewport(
+        ImGuiViewport* viewport,
+        ImGuiViewportRendererData* rendererData);
 
 protected:
     UIRendererBackend(
@@ -34,6 +33,12 @@ protected:
         const std::string& renderingBackendName,
         bool hasVtxOffset = true,
         bool hasViewports = true);
+
+    virtual void uploadBuffersAndDraw(
+        ImGuiViewportRendererData* renderData,
+        ImDrawData* drawData,
+        uint32_t fbWidth,
+        uint32_t fbHeight) const = 0;
 
     /* ImGui */
     const std::shared_ptr<ImGuiContextWrapper> imguiContext_;

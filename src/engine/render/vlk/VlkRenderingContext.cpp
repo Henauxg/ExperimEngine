@@ -7,6 +7,11 @@
 #include <engine/render/vlk/VlkSwapchain.hpp>
 #include <engine/render/vlk/VlkWindow.hpp>
 
+namespace {
+/* 15 s*/
+const uint64_t FENCE_WAIT_TIMEOUT_NANOSEC = 15000000000;
+} // namespace
+
 namespace expengine {
 namespace render {
 namespace vlk {
@@ -161,9 +166,9 @@ void VulkanRenderingContext::createFrameObjects(
         /* Create a command buffer */
         frame.commandBuffer_ = std::make_unique<vlk::FrameCommandBuffer>(
             device_,
-            commandPool.get(),
+            frame.commandPool_.get(),
             renderPass,
-            framebuffer.get(),
+            frame.framebuffer_.get(),
             swapchain.getImageExtent());
 
         frames_.push_back(std::move(frame));
@@ -305,7 +310,8 @@ void VulkanRenderingContext::beginFrame()
     auto fenceIt = semaphoreToFrameFence_.find(semaphoreIndex_);
     if (fenceIt != semaphoreToFrameFence_.end())
     {
-        auto res = device_.deviceHandle().waitForFences(fenceIt->second, VK_TRUE, 0);
+        auto res = device_.deviceHandle().waitForFences(
+            fenceIt->second, VK_TRUE, FENCE_WAIT_TIMEOUT_NANOSEC);
         EXPENGINE_VK_ASSERT(res, "Error while waiting on fence");
     }
 
@@ -333,7 +339,8 @@ void VulkanRenderingContext::beginFrame()
     /* We could check if the fence for this frame is the same as the frame
      * we waited on for the semaphore above. But waitForFences should
      * return immediately anyway if the fence is in the signaled state. */
-    auto res = device_.deviceHandle().waitForFences(frame.fence_.get(), VK_TRUE, 0);
+    auto res = device_.deviceHandle().waitForFences(
+        frame.fence_.get(), VK_TRUE, FENCE_WAIT_TIMEOUT_NANOSEC);
     EXPENGINE_VK_ASSERT(res, "Error while waiting on fence");
 
     /* Link (through its fence) the used semaphore ID to the Frame Object

@@ -24,7 +24,7 @@ public:
 
     /** Called by ImGui callbacks for secondary viewports.
      * TODO make it shared between rendering backends */
-    void renderUI(
+    void uploadBuffersAndDraw(
         RenderingContext& renderingContext,
         ImDrawData* drawData,
         uint32_t fbWidth,

@@ -282,9 +282,17 @@ void VulkanUIRendererBackend::uploadFonts()
 
     /* Store font texture identifier */
     io.Fonts->TexID = (ImTextureID)(intptr_t)(VkImage) fontTexture_->imageHandle();
+
+    /* Update the descriptor set with the image info */
+    vk::WriteDescriptorSet writeDesc {
+        .dstSet = descriptorSet_,
+        .descriptorCount = 1,
+        .descriptorType = vk::DescriptorType::eCombinedImageSampler,
+        .pImageInfo = &fontTexture_->descriptorInfo()};
+    device_.deviceHandle().updateDescriptorSets(writeDesc, nullptr);
 }
 
-void VulkanUIRendererBackend::renderUI(
+void VulkanUIRendererBackend::uploadBuffersAndDraw(
     ImGuiViewportRendererData* rendererData,
     ImDrawData* drawData,
     uint32_t fbWidth,
@@ -308,6 +316,9 @@ void VulkanUIRendererBackend::renderUI(
             frame.vertexBuffer = device_.allocator().createVertexBuffer(vertexSize);
         if (frame.indexBuffer == nullptr || frame.indexBuffer->size() < indexSize)
             frame.indexBuffer = device_.allocator().createIndexBuffer(indexSize);
+
+        frame.vertexBuffer->assertMap();
+        frame.indexBuffer->assertMap();
 
         for (int n = 0; n < drawData->CmdListsCount; n++)
         {
