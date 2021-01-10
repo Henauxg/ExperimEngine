@@ -436,10 +436,15 @@ void VulkanUIRendererBackend::setupRenderState(
 {
     /* Bind objects to command buffer */
     cmdBuffer.bind(pipeline, *pipelineLayout_, descriptorSet_);
-    cmdBuffer.bindBuffers(
-        *frame.vertexBuffer,
-        *frame.indexBuffer,
-        sizeof(ImDrawIdx) == 2 ? vk::IndexType::eUint16 : vk::IndexType::eUint32);
+
+    if (drawData->TotalVtxCount > 0)
+    {
+        cmdBuffer.bindBuffers(
+            *frame.vertexBuffer,
+            *frame.indexBuffer,
+            sizeof(ImDrawIdx) == 2 ? vk::IndexType::eUint16
+                                   : vk::IndexType::eUint32);
+    }
 
     /* Viewport */
     cmdBuffer.setViewport(fbWidth, fbHeight);
