@@ -47,6 +47,8 @@ public:
      * TODO : should have a common buffer interfaces between backends */
     vlk::FrameCommandBuffer& requestCommandBuffer();
 
+    void waitIdle();
+
     std::shared_ptr<RenderingContext> clone(
         std::shared_ptr<Window> window,
         AttachmentsFlags attachmentFlags) override;

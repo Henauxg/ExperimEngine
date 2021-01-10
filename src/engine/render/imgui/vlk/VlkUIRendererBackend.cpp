@@ -51,6 +51,17 @@ public:
         onSurfaceChange();
     }
 
+    ~VkImGuiViewportRendererData()
+    {
+        SPDLOG_DEBUG("VkImGuiViewportRendererData destruction");
+
+        /* Wait for the RenderingContext to be idle, then we can delete all used
+         * resources */
+        auto vkRenderingContext
+            = std::dynamic_pointer_cast<VulkanRenderingContext>(renderingContext_);
+        vkRenderingContext->waitIdle();
+    }
+
     FrameRenderBuffers& requestFrameRenderBuffers()
     {
         return renderBuffers_.at(frameIndex_);
@@ -312,10 +323,17 @@ void VulkanUIRendererBackend::uploadBuffersAndDraw(
     {
         size_t vertexSize = drawData->TotalVtxCount * sizeof(ImDrawVert);
         size_t indexSize = drawData->TotalIdxCount * sizeof(ImDrawIdx);
+
         if (frame.vertexBuffer == nullptr || frame.vertexBuffer->size() < vertexSize)
+        {
+            SPDLOG_LOGGER_DEBUG(logger_, "Resizing vertex buffer to {}", vertexSize);
             frame.vertexBuffer = device_.allocator().createVertexBuffer(vertexSize);
+        }
         if (frame.indexBuffer == nullptr || frame.indexBuffer->size() < indexSize)
+        {
+            SPDLOG_LOGGER_DEBUG(logger_, "Resizing index buffer to {}", indexSize);
             frame.indexBuffer = device_.allocator().createIndexBuffer(indexSize);
+        }
 
         frame.vertexBuffer->assertMap();
         frame.indexBuffer->assertMap();
