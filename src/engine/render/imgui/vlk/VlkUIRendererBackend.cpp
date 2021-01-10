@@ -21,11 +21,59 @@ namespace expengine {
 namespace render {
 namespace vlk {
 
+/** The Vulkan-specific derived class  stored in the void*
+ * RenderUserData field of each ImGuiViewport */
+class VkImGuiViewportRendererData : public ImGuiViewportRendererData {
+public:
+    ImGuiViewportRendererData* clone(
+        std::shared_ptr<RenderingContext> renderingContext) override
+    {
+        /* This will be stored by ImGui in a (void *).
+         * Will be cleaned by ImGui_ImplExpengine_DestroyWindow */
+        return new VkImGuiViewportRendererData(
+            renderingContext, graphicsPipelineInfo_);
+    };
+
+    /** Constructor used publicly only once for the main viewport. Other viewports
+     * will clone the main one. */
+    VkImGuiViewportRendererData(
+        std::shared_ptr<RenderingContext> renderingContext,
+        vk::GraphicsPipelineCreateInfo& graphicsPipelineInfo)
+        : ImGuiViewportRendererData(renderingContext)
+        , graphicsPipelineInfo_(graphicsPipelineInfo)
+    {
+        /* Initialize viewport objects */
+        onSurfaceChange();
+    }
+
+protected:
+    /* Owned objects */
+    vk::UniquePipeline uiGraphicsPipeline_;
+
+    /* Configuration */
+    /* Hold a copy since it will be modified. */
+    vk::GraphicsPipelineCreateInfo graphicsPipelineInfo_;
+
+    void onSurfaceChange() override
+    {
+        auto vkRenderingContext
+            = std::dynamic_pointer_cast<VulkanRenderingContext>(renderingContext_);
+
+        /* (Re)build Graphics pipeline */
+        uiGraphicsPipeline_
+            = vkRenderingContext->createGraphicsPipeline(graphicsPipelineInfo_);
+
+        /* (Re)build buffers */
+        // TODO Implement
+        vkRenderingContext->imageCount();
+    };
+};
+
 VulkanUIRendererBackend::VulkanUIRendererBackend(
     std::shared_ptr<ImGuiContextWrapper> imguiContext,
     const Renderer& renderer,
     std::shared_ptr<RenderingContext> mainRenderingContext)
-    : UIRendererBackend(imguiContext, mainRenderingContext, RENDERER_BACKEND_NAME)
+    : UIRendererBackend(imguiContext, RENDERER_BACKEND_NAME)
     , renderer_(dynamic_cast<const VulkanRenderer&>(renderer))
     , device_(renderer_.getDevice())
 {
@@ -181,6 +229,16 @@ VulkanUIRendererBackend::VulkanUIRendererBackend(
            .pColorBlendState = &blendInfo_,
            .pDynamicState = &dynamicState_,
            .layout = pipelineLayout_.get()};
+
+    /* ------------------------------------------- */
+    /*  Setup main viewport RendererUserData       */
+    /* ------------------------------------------- */
+
+    /* Cleaned by ImGui_ImplExpengine_DestroyWindow if viewport
+     * enabled. Else cleaned by RendererBackend */
+    ImGuiViewport* mainViewport = ImGui::GetMainViewport();
+    mainViewport->RendererUserData = new VkImGuiViewportRendererData(
+        mainRenderingContext, graphicsPipelineInfo_);
 }
 
 VulkanUIRendererBackend::~VulkanUIRendererBackend()
@@ -210,19 +268,18 @@ void VulkanUIRendererBackend::uploadFonts()
     /* Store font texture identifier */
     io.Fonts->TexID = (ImTextureID)(intptr_t)(VkImage) fontTexture_->imageHandle();
 }
+//
+// void VulkanUIRendererBackend::onSurfaceChange() { }
 
 void VulkanUIRendererBackend::renderUI(
-    RenderingContext& renderingContext,
-    ImDrawData* drawData) const
+    ImGuiViewportRendererData* renderData,
+    ImDrawData* drawData,
+    uint32_t fbWidth,
+    uint32_t fbHeight) const
 {
-    /* Avoid rendering when minimized, scale coordinates for retina displays (screen
-     * coordinates != framebuffer coordinates) */
-    uint32_t fbWidth = static_cast<uint32_t>(
-        drawData->DisplaySize.x * drawData->FramebufferScale.x);
-    uint32_t fbHeight = static_cast<uint32_t>(
-        drawData->DisplaySize.y * drawData->FramebufferScale.y);
-    if (fbWidth == 0 || fbHeight == 0)
-        return;
+    auto& vlkRenderingContext
+        = dynamic_cast<VulkanRenderingContext&>(*renderData->renderingContext_);
+    auto& cmdBuffer = vlkRenderingContext.requestCommandBuffer();
 
     /* TODO Upload to index and vertex buffers */
 
@@ -236,9 +293,6 @@ void VulkanUIRendererBackend::renderUI(
     SPDLOG_LOGGER_WARN(logger_, "TODO Implement");
 
     /* TODO Draw commands */
-    auto& vlkRenderingContext
-        = dynamic_cast<VulkanRenderingContext&>(renderingContext);
-    auto& cmdBuffer = vlkRenderingContext.requestCommandBuffer();
 
     /* End RenderPass */
     cmdBuffer.endRenderPass();

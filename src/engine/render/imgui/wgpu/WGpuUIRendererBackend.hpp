@@ -20,11 +20,15 @@ public:
         std::shared_ptr<RenderingContext> mainRenderingContext);
     ~WebGpuUIRendererBackend();
 
-    void uploadFonts();
+    void uploadFonts() override;
 
     /** Called by ImGui callbacks for secondary viewports.
      * TODO make it shared between rendering backends */
-    void renderUI(RenderingContext& renderingContext, ImDrawData* drawData) const;
+    void renderUI(
+        RenderingContext& renderingContext,
+        ImDrawData* drawData,
+        uint32_t fbWidth,
+        uint32_t fbHeight) const override;
 
 private:
     /* References */

@@ -14,17 +14,6 @@ namespace {
 namespace expengine {
 namespace render {
 
-/* Helper structure stored in the void* RenderUserData field of each
- * ImGuiViewport to easily retrieve rendering backend data. */
-struct ImGuiViewportRendererData {
-    std::shared_ptr<RenderingContext> renderingContext_;
-
-    ImGuiViewportRendererData(std::shared_ptr<RenderingContext> renderingContext)
-        : renderingContext_(renderingContext)
-    {
-    }
-};
-
 /* Delegates */
 static void ImGui_ImplExpengine_CreateWindow(ImGuiViewport* viewport);
 static void ImGui_ImplExpengine_DestroyWindow(ImGuiViewport* viewport);
@@ -36,7 +25,6 @@ static void ImGui_ImplExpengine_SwapBuffers(ImGuiViewport*, void*);
 
 UIRendererBackend::UIRendererBackend(
     std::shared_ptr<ImGuiContextWrapper> context,
-    std::shared_ptr<RenderingContext> mainRenderingContext,
     const std::string& renderingBackendName,
     bool hasVtxOffset,
     bool hasViewports)
@@ -74,14 +62,6 @@ UIRendererBackend::UIRendererBackend(
         platform_io.Renderer_RenderWindow = ImGui_ImplExpengine_RenderWindow;
         platform_io.Renderer_SwapBuffers = ImGui_ImplExpengine_SwapBuffers;
     }
-
-    /* Setup main viewport RendererUserData */
-    /* Cleaned by ImGui_ImplExpengine_DestroyWindow if viewport
-     * enabled. Else cleaned by RendererBackend */
-    ImGuiViewportRendererData* data
-        = new ImGuiViewportRendererData(mainRenderingContext);
-    ImGuiViewport* mainViewport = ImGui::GetMainViewport();
-    mainViewport->RendererUserData = data;
 }
 
 UIRendererBackend::~UIRendererBackend()
@@ -89,9 +69,9 @@ UIRendererBackend::~UIRendererBackend()
     SPDLOG_LOGGER_DEBUG(logger_, "UIRendererBackend destruction");
     /* Clean main viewport render data if viewport is not enabled */
     ImGuiViewport* mainViewport = ImGui::GetMainViewport();
-    if (ImGuiViewportRendererData* data
+    if (ImGuiViewportRendererData* viewportRendererData
         = (ImGuiViewportRendererData*) mainViewport->RendererUserData)
-        delete data;
+        delete viewportRendererData;
     mainViewport->RendererUserData = nullptr;
 }
 
@@ -102,19 +82,18 @@ static void ImGui_ImplExpengine_CreateWindow(ImGuiViewport* viewport)
     EXPENGINE_ASSERT(platformData != nullptr, "Error, null PlatformUserData");
 
     /* Use the main viewport RC to create a new renderer-specific RC */
-    auto mainViewportData
+    auto mainViewportRendererData
         = (ImGuiViewportRendererData*) ImGui::GetMainViewport()->RendererUserData;
     EXPENGINE_ASSERT(
-        mainViewportData != nullptr,
+        mainViewportRendererData != nullptr,
         "Error, null RendererUserData for main viewport");
-    /* Create a RenderingContext. Surface creation is handled by the
-     * RC. */
-    auto renderingContext = mainViewportData->renderingContext_->clone(
+    /* Surface creation is handled by the RC. */
+    auto renderingContext = mainViewportRendererData->renderingContext_->clone(
         platformData->window_, AttachmentsFlagBits::eColorAttachment);
 
     /* Allocate RendererUserData */
-    auto renderData = new ImGuiViewportRendererData(renderingContext);
-    viewport->RendererUserData = renderData;
+    auto viewportRendererData = mainViewportRendererData->clone(renderingContext);
+    viewport->RendererUserData = viewportRendererData;
 }
 
 static void ImGui_ImplExpengine_DestroyWindow(ImGuiViewport* viewport)
@@ -154,8 +133,19 @@ static void ImGui_ImplExpengine_RenderWindow(
         = reinterpret_cast<UIRendererBackend*>(renderer_render_arg);
     EXPENGINE_ASSERT(
         uiRenderingBackend != nullptr, "Error, null UI RenderingBackend");
-    /* Setup state and record draw commands */
-    uiRenderingBackend->renderUI(*renderData->renderingContext_, viewport->DrawData);
+
+    /* Avoid rendering when minimized, scale coordinates for retina displays (screen
+     * coordinates != framebuffer coordinates) */
+    uint32_t fbWidth = static_cast<uint32_t>(
+        viewport->DrawData->DisplaySize.x * viewport->DrawData->FramebufferScale.x);
+    uint32_t fbHeight = static_cast<uint32_t>(
+        viewport->DrawData->DisplaySize.y * viewport->DrawData->FramebufferScale.y);
+    if (fbWidth != 0 && fbHeight != 0)
+    {
+        /* Setup state and record draw commands */
+        uiRenderingBackend->renderUI(
+            renderData, viewport->DrawData, fbWidth, fbHeight);
+    }
 
     renderData->renderingContext_->submitFrame();
 }

@@ -22,18 +22,23 @@ struct FrameObjects;
 class VulkanRenderingContext : public RenderingContext {
 public:
     VulkanRenderingContext(
-        const vlk::Device& device,
+        const Device& device,
         std::shared_ptr<VulkanWindow> window,
-        AttachmentsFlags attachmentFlags);
+        AttachmentsFlags attachmentFlags,
+        std::function<void(void)> surfaceChangeCallback = nullptr);
     ~VulkanRenderingContext() override;
 
     /* Accessors */
     inline const vk::SurfaceKHR surface() const { return windowSurface_.get(); };
+    inline size_t imageCount() const { return frames_.size(); };
     inline const Window& window() const override;
 
-    /* Call to make the RenderingContext check its surface and adapt its objects to
+    /** Call to make the RenderingContext check its surface and adapt its objects to
      * it. */
     void handleSurfaceChanges() override;
+    /* Uses the implicit RC RenderPass */
+    vk::UniquePipeline createGraphicsPipeline(
+        vk::GraphicsPipelineCreateInfo& pipelineInfos);
 
     /* Frame rendering */
     void beginFrame() override;
@@ -47,6 +52,7 @@ public:
         AttachmentsFlags attachmentFlags) override;
 
 private:
+    /* Types */
     struct FrameObjects {
         vk::UniqueCommandPool commandPool_;
         std::unique_ptr<vlk::FrameCommandBuffer> commandBuffer_;
@@ -60,7 +66,8 @@ private:
         vk::UniqueSemaphore renderComplete_;
     };
 
-    const vlk::Device& device_;
+    /* References */
+    const Device& device_;
 
     /* Configuration */
     AttachmentsFlags attachmentsFlags_;
@@ -70,7 +77,6 @@ private:
     vk::UniqueSurfaceKHR windowSurface_;
     std::unique_ptr<vlk::Swapchain> vlkSwapchain_;
     vk::UniqueRenderPass renderPass_;
-    vk::UniquePipeline uiGraphicsPipeline_;
 
     /* Frames */
     uint32_t frameIndex_;
@@ -87,10 +93,6 @@ private:
         const vlk::Device& device,
         const vlk::Swapchain& swapchain,
         AttachmentsFlags attachmentsFlags);
-    vk::UniquePipeline createGraphicsPipeline(
-        const vlk::Device& device,
-        vk::GraphicsPipelineCreateInfo& pipelineInfos,
-        vk::RenderPass& renderPass);
     void createFrameObjects(
         std::vector<FrameObjects>& frames,
         const vlk::Swapchain& swapchain,

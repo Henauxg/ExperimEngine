@@ -16,20 +16,21 @@ namespace vlk {
  * -> Surface
  * -> SwapChain
  * -> 1 Render pass shared by UI and application
- * -> 2x Graphics pipeline (1x for ImGui, 1x for the application rendering)
- * -> Per Image (image count Backbuffers)
+ * -> 2 Graphics pipeline (1 for ImGui, 1 for the application rendering)
+ * -> Per Image (x image_count)
  * --> Command pool
- * --> Command buffer
+ * --> Command buffer (x?)
  * --> Fence
  * --> Semaphores (x2)
  * --> Image view  (BackbufferView)
  * --> Framebuffer */
 
 VulkanRenderingContext::VulkanRenderingContext(
-    const vlk::Device& device,
+    const Device& device,
     std::shared_ptr<VulkanWindow> window,
-    AttachmentsFlags attachmentsFlags)
-    : RenderingContext()
+    AttachmentsFlags attachmentsFlags,
+    std::function<void(void)> surfaceChangeCallback)
+    : RenderingContext(surfaceChangeCallback)
     , window_(window)
     , device_(device)
     , attachmentsFlags_(attachmentsFlags)
@@ -70,14 +71,6 @@ void VulkanRenderingContext::buildSwapchainObjects(vk::Extent2D requestedExtent)
 
     /* Create Render pass */
     renderPass_ = createRenderPass(device_, *vlkSwapchain_, attachmentsFlags_);
-
-#if 0
-    // TODO Should be in Ui Rendering backend
-    /* Create Graphics pipeline(s) */
-    auto uiPipelineInfo = imguiRenderBackend_.getPipelineInfo();
-    uiGraphicsPipeline_
-        = createGraphicsPipeline(device_, uiPipelineInfo, *renderPass_);
-#endif // 0
 
     /* Create frame objects : Image views, Framebuffers, Command pools,
      * Command buffers and Sync objects */
@@ -165,7 +158,7 @@ void VulkanRenderingContext::createFrameObjects(
         frame.framebuffer_ = std::move(framebuffer);
         frame.commandPool_ = std::move(commandPool);
         frame.fence_ = std::move(fence);
-        /* Create the command buffer */
+        /* Create a command buffer */
         frame.commandBuffer_ = std::make_unique<vlk::FrameCommandBuffer>(
             device_,
             commandPool.get(),
@@ -276,14 +269,13 @@ vk::UniqueRenderPass VulkanRenderingContext::createRenderPass(
 }
 
 vk::UniquePipeline VulkanRenderingContext::createGraphicsPipeline(
-    const vlk::Device& device,
-    vk::GraphicsPipelineCreateInfo& pipelineInfos,
-    vk::RenderPass& renderPass)
+    vk::GraphicsPipelineCreateInfo& pipelineInfos)
 {
-    pipelineInfos.renderPass = renderPass;
+    pipelineInfos.renderPass = *renderPass_;
 
     auto [result, graphicsPipeline]
-        = device.deviceHandle().createGraphicsPipelineUnique(nullptr, pipelineInfos);
+        = device_.deviceHandle().createGraphicsPipelineUnique(
+            nullptr, pipelineInfos);
     EXPENGINE_VK_ASSERT(result, "Failed to create a graphics pipeline");
 
     return std::move(graphicsPipeline);
@@ -299,6 +291,9 @@ void VulkanRenderingContext::handleSurfaceChanges()
     {
         device_.waitIdle();
         buildSwapchainObjects(surfaceProperties.currentExtent);
+        /* Signal that objects were rebuilt */
+        if (surfaceChangeCallback_)
+            surfaceChangeCallback_();
     }
 }
 

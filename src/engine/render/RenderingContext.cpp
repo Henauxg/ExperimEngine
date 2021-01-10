@@ -5,8 +5,15 @@
 namespace expengine {
 namespace render {
 
-RenderingContext::RenderingContext()
-    : logger_(spdlog::get(LOGGER_NAME)) {};
+RenderingContext::RenderingContext(std::function<void(void)> surfaceChangeCallback)
+    : surfaceChangeCallback_(surfaceChangeCallback)
+    , logger_(spdlog::get(LOGGER_NAME)) {};
+
+void RenderingContext::setSurfaceChangeCallback(
+    std::function<void(void)> surfaceChangeCallback)
+{
+    surfaceChangeCallback_ = surfaceChangeCallback;
+}
 
 } // namespace render
 } // namespace expengine

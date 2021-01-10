@@ -4,6 +4,7 @@ target_sources(ExperimEngine
         ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiBackend.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiContextWrapper.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiViewportPlatformData.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiViewportRendererData.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/UIPlatformBackendSDL.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/UIPlatformBackendSDL.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/UIRendererBackend.cpp

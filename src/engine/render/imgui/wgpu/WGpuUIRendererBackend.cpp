@@ -55,17 +55,10 @@ void WebGpuUIRendererBackend::uploadFonts()
 
 void WebGpuUIRendererBackend::renderUI(
     RenderingContext& renderingContext,
-    ImDrawData* drawData) const
+    ImDrawData* drawData,
+    uint32_t fbWidth,
+    uint32_t fbHeight) const
 {
-    /* Avoid rendering when minimized, scale coordinates for retina displays (screen
-     * coordinates != framebuffer coordinates) */
-    uint32_t fbWidth = static_cast<uint32_t>(
-        drawData->DisplaySize.x * drawData->FramebufferScale.x);
-    uint32_t fbHeight = static_cast<uint32_t>(
-        drawData->DisplaySize.y * drawData->FramebufferScale.y);
-    if (fbWidth == 0 || fbHeight == 0)
-        return;
-
     /* TODO Upload to index and vertex buffers */
 
     /* TODO Setup render state */

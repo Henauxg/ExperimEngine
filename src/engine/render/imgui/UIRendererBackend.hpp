@@ -1,8 +1,10 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <string>
 
+#include <engine/render/imgui/ImGuiViewportRendererData.hpp>
 #include <engine/render/imgui/lib/imgui.h>
 
 namespace spdlog {
@@ -20,13 +22,15 @@ public:
     virtual ~UIRendererBackend();
 
     virtual void uploadFonts() = 0;
-    virtual void renderUI(RenderingContext& renderingContext, ImDrawData* drawData)
-        const = 0;
+    virtual void renderUI(
+        ImGuiViewportRendererData* renderData,
+        ImDrawData* drawData,
+        uint32_t fbWidth,
+        uint32_t fbHeight) const = 0;
 
 protected:
     UIRendererBackend(
         std::shared_ptr<ImGuiContextWrapper> imguiContext,
-        std::shared_ptr<RenderingContext> mainRenderingContext,
         const std::string& renderingBackendName,
         bool hasVtxOffset = true,
         bool hasViewports = true);

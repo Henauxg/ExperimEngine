@@ -31,11 +31,15 @@ public:
         std::shared_ptr<RenderingContext> mainRenderingContext);
     ~VulkanUIRendererBackend();
 
-    void uploadFonts();
+    void uploadFonts() override;
 
     /** Called by ImGui callbacks for secondary viewports.
-     * TODO make it shared between rendering backends */
-    void renderUI(RenderingContext& renderingContext, ImDrawData* drawData) const;
+     * TODO make it fully shared between rendering backends */
+    void renderUI(
+        ImGuiViewportRendererData* renderData,
+        ImDrawData* drawData,
+        uint32_t fbWidth,
+        uint32_t fbHeight) const override;
 
 private:
     /* References */
@@ -73,6 +77,8 @@ private:
      * a Pipeline is a RenderPass which is provided by each
      * RenderingContext. */
     vk::GraphicsPipelineCreateInfo graphicsPipelineInfo_;
+
+    //void onSurfaceChange();
 };
 
 } // namespace vlk

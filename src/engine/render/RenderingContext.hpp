@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -39,6 +40,9 @@ public:
     /* Call to make the RenderingContext check its surface and adapt its objects to
      * it. */
     virtual void handleSurfaceChanges() = 0;
+    /** Set the callback that will be called after the RenderingContext rebuilt its
+     * own objects on a surface update (resize). */
+    void setSurfaceChangeCallback(std::function<void(void)> surfaceChangeCallback);
 
     /* Frame rendering */
     virtual void beginFrame() = 0;
@@ -50,7 +54,10 @@ public:
         = 0;
 
 protected:
-    RenderingContext();
+    RenderingContext(std::function<void(void)> surfaceChangeCallback = nullptr);
+
+    /* Configuration */
+    std::function<void(void)> surfaceChangeCallback_;
 
     /* Logging */
     std::shared_ptr<spdlog::logger> logger_;
