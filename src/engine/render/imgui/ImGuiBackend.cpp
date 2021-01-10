@@ -128,7 +128,7 @@ void ImguiBackend::renderFrame()
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
         ImGui::UpdatePlatformWindows();
-        ImGui::RenderPlatformWindowsDefault();
+        ImGui::RenderPlatformWindowsDefault(nullptr, renderingBackend_.get());
     }
 };
 
