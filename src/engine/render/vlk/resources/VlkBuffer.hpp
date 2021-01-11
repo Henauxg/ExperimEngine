@@ -39,8 +39,6 @@ public:
         vk::DeviceSize size = VK_WHOLE_SIZE,
         vk::DeviceSize offset = 0);
 
-    void push(vk::DeviceSize size = VK_WHOLE_SIZE, vk::DeviceSize offset = 0);
-
     /* Accessors */
     inline vk::Buffer getHandle() const { return buffer_.get(); };
     inline size_t size() const { return size_; };
