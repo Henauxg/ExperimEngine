@@ -134,14 +134,14 @@ Vulkan:
 + [Vulkan Memory Allocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator) 2.3.0
 
 Scripting:
-+ [LuaJIT](http://luajit.org/luajit.html) V2.0.5
-+ [sol](https://github.com/ThePhD/sol2) v3.2.1
++ [LuaJIT](http://luajit.org/luajit.html) [Version](libs/lua/version.txt)
++ [sol](https://github.com/ThePhD/sol2) [Version](includes/sol/version.txt)
 
 Others:
-+ [OpenGL Mathematics (GLM)](https://glm.g-truc.net/0.9.9/index.html) V0.9.9.6
-+ [Simple DirectMedia Layer (SDL2)](https://www.libsdl.org/index.php) V2.0.10
-+ [Dear ImGui](https://github.com/ocornut/imgui) (Docking branch, ac08593b9645aee7e086b1e9b98a6a1d79d09210)
-+ [spdlog](https://github.com/gabime/spdlog) (V1.8.0)
++ [OpenGL Mathematics (GLM)](https://glm.g-truc.net/0.9.9/index.html) [Version](includes/glm/version.txt)
++ [Simple DirectMedia Layer (SDL2)](https://www.libsdl.org/index.php) [Version](includes/SDL2/version.txt)
++ [Dear ImGui](https://github.com/ocornut/imgui) Docking branch [Version](src/engine/render/imgui/lib/version.txt)
++ [spdlog](https://github.com/gabime/spdlog) [Version](includes/spdlog/version.h)
 
 ### May be used in the future :
 + [Bullet Physics](https://github.com/bulletphysics/bullet3)
