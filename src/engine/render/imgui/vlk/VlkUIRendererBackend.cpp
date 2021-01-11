@@ -442,6 +442,7 @@ void VulkanUIRendererBackend::uploadBuffersAndDraw(
 
     /* End RenderPass */
     cmdBuffer.endRenderPass();
+    cmdBuffer.end();
 }
 
 void VulkanUIRendererBackend::setupRenderState(

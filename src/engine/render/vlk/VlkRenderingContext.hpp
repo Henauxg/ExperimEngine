@@ -56,11 +56,13 @@ public:
 private:
     /* Types */
     struct FrameObjects {
-        vk::UniqueCommandPool commandPool_;
-        std::unique_ptr<vlk::FrameCommandBuffer> commandBuffer_;
         vk::UniqueFence fence_;
         vk::UniqueImageView imageView_;
         vk::UniqueFramebuffer framebuffer_;
+        /* TODO Pool implementation/rework */
+        vk::UniqueCommandPool commandPool_;
+        std::vector<FrameCommandBuffer> commandBuffers_;
+        std::vector<vk::CommandBuffer> commandBufferHandles_;
     };
 
     struct FrameSemaphores {

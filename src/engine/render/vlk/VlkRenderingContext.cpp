@@ -169,14 +169,6 @@ void VulkanRenderingContext::createFrameObjects(
         frame.framebuffer_ = std::move(framebuffer);
         frame.commandPool_ = std::move(commandPool);
         frame.fence_ = std::move(fence);
-        /* Create a command buffer */
-        frame.commandBuffer_ = std::make_unique<vlk::FrameCommandBuffer>(
-            device_,
-            frame.commandPool_.get(),
-            renderPass,
-            frame.framebuffer_.get(),
-            swapchain.getImageExtent());
-
         frames_.push_back(std::move(frame));
 
         /* Create the semaphores */
@@ -360,15 +352,15 @@ void VulkanRenderingContext::beginFrame()
 
     /* Reset command pool/buffers */
     device_.deviceHandle().resetCommandPool(frame.commandPool_.get(), {});
+    /* TODO Rework command pool : we could/should keep some buffers to reuse since we
+     * did reset the command pool */
+    frame.commandBuffers_.clear();
+    frame.commandBufferHandles_.clear();
 }
 
 void VulkanRenderingContext::submitFrame()
 {
     auto& frame = frames_.at(frameIndex_);
-
-    /* End the command buffer. */
-    /* TODO Multiple command buffers */
-    frame.commandBuffer_->end();
 
     /* Reset the fence before submitting the frame */
     device_.deviceHandle().resetFences(frame.fence_.get());
@@ -379,13 +371,12 @@ void VulkanRenderingContext::submitFrame()
     auto& renderCompleteSem = semaphores_[semaphoreIndex_].renderComplete_.get();
     vk::PipelineStageFlags waitStage
         = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-    auto bufHandle = frame.commandBuffer_->getHandle();
     vk::SubmitInfo submitInfo {
         .waitSemaphoreCount = 1,
         .pWaitSemaphores = &imgAcqSem,
         .pWaitDstStageMask = &waitStage,
-        .commandBufferCount = 1,
-        .pCommandBuffers = &bufHandle,
+        .commandBufferCount = static_cast<uint32_t>(frame.commandBuffers_.size()),
+        .pCommandBuffers = frame.commandBufferHandles_.data(),
         .signalSemaphoreCount = 1,
         .pSignalSemaphores = &renderCompleteSem};
     auto res = device_.graphicsQueue().submit(submitInfo, frame.fence_.get());
@@ -412,13 +403,22 @@ void VulkanRenderingContext::submitFrame()
 vlk::FrameCommandBuffer& VulkanRenderingContext::requestCommandBuffer()
 {
     auto& frame = frames_.at(frameIndex_);
-    /* Start and return a command buffer for this frame */
-    frame.commandBuffer_->begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
 
-    /* TODO Should maintain a collection, not just one buffer */
+    frame.commandBuffers_.push_back(vlk::FrameCommandBuffer(
+        device_,
+        frame.commandPool_.get(),
+        *renderPass_,
+        frame.framebuffer_.get(),
+        vlkSwapchain_->getImageExtent()));
+    auto& commandBuffer = frame.commandBuffers_.back();
+    frame.commandBufferHandles_.push_back(commandBuffer.getHandle());
+
+    /* Start and return a command buffer for this frame */
+    commandBuffer.begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
+
     /* TODO Should check for frame started and not yet submitted */
 
-    return *frame.commandBuffer_;
+    return commandBuffer;
 }
 
 void VulkanRenderingContext::waitIdle()
