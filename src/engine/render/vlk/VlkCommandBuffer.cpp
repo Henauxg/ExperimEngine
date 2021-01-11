@@ -12,6 +12,8 @@ namespace vlk {
 
 CommandBuffer::CommandBuffer(const vlk::Device& device, vk::CommandPool commandPool)
     : commandPool_(commandPool)
+    , started_(false)
+    , ended_(false)
 {
     auto [allocResult, cmdBuffers]
         = device.deviceHandle().allocateCommandBuffersUnique(
@@ -23,16 +25,27 @@ CommandBuffer::CommandBuffer(const vlk::Device& device, vk::CommandPool commandP
     commandBuffer_ = std::move(cmdBuffers.front());
 }
 
+void CommandBuffer::reset()
+{
+    started_ = false;
+    ended_ = false;
+}
+
 void CommandBuffer::begin(vk::CommandBufferUsageFlags flags)
 {
+    EXPENGINE_ASSERT(!started_, "begin() already called");
     auto beginResult = commandBuffer_->begin({.flags = flags});
     EXPENGINE_VK_ASSERT(beginResult, "Failed to begin a command buffer");
+    started_ = true;
 }
 
 void CommandBuffer::end()
 {
+    EXPENGINE_ASSERT(
+        started_ && !ended_, "End() called before calling begin() or called twice");
     auto endResult = commandBuffer_->end();
     EXPENGINE_VK_ASSERT(endResult, "Failed to end a command buffer");
+    ended_ = true;
 }
 
 void CommandBuffer::copyBufferToImage(

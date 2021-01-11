@@ -19,6 +19,8 @@ public:
         vk::Framebuffer framebuffer,
         vk::Extent2D extent);
 
+    void reset() override;
+
     void beginRenderPass();
     void endRenderPass();
 
@@ -65,6 +67,9 @@ private:
     vk::PipelineLayout bindedPipelineLayout_;
     /* Current offset of the push constants */
     uint32_t pushOffset_;
+
+    bool renderPassStarted_;
+    bool renderPassEnded_;
 };
 
 } // namespace vlk

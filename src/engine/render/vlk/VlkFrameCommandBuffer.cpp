@@ -23,6 +23,8 @@ FrameCommandBuffer::FrameCommandBuffer(
     , extent_(extent)
     , bindedPipelineLayout_(nullptr)
     , pushOffset_(0)
+    , renderPassStarted_(false)
+    , renderPassEnded_(false)
 {
 }
 
@@ -41,10 +43,32 @@ void FrameCommandBuffer::beginRenderPass()
     /* TODO here could check for optimality of render area against renderpass
      * granularity */
 
+    EXPENGINE_ASSERT(
+        started_ && !renderPassStarted_,
+        "beginRenderPass() called before calling begin() or called twice");
     commandBuffer_->beginRenderPass(info, vk::SubpassContents::eInline);
+    renderPassStarted_ = true;
 }
 
-void FrameCommandBuffer::endRenderPass() { commandBuffer_->endRenderPass(); }
+void FrameCommandBuffer::endRenderPass()
+{
+    EXPENGINE_ASSERT(
+        renderPassStarted_ && !renderPassEnded_,
+        "endRenderPass() called before beginRenderPass() or called twice");
+    commandBuffer_->endRenderPass();
+    renderPassEnded_ = true;
+}
+
+void FrameCommandBuffer::reset()
+{
+    /* TODO Reset in FrameCommandBuffer should be linked to the reset of the
+     * underlying buffer */
+    renderPassStarted_ = false;
+    renderPassEnded_ = false;
+    pushOffset_ = 0;
+    bindedPipelineLayout_ = nullptr;
+    CommandBuffer::reset();
+}
 
 void FrameCommandBuffer::bind(
     vk::Pipeline pipeline,

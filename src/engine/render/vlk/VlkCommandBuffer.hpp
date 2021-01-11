@@ -14,6 +14,8 @@ public:
 
     inline const vk::CommandBuffer getHandle() const { return commandBuffer_.get(); }
 
+    virtual void reset();
+
     void begin(vk::CommandBufferUsageFlags flags);
     void end();
 
@@ -27,6 +29,9 @@ protected:
     vk::CommandPool commandPool_;
     /* Owned */
     vk::UniqueCommandBuffer commandBuffer_;
+
+    bool started_;
+    bool ended_;
 };
 
 } // namespace vlk
