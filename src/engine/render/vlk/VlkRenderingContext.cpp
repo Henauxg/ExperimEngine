@@ -70,12 +70,15 @@ std::shared_ptr<RenderingContext> VulkanRenderingContext::clone(
     return renderingContext;
 }
 
-void VulkanRenderingContext::buildSwapchainObjects(vk::Extent2D requestedExtent)
+void VulkanRenderingContext::buildSwapchainObjects(
+    vk::Extent2D requestedExtent,
+    vk::SwapchainKHR oldSwapchainHandle)
 {
     SPDLOG_LOGGER_DEBUG(logger_, "buildSwapchainObjects");
     /* Create SwapChain with images */
-    vlkSwapchain_ = std::make_unique<vlk::Swapchain>(
-        device_, *windowSurface_, requestedExtent);
+    auto newSwapchain = std::make_unique<vlk::Swapchain>(
+        device_, *windowSurface_, requestedExtent, oldSwapchainHandle);
+    vlkSwapchain_ = std::move(newSwapchain);
 
     /* Create Render pass */
     renderPass_ = createRenderPass(device_, *vlkSwapchain_, attachmentsFlags_);
@@ -301,7 +304,8 @@ void VulkanRenderingContext::handleSurfaceChanges()
     {
         /* TODO Can I do better than a device wait ? Queue / Last used fence ? */
         device_.waitIdle();
-        buildSwapchainObjects(surfaceProperties.currentExtent);
+        buildSwapchainObjects(
+            surfaceProperties.currentExtent, vlkSwapchain_->getHandle());
         /* Signal that objects were rebuilt */
         if (surfaceChangeCallback_)
             surfaceChangeCallback_();

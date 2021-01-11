@@ -36,7 +36,8 @@ namespace vlk {
 Swapchain::Swapchain(
     const vlk::Device& device,
     vk::SurfaceKHR& surface,
-    vk::Extent2D requestedExtent)
+    vk::Extent2D requestedExtent,
+    vk::SwapchainKHR oldSwapchainHandle)
     : device_(device)
     , surface_(surface)
     , requestedExtent_(requestedExtent)
@@ -115,9 +116,8 @@ Swapchain::Swapchain(
         .compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque,
         .presentMode = presentMode_,
         .clipped = VK_TRUE,
-        /* TODO memorize old swapchain */
-        /* .oldSwapchain */
-    };
+        .oldSwapchain = oldSwapchainHandle};
+
     auto swapchainCreateResult
         = device.deviceHandle().createSwapchainKHRUnique(createInfo);
     EXPENGINE_VK_ASSERT(swapchainCreateResult.result, "Failed to create Swapchain");

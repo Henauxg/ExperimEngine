@@ -111,7 +111,9 @@ private:
      * backend)
      * Create Image views, Framebuffers, Sync objects, Command pools,
      * Command buffers */
-    void buildSwapchainObjects(vk::Extent2D requestedExtent);
+    void buildSwapchainObjects(
+        vk::Extent2D requestedExtent,
+        vk::SwapchainKHR oldSwapchainHandle = nullptr);
 };
 
 } // namespace vlk

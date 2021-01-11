@@ -19,9 +19,11 @@ public:
     Swapchain(
         const vlk::Device& device,
         vk::SurfaceKHR& surface,
-        vk::Extent2D requestedExtent);
+        vk::Extent2D requestedExtent,
+        vk::SwapchainKHR oldSwapchainHandle = nullptr);
     ~Swapchain();
 
+    inline const vk::SwapchainKHR getHandle() const { return *swapchain_; }
     inline const vk::Extent2D& getImageExtent() const { return imageExtent_; }
     inline const vk::Extent2D& getRequestedExtent() const
     {
