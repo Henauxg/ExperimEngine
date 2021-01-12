@@ -420,12 +420,12 @@ void VulkanUIRendererBackend::uploadBuffersAndDraw(
                         clipRect.y = 0.0f;
 
                     /* Apply scissor/clipping rectangle */
-                    vk::Rect2D scissor {
-                        .offset
-                        = {.x = (int32_t)(clipRect.x), .y = (int32_t)(clipRect.y)},
-                        .extent
-                        = {.width = (uint32_t)(clipRect.z - clipRect.x),
-                           .height = (uint32_t)(clipRect.w - clipRect.y)}};
+                    vk::Rect2D scissor;
+                    scissor.offset = vk::Offset2D {
+                        .x = (int32_t)(clipRect.x), .y = (int32_t)(clipRect.y)};
+                    scissor.extent = vk::Extent2D {
+                        .width = (uint32_t)(clipRect.z - clipRect.x),
+                        .height = (uint32_t)(clipRect.w - clipRect.y)};
                     cmdBuffer.getHandle().setScissor(0, scissor);
 
                     /* Draw */
@@ -436,14 +436,14 @@ void VulkanUIRendererBackend::uploadBuffersAndDraw(
                 }
             }
         }
-        globalVertexOffset += cmdList->IdxBuffer.Size;
-        globalIndexOffset += cmdList->VtxBuffer.Size;
+        globalVertexOffset += cmdList->VtxBuffer.Size;
+        globalIndexOffset += cmdList->IdxBuffer.Size;
     }
 
     /* End RenderPass */
     cmdBuffer.endRenderPass();
     cmdBuffer.end();
-}
+} // namespace vlk
 
 void VulkanUIRendererBackend::setupRenderState(
     FrameCommandBuffer& cmdBuffer,
