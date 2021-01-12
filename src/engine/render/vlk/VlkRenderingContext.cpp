@@ -42,6 +42,7 @@ VulkanRenderingContext::VulkanRenderingContext(
     , attachmentsFlags_(attachmentsFlags)
     , frameIndex_(0)
     , semaphoreIndex_(0)
+    , frameToSubmit_(false)
 {
     SPDLOG_LOGGER_DEBUG(logger_, "VulkanRenderingContext creation");
     /* Create surface */
@@ -306,6 +307,9 @@ void VulkanRenderingContext::handleSurfaceChanges()
 
 void VulkanRenderingContext::beginFrame()
 {
+    EXPENGINE_ASSERT(
+        !frameToSubmit_, "Error, beginFrame() was called instead of submitFrame()");
+
     /* Here we check for the semaphore availability. If semaphoreIndex_ is
      * still used by a frame not yet submitted, we wait for its frame to be
      * fully submitted. */
@@ -356,10 +360,14 @@ void VulkanRenderingContext::beginFrame()
      * did reset the command pool */
     frame.commandBuffers_.clear();
     frame.commandBufferHandles_.clear();
+    frameToSubmit_ = true;
 }
 
 void VulkanRenderingContext::submitFrame()
 {
+    EXPENGINE_ASSERT(
+        frameToSubmit_, "Error, submitFrame() was called instead of beginFrame()");
+
     auto& frame = frames_.at(frameIndex_);
 
     /* Reset the fence before submitting the frame */
@@ -398,6 +406,7 @@ void VulkanRenderingContext::submitFrame()
         semaphoreIndex_
             = (semaphoreIndex_ + 1) % static_cast<uint32_t>(semaphores_.size());
     }
+    frameToSubmit_ = false;
 }
 
 vlk::FrameCommandBuffer& VulkanRenderingContext::requestCommandBuffer()

@@ -91,6 +91,7 @@ private:
      * Semaphore Group ID -> Frame Fence
      * We can wait on the fence to make sure that the semaphore group is available */
     std::unordered_map<uint32_t, vk::Fence> semaphoreToFrameFence_;
+    bool frameToSubmit_;
 
     /* Objects creation */
     vk::UniqueRenderPass createRenderPass(
