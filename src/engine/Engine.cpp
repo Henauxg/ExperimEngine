@@ -153,6 +153,11 @@ bool Engine::tick()
     /* Updates */
     generateUI();
 
+    for (auto& tick : onTicks_)
+    {
+        tick();
+    }
+
     renderFrame();
 
     return shouldContinue;
@@ -162,9 +167,22 @@ void Engine::prepareFrame() { renderer_->prepareFrame(); }
 
 void Engine::generateUI()
 {
+#if 1
     static bool show_demo_window = true;
     if (show_demo_window)
         ImGui::ShowDemoWindow(&show_demo_window);
+#endif
+#if 0
+    ImGui::Begin("SimpleWindow");
+
+    ImGui::Text("Hello, world %d", 123);
+    if (ImGui::Button("Log"))
+        SPDLOG_LOGGER_INFO(logger_, "Log");
+    static float f = 0;
+    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+
+    ImGui::End();
+#endif
 }
 
 void Engine::renderFrame()

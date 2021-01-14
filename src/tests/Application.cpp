@@ -6,7 +6,7 @@
 #include <engine/utils/Utils.hpp>
 
 #ifndef __EMSCRIPTEN__
-#include <test/Quicktest.hpp>
+#include <tests/lua/Quicktest.hpp>
 #endif // !__EMSCRIPTEN__
 
 /* File private constants */
@@ -36,6 +36,7 @@ Application::Application()
 {
     engine_
         = std::make_unique<expengine::Engine>(APPLICATION_NAME, APPLICATION_VERSION);
+    engine_->onTick(this);
 }
 
 void Application::run()
@@ -47,3 +48,5 @@ void Application::run()
 
     engine_->run();
 }
+
+void Application::tick() { }

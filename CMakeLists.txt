@@ -11,7 +11,6 @@ configure_file(ExperimEngineConfig.h.in ExperimEngineConfig.h)
 add_executable(ExperimEngine "")
 
 # Sources & headers inclusion
-add_subdirectory(src)
 add_subdirectory(src/engine)
 add_subdirectory(src/engine/log)
 add_subdirectory(src/engine/render)
@@ -23,7 +22,8 @@ if(NOT WEB_TARGET)
 	add_subdirectory(src/engine/render/vlk)
 	add_subdirectory(src/engine/render/vlk/resources)
 	add_subdirectory(src/engine/render/imgui/vlk)
-	add_subdirectory(src/test)
+	add_subdirectory(src/tests)
+	add_subdirectory(src/tests/lua)
 else()
 	add_subdirectory(src/engine/render/wgpu)
 	add_subdirectory(src/engine/render/imgui/wgpu)
@@ -47,7 +47,7 @@ if(WEB_TARGET)
 		"${EMSCRIPTEN_ROOT_PATH}/system/include"
 	)
 	# This is already defined by the toolchain,
-	# but redefined here for Visual Studio/Intellisense to pick it up
+	# but redefined here so that Visual Studio/Intellisense can pick it up
 	add_compile_definitions(__EMSCRIPTEN__)
 endif()
 

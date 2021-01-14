@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 
 #include <engine/EngineParameters.hpp>
@@ -17,9 +18,15 @@ public:
     Engine(const std::string& appName, const uint32_t appVersion);
     ~Engine();
 
+    template <class T> void onTick(T instance)
+    {
+        std::function<void()> a = [&]() { instance->tick(); };
+        onTicks_.push_back(a);
+    };
     void run();
 
 private:
+    /* Owned objects */
     std::unique_ptr<render::Renderer> renderer_;
     std::shared_ptr<render::Window> mainWindow_;
 
@@ -27,6 +34,9 @@ private:
 
     /* Logging */
     std::shared_ptr<spdlog::logger> logger_;
+
+    /* User callbacks */
+    std::vector<std::function<void()>> onTicks_;
 
     void prepareFrame();
     void generateUI();
