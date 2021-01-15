@@ -52,10 +52,9 @@ WebGpuRenderer::WebGpuRenderer(
         nullptr);
     queue_ = device_.GetDefaultQueue();
 
-    /* TODO main rendering context*/
+    /* Main rendering context*/
     mainRenderingContext_ = std::make_shared<WebGpuRenderingContext>(
         device_, mainWindow_, AttachmentsFlagBits::eColorAttachment);
-    SPDLOG_LOGGER_WARN(logger_, "TODO Implement");
 
     /* ImGui */
     imguiBackend_
@@ -68,19 +67,23 @@ WebGpuRenderer::~WebGpuRenderer()
 }
 
 void WebGpuRenderer::handleEvent(const SDL_Event& event)
-{ /* TODO implement */
+{
+    bool handled = imguiBackend_->handleEvent(event);
+
+    if (!handled)
+    {
+        /* TODO handle rendering events */
+    }
 }
 
-void WebGpuRenderer::prepareFrame()
-{ /* TODO implement */
-}
+void WebGpuRenderer::prepareFrame() { imguiBackend_->prepareFrame(); }
 
 void WebGpuRenderer::renderFrame()
 {
-    static std::random_device rd;
-    static std::mt19937 rng(rd());
-    std::uniform_int_distribution<int> uni(10, 17);
-    std::this_thread::sleep_for(std::chrono::milliseconds(uni(rng)));
+    mainRenderingContext_->beginFrame();
+    imguiBackend_->renderFrame();
+    /* TODO Main RC rendering here */
+    mainRenderingContext_->submitFrame();
 }
 
 void WebGpuRenderer::waitIdle()

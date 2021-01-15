@@ -43,6 +43,10 @@ private:
 
     /* Owned objects */
     std::shared_ptr<const Window> window_;
+    wgpu::Surface surface_;
+    std::unique_ptr<wgpu::SwapChain> swapchain_;
+
+    void buildSwapchainObjects(std::pair<uint32_t, uint32_t> requestedExtent);
 };
 
 } // namespace webgpu
