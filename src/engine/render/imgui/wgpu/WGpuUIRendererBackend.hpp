@@ -12,7 +12,7 @@ namespace webgpu {
 class WebGpuRenderer;
 
 /** Custom back-end inspired by imgui_impl_vulkan. */
-class WebGpuUIRendererBackend : public UIRendererBackend {
+class WebGpuUIRendererBackend final : public UIRendererBackend {
 public:
     WebGpuUIRendererBackend(
         std::shared_ptr<ImGuiContextWrapper> imguiContext,

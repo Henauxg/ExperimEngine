@@ -17,7 +17,7 @@ class VulkanWindow;
 class MemoryAllocator;
 class VulkanRenderingContext;
 
-class VulkanRenderer : public Renderer {
+class VulkanRenderer final : public Renderer {
 public:
     VulkanRenderer(
         const std::string& appName,

@@ -19,7 +19,7 @@ class VulkanWindow;
 class MemoryAllocator;
 struct FrameObjects;
 
-class VulkanRenderingContext : public RenderingContext {
+class VulkanRenderingContext final : public RenderingContext {
 public:
     VulkanRenderingContext(
         const Device& device,

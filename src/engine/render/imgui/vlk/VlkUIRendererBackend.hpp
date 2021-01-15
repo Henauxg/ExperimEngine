@@ -25,7 +25,7 @@ struct FrameRenderBuffers;
 /* -> Shader modules and stage info */
 
 /** Custom back-end inspired by imgui_impl_vulkan. */
-class VulkanUIRendererBackend : public UIRendererBackend {
+class VulkanUIRendererBackend final : public UIRendererBackend {
 public:
     VulkanUIRendererBackend(
         std::shared_ptr<ImGuiContextWrapper> imguiContext,

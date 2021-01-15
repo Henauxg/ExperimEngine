@@ -9,7 +9,7 @@ namespace expengine {
 namespace render {
 namespace vlk {
 
-class VulkanWindow : public Window {
+class VulkanWindow final : public Window {
 public:
     VulkanWindow(int width, int height, const std::string& title);
     VulkanWindow(int width, int height, const std::string& title, uint32_t flags);

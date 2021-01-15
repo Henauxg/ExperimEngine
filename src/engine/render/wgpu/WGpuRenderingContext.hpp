@@ -11,7 +11,7 @@ namespace expengine {
 namespace render {
 namespace webgpu {
 
-class WebGpuRenderingContext : public RenderingContext {
+class WebGpuRenderingContext final : public RenderingContext {
 public:
     WebGpuRenderingContext(
         const wgpu::Device& device,

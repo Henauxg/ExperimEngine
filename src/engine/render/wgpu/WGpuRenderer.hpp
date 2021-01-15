@@ -18,7 +18,7 @@ namespace webgpu {
 
 class WebGpuRenderingContext;
 
-class WebGpuRenderer : public Renderer {
+class WebGpuRenderer final : public Renderer {
 public:
     WebGpuRenderer(
         const std::string& appName,
