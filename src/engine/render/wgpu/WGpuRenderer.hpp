@@ -16,6 +16,8 @@ class ImguiBackend;
 
 namespace webgpu {
 
+class WebGpuRenderingContext;
+
 class WebGpuRenderer : public Renderer {
 public:
     WebGpuRenderer(
@@ -40,6 +42,7 @@ private:
     /* WebGPU objects */
     wgpu::Device device_;
     wgpu::Queue queue_;
+    std::shared_ptr<WebGpuRenderingContext> mainRenderingContext_;
 
     /* UI */
     std::unique_ptr<ImguiBackend> imguiBackend_;

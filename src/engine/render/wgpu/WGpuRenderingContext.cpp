@@ -23,6 +23,8 @@ WebGpuRenderingContext::WebGpuRenderingContext(
     , device_(device)
     , attachmentsFlags_(attachmentFlags)
 {
+    SPDLOG_LOGGER_DEBUG(logger_, "WebGpuRenderingContext creation");
+
     /* TODO implement */
     SPDLOG_LOGGER_WARN(logger_, "TODO Implement");
 }

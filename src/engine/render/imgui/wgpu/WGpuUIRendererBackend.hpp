@@ -25,7 +25,7 @@ public:
     /** Called by ImGui callbacks for secondary viewports.
      * TODO make it shared between rendering backends */
     void uploadBuffersAndDraw(
-        RenderingContext& renderingContext,
+        ImGuiViewportRendererData* renderData,
         ImDrawData* drawData,
         uint32_t fbWidth,
         uint32_t fbHeight) const override;

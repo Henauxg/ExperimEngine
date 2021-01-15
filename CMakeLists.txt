@@ -11,6 +11,7 @@ configure_file(ExperimEngineConfig.h.in ExperimEngineConfig.h)
 add_executable(ExperimEngine "")
 
 # Sources & headers inclusion
+add_subdirectory(src/tests)
 add_subdirectory(src/engine)
 add_subdirectory(src/engine/log)
 add_subdirectory(src/engine/render)
@@ -22,7 +23,6 @@ if(NOT WEB_TARGET)
 	add_subdirectory(src/engine/render/vlk)
 	add_subdirectory(src/engine/render/vlk/resources)
 	add_subdirectory(src/engine/render/imgui/vlk)
-	add_subdirectory(src/tests)
 	add_subdirectory(src/tests/lua)
 else()
 	add_subdirectory(src/engine/render/wgpu)
@@ -42,6 +42,8 @@ target_include_directories(ExperimEngine PUBLIC
 )
 # Web-target includes/compile definitions
 if(WEB_TARGET)
+	# Unused as of now since a custom template is used
+	# set(CMAKE_EXECUTABLE_SUFFIX ".html")
 	target_include_directories(ExperimEngine PUBLIC
 		# Emscripten headers
 		"${EMSCRIPTEN_ROOT_PATH}/system/include"
@@ -64,7 +66,8 @@ endif()
 
 #  Web-target specific : linking and post-build commands
 if(WEB_TARGET)
-	set_target_properties(ExperimEngine PROPERTIES LINK_FLAGS "-s USE_SDL=2 -s USE_WEBGPU=1") 
+	# Preload runtime files to a virtual file system
+	set_target_properties(ExperimEngine PROPERTIES LINK_FLAGS "-s USE_SDL=2 -s USE_WEBGPU=1 --preload-file ${PROJECT_SOURCE_DIR}/data@/data") 
 
 	set(TOOLS_DIR ${PROJECT_SOURCE_DIR}/tools)
 	add_custom_command(TARGET ExperimEngine POST_BUILD

@@ -10,6 +10,7 @@
 #include <ExperimEngineConfig.h>
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/imgui/ImGuiBackend.hpp>
+#include <engine/render/wgpu/WGpuRenderingContext.hpp>
 
 namespace {
 
@@ -52,12 +53,13 @@ WebGpuRenderer::WebGpuRenderer(
     queue_ = device_.GetDefaultQueue();
 
     /* TODO main rendering context*/
+    mainRenderingContext_ = std::make_shared<WebGpuRenderingContext>(
+        device_, mainWindow_, AttachmentsFlagBits::eColorAttachment);
     SPDLOG_LOGGER_WARN(logger_, "TODO Implement");
 
     /* ImGui */
-#if 0
-     imguiBackend_ = std::make_unique<ImguiBackend>(this, mainRenderingContext, mainWindow_);
-#endif // 0
+    imguiBackend_
+        = std::make_unique<ImguiBackend>(*this, mainRenderingContext_, mainWindow_);
 }
 
 WebGpuRenderer::~WebGpuRenderer()

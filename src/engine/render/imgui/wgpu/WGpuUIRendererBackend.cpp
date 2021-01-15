@@ -11,6 +11,13 @@ namespace {
 
 const std::string RENDERER_BACKEND_NAME = "ExperimEngine_WebGPU_Renderer";
 
+/* No viewports for Emscripten backend */
+#ifdef __EMSCRIPTEN__
+const bool BACKEND_HAS_VIEWPORTS = false;
+#else
+const bool BACKEND_HAS_VIEWPORTS = true;
+#endif
+
 } // namespace
 
 namespace expengine {
@@ -21,7 +28,11 @@ WebGpuUIRendererBackend::WebGpuUIRendererBackend(
     std::shared_ptr<ImGuiContextWrapper> imguiContext,
     const Renderer& renderer,
     std::shared_ptr<RenderingContext> mainRenderingContext)
-    : UIRendererBackend(imguiContext, mainRenderingContext, RENDERER_BACKEND_NAME)
+    : UIRendererBackend(
+        imguiContext,
+        RENDERER_BACKEND_NAME,
+        true,
+        BACKEND_HAS_VIEWPORTS)
     , renderer_(dynamic_cast<const WebGpuRenderer&>(renderer))
 {
     /* ------------------------------------------- */
@@ -53,8 +64,8 @@ void WebGpuUIRendererBackend::uploadFonts()
     SPDLOG_LOGGER_WARN(logger_, "TODO Implement");
 }
 
-void WebGpuUIRendererBackend::renderUI(
-    RenderingContext& renderingContext,
+void WebGpuUIRendererBackend::uploadBuffersAndDraw(
+    ImGuiViewportRendererData* renderData,
     ImDrawData* drawData,
     uint32_t fbWidth,
     uint32_t fbHeight) const
