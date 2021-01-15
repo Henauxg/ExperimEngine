@@ -6,9 +6,12 @@ Along the way, I aim to learn many things such as 3D graphics with [Vulkan](http
 
 ### Current work :
 
-+ Integration of [Dear ImGui](https://github.com/ocornut/imgui) docking/viewports branch in the native Vulkan Renderer, and with viewports disabled in the WebGPU renderer.
++ [Web-support](#web-support) : WebGPU renderer implementation and integration of [Dear ImGui](https://github.com/ocornut/imgui) in the WebGPU renderer.
 + Investigation for a [scripting language](#modding-and-scripting)
-+ [web-support](#web-support) : WebGPU renderer implementation
+
+### Done :
+
++ Integration of [Dear ImGui](https://github.com/ocornut/imgui) docking/viewports branch in the native Vulkan Renderer. (Missing a few fixes still)
 
 ## Modding and Scripting
 
