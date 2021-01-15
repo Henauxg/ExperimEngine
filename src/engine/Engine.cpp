@@ -15,7 +15,6 @@
 #include <ExperimEngineConfig.h>
 #include <engine/render/Renderer.hpp>
 #include <engine/render/Window.hpp>
-#include <engine/render/imgui/lib/imgui.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace {
@@ -165,25 +164,7 @@ bool Engine::tick()
 
 void Engine::prepareFrame() { renderer_->prepareFrame(); }
 
-void Engine::generateUI()
-{
-#if 1
-    static bool show_demo_window = true;
-    if (show_demo_window)
-        ImGui::ShowDemoWindow(&show_demo_window);
-#endif
-#if 0
-    ImGui::Begin("SimpleWindow");
-
-    ImGui::Text("Hello, world %d", 123);
-    if (ImGui::Button("Log"))
-        SPDLOG_LOGGER_INFO(logger_, "Log");
-    static float f = 0;
-    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-
-    ImGui::End();
-#endif
-}
+void Engine::generateUI() { }
 
 void Engine::renderFrame()
 {
