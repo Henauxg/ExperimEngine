@@ -40,10 +40,16 @@ ImguiBackend::ImguiBackend(
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
     /* TODO : May look into g.IO.ConfigViewportsNoTaskBarIcon */
     // io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
     // io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
+
+#ifdef __EMSCRIPTEN__
+    /* Disable .ini file access. TODO Could add it to the virtual FS. */
+    io.IniFilename = NULL;
+#else
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+#endif
 
     /* ------------------------------------------- */
     /* Setup Dear ImGui style                      */
