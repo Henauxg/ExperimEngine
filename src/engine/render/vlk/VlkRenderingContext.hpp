@@ -43,8 +43,7 @@ public:
     /* Frame rendering */
     void beginFrame() override;
     void submitFrame() override;
-    /** Must not be called more than once per frame for now.
-     * TODO : should have a common buffer interfaces between backends */
+    /* TODO : should have a common buffer interfaces between backends */
     vlk::FrameCommandBuffer& requestCommandBuffer();
 
     void waitIdle();
@@ -91,7 +90,6 @@ private:
      * Semaphore Group ID -> Frame Fence
      * We can wait on the fence to make sure that the semaphore group is available */
     std::unordered_map<uint32_t, vk::Fence> semaphoreToFrameFence_;
-    bool frameToSubmit_;
 
     /* Objects creation */
     vk::UniqueRenderPass createRenderPass(

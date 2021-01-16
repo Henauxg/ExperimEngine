@@ -88,8 +88,7 @@ void WebGpuRenderer::renderFrame()
 
 void WebGpuRenderer::waitIdle()
 {
-    /* TODO implement */
-    SPDLOG_LOGGER_WARN(logger_, "TODO Implement");
+    SPDLOG_LOGGER_DEBUG(logger_, "WebGPU waitIdle implementation : nothing to do");
 }
 
 std::shared_ptr<Window> WebGpuRenderer::getMainWindow() { return mainWindow_; }

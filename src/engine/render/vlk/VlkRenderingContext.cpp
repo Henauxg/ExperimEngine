@@ -42,7 +42,6 @@ VulkanRenderingContext::VulkanRenderingContext(
     , attachmentsFlags_(attachmentsFlags)
     , frameIndex_(0)
     , semaphoreIndex_(0)
-    , frameToSubmit_(false)
 {
     SPDLOG_LOGGER_DEBUG(logger_, "VulkanRenderingContext creation");
     /* Create surface */
@@ -411,6 +410,9 @@ void VulkanRenderingContext::submitFrame()
 
 vlk::FrameCommandBuffer& VulkanRenderingContext::requestCommandBuffer()
 {
+    EXPENGINE_ASSERT(
+        frameToSubmit_, "Error, requestCommandBuffer() outside of a frame");
+
     auto& frame = frames_.at(frameIndex_);
 
     frame.commandBuffers_.push_back(vlk::FrameCommandBuffer(
@@ -424,8 +426,6 @@ vlk::FrameCommandBuffer& VulkanRenderingContext::requestCommandBuffer()
 
     /* Start and return a command buffer for this frame */
     commandBuffer.begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
-
-    /* TODO Should check for frame started and not yet submitted */
 
     return commandBuffer;
 }

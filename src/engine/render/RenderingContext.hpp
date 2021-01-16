@@ -59,6 +59,9 @@ protected:
     /* Configuration */
     std::function<void(void)> surfaceChangeCallback_;
 
+    /* Frames */
+    bool frameToSubmit_;
+
     /* Logging */
     std::shared_ptr<spdlog::logger> logger_;
 };

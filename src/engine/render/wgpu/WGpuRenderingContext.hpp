@@ -29,6 +29,8 @@ public:
     /* Frame rendering */
     virtual void beginFrame() override;
     virtual void submitFrame() override;
+    /* TODO : should have a common buffer interfaces between backends */
+    wgpu::RenderPassEncoder& requestCommandBuffer();
 
     std::shared_ptr<RenderingContext> clone(
         std::shared_ptr<Window> window,
@@ -42,9 +44,16 @@ private:
     AttachmentsFlags attachmentsFlags_;
 
     /* Owned objects */
+    wgpu::Queue queue_;
     std::shared_ptr<const Window> window_;
     wgpu::Surface surface_;
-    std::unique_ptr<wgpu::SwapChain> swapchain_;
+    wgpu::SwapChain swapchain_;
+    std::pair<uint32_t, uint32_t> requestedExtent_;
+
+    /* Frames */
+    wgpu::RenderPassDescriptor renderpass_;
+    std::vector<wgpu::CommandEncoder> encoders_;
+    std::vector<wgpu::RenderPassEncoder> passEncoders_;
 
     void buildSwapchainObjects(std::pair<uint32_t, uint32_t> requestedExtent);
 };
