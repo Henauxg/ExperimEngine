@@ -41,6 +41,7 @@ private:
 
     /* Owned objects */
     wgpu::Sampler fontSampler_;
+    wgpu::RenderPipeline graphicsPipeline_;
 };
 
 } // namespace webgpu

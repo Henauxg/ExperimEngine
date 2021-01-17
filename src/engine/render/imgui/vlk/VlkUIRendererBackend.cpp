@@ -11,6 +11,10 @@
 #include <engine/render/vlk/VlkRenderingContext.hpp>
 #include <engine/render/vlk/resources/VlkTexture.hpp>
 
+/**
+ * TODO : Backend not yet handling custom texture rendering.
+ */
+
 namespace {
 
 const std::string RENDERER_BACKEND_NAME = "ExperimEngine_Vulkan_Renderer";
@@ -443,7 +447,7 @@ void VulkanUIRendererBackend::uploadBuffersAndDraw(
     /* End RenderPass */
     cmdBuffer.endRenderPass();
     cmdBuffer.end();
-} // namespace vlk
+}
 
 void VulkanUIRendererBackend::setupRenderState(
     FrameCommandBuffer& cmdBuffer,
