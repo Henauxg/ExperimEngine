@@ -32,7 +32,7 @@ struct FrameRenderBuffers {
 
 /** The Vulkan-specific derived class  stored in the void*
  * RenderUserData field of each ImGuiViewport */
-class VkImGuiViewportRendererData : public ImGuiViewportRendererData {
+class VkImGuiViewportRendererData final : public ImGuiViewportRendererData {
 public:
     ImGuiViewportRendererData* clone(
         std::shared_ptr<RenderingContext> renderingContext) override
@@ -93,7 +93,7 @@ protected:
         uiGraphicsPipeline_
             = vkRenderingContext->createGraphicsPipeline(graphicsPipelineInfo_);
 
-        /* (Re)build buffers */
+        /* Reset buffers container */
         frameIndex_ = 0;
         renderBuffers_.resize(vkRenderingContext->imageCount());
     };
