@@ -47,9 +47,10 @@ WebGpuRenderer::WebGpuRenderer(
                 logger,
                 spdlog::level::err,
                 "WGPU UncapturedErrorCallback {} : {}",
+                errorType,
                 message);
         },
-        nullptr);
+        logger_.get());
     queue_ = device_.GetDefaultQueue();
 
     /* Main rendering context*/
