@@ -116,7 +116,12 @@ As far as I understand, since WebGPU has Metal/Vulkan/DX12 implementations, it's
 
 See projects like [wgpu-rs](https://github.com/gfx-rs/wgpu-rs) (see also : [wgpu](https://github.com/gfx-rs/wgpu) & [gfx-rs](https://github.com/gfx-rs/wgpu)) for Rust or [Dawn](https://dawn.googlesource.com/dawn) in C++.
 
-I intend to keep working on a separate Native Vulkan renderer for now. This may prove too heavy but I hope that WebGPU relying on Vulkan means that both backends would share a lot in term of workflow with WebGPU being the simplest.
+I still intend to keep working on a separate Native Vulkan renderer for now. This may prove too heavy but I hope that WebGPU relying on Vulkan means that both backends would share a lot in term of workflow with WebGPU being the simplest.
+
+Issues encountered : 
++ I was hoping to reuse the same glsl/spirv shaders used for Vulkan renderer in WebGPU. So far it is not the case since some Vulkan shaders use features not (yet?) available in WebGPU :
+  + Push constants are not included in WebGPU yet, see [issue 75](https://github.com/gpuweb/gpuweb/issues/75)
+  + Combined image samplers are not included in WebGPU yet, see [issue 770](https://github.com/gpuweb/gpuweb/issues/770)
 
 ## Dependencies/Libraries
 
@@ -132,19 +137,19 @@ Libraries are picked trying to respect as much as possible the following criteri
 ### Used :
 
 Vulkan:
-+ [Vulkan](https://www.khronos.org/vulkan/) 1.2.162.0
++ [Vulkan](https://www.khronos.org/vulkan/) - [version](includes/vulkan/version.txt)
 + [Vulkan-Hpp](https://github.com/KhronosGroup/Vulkan-Hpp) (now included in Vulkan SDK). C++ API to Vulkan, and also used for [dynamic dispatching](https://gpuopen.com/learn/reducing-vulkan-api-call-overhead/).
-+ [Vulkan Memory Allocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator) 2.3.0
++ [Vulkan Memory Allocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator) - [version](includes/vma/version.txt)
 
 Scripting:
-+ [LuaJIT](http://luajit.org/luajit.html) [Version](libs/lua/version.txt)
-+ [sol](https://github.com/ThePhD/sol2) [Version](includes/sol/version.txt)
++ [LuaJIT](http://luajit.org/luajit.html) - [version](libs/lua/version.txt)
++ [sol](https://github.com/ThePhD/sol2) - [version](includes/sol/version.txt)
 
 Others:
-+ [OpenGL Mathematics (GLM)](https://glm.g-truc.net/0.9.9/index.html) [Version](includes/glm/version.txt)
-+ [Simple DirectMedia Layer (SDL2)](https://www.libsdl.org/index.php) [Version](includes/SDL2/version.txt)
-+ [Dear ImGui](https://github.com/ocornut/imgui) Docking branch [Version](src/engine/render/imgui/lib/version.txt)
-+ [spdlog](https://github.com/gabime/spdlog) [Version](includes/spdlog/version.h)
++ [OpenGL Mathematics (GLM)](https://glm.g-truc.net/0.9.9/index.html) - [version](includes/glm/version.txt)
++ [Simple DirectMedia Layer (SDL2)](https://www.libsdl.org/index.php) - [version](includes/SDL2/version.txt)
++ [Dear ImGui](https://github.com/ocornut/imgui) - Docking branch, [version](src/engine/render/imgui/lib/version.txt)
++ [spdlog](https://github.com/gabime/spdlog) - [version](includes/spdlog/version.h)
 
 ### May be used in the future :
 + [Bullet Physics](https://github.com/bulletphysics/bullet3)
@@ -153,7 +158,7 @@ Others:
 
 ## Tooling
 
-+ [CMake](https://cmake.org/) V3.17.2
++ [CMake](https://cmake.org/)
 + [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html)
 
 ## Credits and useful resources
@@ -164,6 +169,10 @@ Others:
 + [Khronos Vulkan-Samples](https://github.com/KhronosGroup/Vulkan-Samples)
 + [Awesome Vulkan](https://github.com/vinjn/awesome-vulkan)
 + [Writing an efficient Vulkan renderer](https://zeux.io/2020/02/27/writing-an-efficient-vulkan-renderer/) by Arseny Kapoulkine
+
+### WebGPU
++ [WebGPU cross platform demo](https://github.com/kainino0x/webgpu-cross-platform-demo) by kainino0x
++ [ImGui WebGPU backend sample](https://github.com/ocornut/imgui/pull/3632) by bfierz
 
 ### OpenGl and 3D
 + [GPU Gems](https://developer.nvidia.com/gpugems/GPUGems/gpugems_pref01.html), by NVIDIA
