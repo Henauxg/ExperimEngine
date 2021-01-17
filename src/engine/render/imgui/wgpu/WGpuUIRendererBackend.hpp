@@ -14,6 +14,7 @@ class Renderer;
 namespace webgpu {
 
 class WebGpuRenderer;
+class Texture;
 
 /** Custom back-end inspired by imgui_impl_vulkan. */
 class WebGpuUIRendererBackend final : public UIRendererBackend {
@@ -42,6 +43,8 @@ private:
     /* Owned objects */
     wgpu::Sampler fontSampler_;
     wgpu::RenderPipeline graphicsPipeline_;
+    wgpu::Buffer uniformBuffer_;
+    std::unique_ptr<Texture> fontTexture_;
 };
 
 } // namespace webgpu

@@ -123,7 +123,8 @@ void WebGpuRenderingContext::buildSwapchainObjects(
     /* Create the swapchain and release the previous one if any */
     wgpu::SwapChainDescriptor swapchainDesc {
         .usage = wgpu::TextureUsage::OutputAttachment,
-        .format = wgpu::TextureFormat::RGBA8Unorm,
+        /* RGBA8Unorm seems to be deprecated for the swapchain (chrome debugger) */
+        .format = wgpu::TextureFormat::BGRA8Unorm,
         .width = requestedExtent.first,
         .height = requestedExtent.second,
         .presentMode = wgpu::PresentMode::Fifo};

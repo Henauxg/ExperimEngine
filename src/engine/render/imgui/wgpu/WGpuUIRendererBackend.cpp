@@ -2,10 +2,13 @@
 
 #include <string>
 
+#include <glm/glm.hpp>
+
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/imgui/ImGuiViewportPlatformData.hpp>
 #include <engine/render/imgui/wgpu/spirv/wgpu_imgui_shaders_spirv.h>
 #include <engine/render/wgpu/WGpuRenderer.hpp>
+#include <engine/render/wgpu/resources/WGpuTexture.hpp>
 
 namespace {
 
@@ -43,6 +46,7 @@ WebGpuUIRendererBackend::WebGpuUIRendererBackend(
     /* Font sampler */
     {
         wgpu::SamplerDescriptor samplerDescriptor = {
+            .label = "WebGpuUIRendererBackend font sampler",
             .addressModeU = wgpu::AddressMode::Repeat,
             .addressModeV = wgpu::AddressMode::Repeat,
             .addressModeW = wgpu::AddressMode::Repeat,
@@ -154,8 +158,10 @@ WebGpuUIRendererBackend::WebGpuUIRendererBackend(
            .srcFactor = wgpu::BlendFactor::SrcAlpha,
            .dstFactor = wgpu::BlendFactor::OneMinusSrcAlpha};
 
+    /* Create the rendering pipeline */
     wgpu::RenderPipelineDescriptor graphicsPipelineInfo
-        = {.layout = pipelineLayout,
+        = {.label = "WebGpuUIRendererBackend rendering pipeline",
+           .layout = pipelineLayout,
            .vertexStage = vertexShaderDescriptor,
            .fragmentStage = &fragmentShaderDescriptor,
            .vertexState = &vertexStateDesc,
@@ -167,6 +173,13 @@ WebGpuUIRendererBackend::WebGpuUIRendererBackend(
            .sampleMask = std::numeric_limits<uint32_t>::max(),
            .alphaToCoverageEnabled = false};
     graphicsPipeline_ = device_.CreateRenderPipeline(&graphicsPipelineInfo);
+
+    /* Create the uniform buffer for scale and translation */
+    wgpu::BufferDescriptor uniformBuffDesc {
+        .label = "WebGpuUIRendererBackend uniform buffer",
+        .usage = wgpu::BufferUsage::Uniform,
+        .size = sizeof(glm::mat4)};
+    uniformBuffer_ = device_.CreateBuffer(&uniformBuffDesc);
 
     /* ------------------------------------------- */
     /*  Setup main viewport RendererUserData       */
@@ -191,11 +204,17 @@ void WebGpuUIRendererBackend::uploadFonts()
     io.Fonts->GetTexDataAsRGBA32(&pixelsBuffer, &width, &height);
     size_t bufferSize = (size_t) width * (size_t) height * 4 * sizeof(char);
 
-    /* TODO Create GPU texture */
+    /* Create GPU texture */
+    fontTexture_ = std::make_unique<Texture>(
+        device_,
+        pixelsBuffer,
+        bufferSize,
+        wgpu::TextureFormat::RGBA8Unorm,
+        width,
+        height);
 
-    /* TODO Store font texture identifier */
-
-    SPDLOG_LOGGER_WARN(logger_, "TODO Implement");
+    /* Store font texture identifier */
+    io.Fonts->TexID = (ImTextureID)(intptr_t) fontTexture_->viewHandle().Get();
 }
 
 void WebGpuUIRendererBackend::uploadBuffersAndDraw(

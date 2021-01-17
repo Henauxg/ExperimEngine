@@ -16,8 +16,8 @@ public:
     /** Create texture from data buffer */
     Texture(
         const vlk::Device& device,
-        void* buffer,
-        vk::DeviceSize bufferSize,
+        void* texData,
+        vk::DeviceSize texDataSize,
         vk::Format format,
         uint32_t texWidth,
         uint32_t texHeight,

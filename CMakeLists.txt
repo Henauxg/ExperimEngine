@@ -23,9 +23,11 @@ if(NOT WEB_TARGET)
 	add_subdirectory(src/engine/render/vlk)
 	add_subdirectory(src/engine/render/vlk/resources)
 	add_subdirectory(src/engine/render/imgui/vlk)
+	# Lua interpreter/jit not yet compiled to WASM
 	add_subdirectory(src/tests/lua)
 else()
 	add_subdirectory(src/engine/render/wgpu)
+	add_subdirectory(src/engine/render/wgpu/resources)
 	add_subdirectory(src/engine/render/imgui/wgpu)
 endif()
 

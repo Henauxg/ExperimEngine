@@ -12,7 +12,7 @@ namespace vlk {
 Texture::Texture(
     const vlk::Device& device,
     void* texData,
-    vk::DeviceSize bufferSize,
+    vk::DeviceSize texDataSize,
     vk::Format format,
     uint32_t texWidth,
     uint32_t texHeight,
@@ -22,7 +22,7 @@ Texture::Texture(
     : sampler_(sampler)
 {
     /* Upload texData to accessible device memory */
-    auto stagingBuffer = device.allocator().createStagingBuffer(bufferSize, texData);
+    auto stagingBuffer = device.allocator().createStagingBuffer(texDataSize, texData);
 
     /* Create image (as a transfer dest) */
     image_ = device.allocator().createTextureImage(
