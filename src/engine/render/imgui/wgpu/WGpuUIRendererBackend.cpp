@@ -4,7 +4,7 @@
 
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/imgui/ImGuiViewportPlatformData.hpp>
-#include <engine/render/imgui/spirv/imgui_shaders_spirv.h>
+#include <engine/render/imgui/wgpu/spirv/wgpu_imgui_shaders_spirv.h>
 #include <engine/render/wgpu/WGpuRenderer.hpp>
 
 namespace {
@@ -34,12 +34,52 @@ WebGpuUIRendererBackend::WebGpuUIRendererBackend(
         true,
         BACKEND_HAS_VIEWPORTS)
     , renderer_(dynamic_cast<const WebGpuRenderer&>(renderer))
+    , device_(renderer_.device())
 {
     /* ------------------------------------------- */
     /* Create device objects                       */
     /* ------------------------------------------- */
-    /* TODO */
 
+    /* Font sampler */
+    {
+        wgpu::SamplerDescriptor samplerDescriptor = {
+            .addressModeU = wgpu::AddressMode::Repeat,
+            .addressModeV = wgpu::AddressMode::Repeat,
+            .addressModeW = wgpu::AddressMode::Repeat,
+            .magFilter = wgpu::FilterMode::Linear,
+            .minFilter = wgpu::FilterMode::Linear,
+            .mipmapFilter = wgpu::FilterMode::Linear,
+        };
+        fontSampler_ = device_.CreateSampler(&samplerDescriptor);
+    }
+
+    /* Create ImGui shaders modules */
+    wgpu::ShaderModule vertexShaderModule {};
+    {
+        wgpu::ShaderModuleSPIRVDescriptor spirvDesc {};
+        spirvDesc.codeSize = sizeof(__glsl_wgpu_shader_vert_spv);
+        spirvDesc.code = (uint32_t*) __glsl_wgpu_shader_vert_spv;
+
+        wgpu::ShaderModuleDescriptor descriptor {.nextInChain = &spirvDesc};
+        vertexShaderModule = device_.CreateShaderModule(&descriptor);
+    }
+    wgpu::ShaderModule fragmentShaderModule {};
+    {
+        wgpu::ShaderModuleSPIRVDescriptor spirvDesc {};
+        spirvDesc.codeSize = sizeof(__glsl_wgpu_shader_vert_spv);
+        spirvDesc.code = (uint32_t*) __glsl_wgpu_shader_vert_spv;
+
+        wgpu::ShaderModuleDescriptor descriptor {.nextInChain = &spirvDesc};
+        fragmentShaderModule = device_.CreateShaderModule(&descriptor);
+    }
+
+    /* ------------------------------------------- */
+    /*  Setup main viewport RendererUserData       */
+    /* ------------------------------------------- */
+
+    /* Cleaned by ImGui_ImplExpengine_DestroyWindow if viewport
+     * enabled. Else cleaned by RendererBackend */
+    /* TODO */
     SPDLOG_LOGGER_WARN(logger_, "TODO Implement");
 }
 

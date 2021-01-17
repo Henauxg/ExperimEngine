@@ -3,7 +3,7 @@
 #include <string>
 
 #include <engine/render/imgui/ImGuiViewportPlatformData.hpp>
-#include <engine/render/imgui/spirv/imgui_shaders_spirv.h>
+#include <engine/render/imgui/vlk/spirv/vlk_imgui_shaders_spirv.h>
 #include <engine/render/vlk/VlkDebug.hpp>
 #include <engine/render/vlk/VlkDevice.hpp>
 #include <engine/render/vlk/VlkFrameCommandBuffer.hpp>
@@ -144,15 +144,15 @@ VulkanUIRendererBackend::VulkanUIRendererBackend(
 
     /* Create ImGui shaders modules */
     auto vertShaderResult = device_.deviceHandle().createShaderModuleUnique(
-        {.codeSize = sizeof(__glsl_shader_vert_spv),
-         .pCode = (uint32_t*) __glsl_shader_vert_spv});
+        {.codeSize = sizeof(__glsl_vlk_shader_vert_spv),
+         .pCode = (uint32_t*) __glsl_vlk_shader_vert_spv});
     EXPENGINE_VK_ASSERT(
         vertShaderResult.result, "Failed to create the ImGui vertex shader");
     vertShader_ = std::move(vertShaderResult.value);
 
     auto fragShaderResult = device_.deviceHandle().createShaderModuleUnique(
-        {.codeSize = sizeof(__glsl_shader_frag_spv),
-         .pCode = (uint32_t*) __glsl_shader_frag_spv});
+        {.codeSize = sizeof(__glsl_vlk_shader_frag_spv),
+         .pCode = (uint32_t*) __glsl_vlk_shader_frag_spv});
     EXPENGINE_VK_ASSERT(
         fragShaderResult.result, "Failed to create the ImGui fragment shader");
     fragShader_ = std::move(fragShaderResult.value);

@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __EMSCRIPTEN__
+#include <webgpu/webgpu_cpp.h>
+#endif
+
 #include <engine/render/imgui/UIRendererBackend.hpp>
 
 namespace expengine {
@@ -33,6 +37,10 @@ public:
 private:
     /* References */
     const WebGpuRenderer& renderer_;
+    const wgpu::Device& device_;
+
+    /* Owned objects */
+    wgpu::Sampler fontSampler_;
 };
 
 } // namespace webgpu
