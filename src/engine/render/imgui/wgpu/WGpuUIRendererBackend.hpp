@@ -15,6 +15,7 @@ namespace webgpu {
 
 class WebGpuRenderer;
 class Texture;
+class FrameRenderBuffers;
 
 /** Custom back-end inspired by imgui_impl_vulkan. */
 class WebGpuUIRendererBackend final : public UIRendererBackend {
@@ -30,7 +31,7 @@ public:
     /** Called by ImGui callbacks for secondary viewports.
      * TODO make it shared between rendering backends */
     void uploadBuffersAndDraw(
-        ImGuiViewportRendererData* renderData,
+        ImGuiViewportRendererData* rendererData,
         ImDrawData* drawData,
         uint32_t fbWidth,
         uint32_t fbHeight) const override;
@@ -45,6 +46,16 @@ private:
     wgpu::RenderPipeline graphicsPipeline_;
     wgpu::Buffer uniformBuffer_;
     std::unique_ptr<Texture> fontTexture_;
+    wgpu::BindGroup commonBindGroup_;
+    wgpu::BindGroupLayout imageBindGroupLayout_;
+    wgpu::BindGroup imageBindGroup_;
+
+    void setupRenderState(
+        wgpu::RenderPassEncoder encoder,
+        FrameRenderBuffers& frame,
+        ImDrawData* drawData,
+        uint32_t fbWidth,
+        uint32_t fbHeight) const;
 };
 
 } // namespace webgpu
