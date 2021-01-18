@@ -61,18 +61,18 @@ void WebGpuRenderingContext::beginFrame()
 
     handleSurfaceChanges();
 
-    wgpu::TextureView backbufferView = swapchain_.GetCurrentTextureView();
+    backbufferView_ = swapchain_.GetCurrentTextureView();
 
-    wgpu::RenderPassColorAttachmentDescriptor attachment {
-        .attachment = backbufferView,
-        .loadOp = wgpu::LoadOp::Clear,
-        .storeOp = wgpu::StoreOp::Store,
-        /* TODO Better handling of clear color */
-        .clearColor = {0, 0, 0, 1}};
+    colorAttachment_
+        = {.attachment = backbufferView_,
+           .loadOp = wgpu::LoadOp::Clear,
+           .storeOp = wgpu::StoreOp::Store,
+           /* TODO Better handling of clear color */
+           .clearColor = {0, 0, 0, 1}};
 
     /* Register this frame render pass descriptor */
     renderpass_.colorAttachmentCount = 1;
-    renderpass_.colorAttachments = &attachment;
+    renderpass_.colorAttachments = &colorAttachment_;
 
     encoders_.clear();
     passEncoders_.clear();
@@ -104,7 +104,8 @@ wgpu::RenderPassEncoder& WebGpuRenderingContext::requestCommandBuffer()
     /* TODO Proper CommandBuffer mechanism */
     encoders_.push_back(device_.CreateCommandEncoder());
     /* Use this frame render pass descriptor */
-    passEncoders_.push_back(encoders_.back().BeginRenderPass(&renderpass_));
+    auto passEncoder = encoders_.back().BeginRenderPass(&renderpass_);
+    passEncoders_.push_back(passEncoder);
 
     return passEncoders_.back();
 }

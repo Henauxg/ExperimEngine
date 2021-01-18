@@ -51,7 +51,11 @@ private:
     std::pair<uint32_t, uint32_t> requestedExtent_;
 
     /* Frames */
+    /* Current texture, pass and attachment */
+    wgpu::TextureView backbufferView_;
+    wgpu::RenderPassColorAttachmentDescriptor colorAttachment_;
     wgpu::RenderPassDescriptor renderpass_;
+    /* Command buffer objects */
     std::vector<wgpu::CommandEncoder> encoders_;
     std::vector<wgpu::RenderPassEncoder> passEncoders_;
 
