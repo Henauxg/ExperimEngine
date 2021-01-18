@@ -154,26 +154,26 @@ WebGpuUIRendererBackend::WebGpuUIRendererBackend(
 
     /* Create ImGui shaders modules */
     wgpu::ShaderModule vertexShaderModule {};
-    {
-        wgpu::ShaderModuleSPIRVDescriptor spirvDesc {};
-        spirvDesc.codeSize = sizeof(__glsl_wgpu_shader_vert_spv);
-        spirvDesc.code = (uint32_t*) __glsl_wgpu_shader_vert_spv;
 
-        wgpu::ShaderModuleDescriptor descriptor {.nextInChain = &spirvDesc};
-        vertexShaderModule = device_.CreateShaderModule(&descriptor);
-    }
+    wgpu::ShaderModuleSPIRVDescriptor vertSpirvDesc {};
+    vertSpirvDesc.codeSize = sizeof(__glsl_wgpu_shader_vert_spv) / sizeof(uint32_t);
+    vertSpirvDesc.code = (uint32_t*) __glsl_wgpu_shader_vert_spv;
+
+    wgpu::ShaderModuleDescriptor vertDescriptor {.nextInChain = &vertSpirvDesc};
+    vertexShaderModule = device_.CreateShaderModule(&vertDescriptor);
+
     wgpu::ProgrammableStageDescriptor vertexShaderDescriptor {
         .module = vertexShaderModule, .entryPoint = "main"};
 
     wgpu::ShaderModule fragmentShaderModule {};
-    {
-        wgpu::ShaderModuleSPIRVDescriptor spirvDesc {};
-        spirvDesc.codeSize = sizeof(__glsl_wgpu_shader_vert_spv);
-        spirvDesc.code = (uint32_t*) __glsl_wgpu_shader_vert_spv;
 
-        wgpu::ShaderModuleDescriptor descriptor {.nextInChain = &spirvDesc};
-        fragmentShaderModule = device_.CreateShaderModule(&descriptor);
-    }
+    wgpu::ShaderModuleSPIRVDescriptor fragSpirvDesc {};
+    fragSpirvDesc.codeSize = sizeof(__glsl_wgpu_shader_frag_spv) / sizeof(uint32_t);
+    fragSpirvDesc.code = (uint32_t*) __glsl_wgpu_shader_frag_spv;
+
+    wgpu::ShaderModuleDescriptor fragDescriptor {.nextInChain = &fragSpirvDesc};
+    fragmentShaderModule = device_.CreateShaderModule(&fragDescriptor);
+
     wgpu::ProgrammableStageDescriptor fragmentShaderDescriptor {
         .module = fragmentShaderModule, .entryPoint = "main"};
 
