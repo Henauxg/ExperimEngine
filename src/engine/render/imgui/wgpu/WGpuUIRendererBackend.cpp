@@ -326,8 +326,17 @@ void WebGpuUIRendererBackend::uploadBuffersAndDraw(
 
     if (drawData->TotalVtxCount > 0)
     {
+        /* With mappedAtCreation to true, buffer size must be a multiple of 4
+         * See
+         * https://gpuweb.github.io/gpuweb/#dom-gpubufferdescriptor-mappedatcreation
+         * mappedAtCreation is used here since ->map() seems to be an async call
+         * only which is a pain.
+         */
+        const uint8_t BUFFER_SIZE_ALIGNMENT = 4;
         size_t vertexSize = drawData->TotalVtxCount * sizeof(ImDrawVert);
         size_t indexSize = drawData->TotalIdxCount * sizeof(ImDrawIdx);
+        vertexSize += BUFFER_SIZE_ALIGNMENT - (vertexSize % BUFFER_SIZE_ALIGNMENT);
+        indexSize += BUFFER_SIZE_ALIGNMENT - (indexSize % BUFFER_SIZE_ALIGNMENT);
 
         if (frame.vertexBufferSize == 0 || frame.vertexBufferSize < vertexSize)
         {
