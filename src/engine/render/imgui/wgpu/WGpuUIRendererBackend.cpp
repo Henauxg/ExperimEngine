@@ -245,7 +245,7 @@ WebGpuUIRendererBackend::WebGpuUIRendererBackend(
     /* Create the uniform buffer for scale and translation */
     wgpu::BufferDescriptor uniformBuffDesc {
         .label = "WebGpuUIRendererBackend uniform buffer",
-        .usage = wgpu::BufferUsage::Uniform,
+        .usage = wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst,
         .size = sizeof(glm::mat4)};
     uniformBuffer_ = device_.CreateBuffer(&uniformBuffDesc);
 
@@ -336,7 +336,7 @@ void WebGpuUIRendererBackend::uploadBuffersAndDraw(
             SPDLOG_LOGGER_DEBUG(logger_, "Resizing vertex buffer to {}", vertexSize);
             wgpu::BufferDescriptor vertexBufferDesc {
                 .label = "WebGpuUIRendererBackend vertex buffer",
-                .usage = wgpu::BufferUsage::Vertex,
+                .usage = wgpu::BufferUsage::Vertex | wgpu::BufferUsage::CopyDst,
                 .size = vertexSize,
                 .mappedAtCreation = true};
             frame.vertexBuffer = device_.CreateBuffer(&vertexBufferDesc);
@@ -347,7 +347,7 @@ void WebGpuUIRendererBackend::uploadBuffersAndDraw(
             SPDLOG_LOGGER_DEBUG(logger_, "Resizing index buffer to {}", indexSize);
             wgpu::BufferDescriptor indexBufferDesc {
                 .label = "WebGpuUIRendererBackend index buffer",
-                .usage = wgpu::BufferUsage::Index,
+                .usage = wgpu::BufferUsage::Index | wgpu::BufferUsage::CopyDst,
                 .size = indexSize,
                 .mappedAtCreation = true};
             frame.indexBuffer = device_.CreateBuffer(&indexBufferDesc);
