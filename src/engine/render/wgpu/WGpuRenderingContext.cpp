@@ -8,7 +8,7 @@
 
 namespace {
 
-}
+} // namespace
 
 namespace expengine {
 namespace render {
@@ -124,8 +124,7 @@ void WebGpuRenderingContext::buildSwapchainObjects(
     /* Create the swapchain and release the previous one if any */
     wgpu::SwapChainDescriptor swapchainDesc {
         .usage = wgpu::TextureUsage::OutputAttachment,
-        /* RGBA8Unorm seems to be deprecated for the swapchain (chrome debugger) */
-        .format = wgpu::TextureFormat::BGRA8Unorm,
+        .format = SWAPCHAIN_TEXTURE_FORMAT,
         .width = requestedExtent.first,
         .height = requestedExtent.second,
         .presentMode = wgpu::PresentMode::Fifo};

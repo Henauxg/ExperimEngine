@@ -213,10 +213,8 @@ WebGpuUIRendererBackend::WebGpuUIRendererBackend(
            .depthBiasSlopeScale = 0,
            .depthBiasClamp = 0};
 
-    wgpu::ColorStateDescriptor colorState
-        /* TODO : get the format from the swapchain ? */
-        = {.format = wgpu::TextureFormat::RGBA8Unorm,
-           .writeMask = wgpu::ColorWriteMask::All};
+    wgpu::ColorStateDescriptor colorState = {
+        .format = SWAPCHAIN_TEXTURE_FORMAT, .writeMask = wgpu::ColorWriteMask::All};
     colorState.alphaBlend
         = {.operation = wgpu::BlendOperation::Add,
            .srcFactor = wgpu::BlendFactor::OneMinusSrcAlpha,

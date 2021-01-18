@@ -11,6 +11,9 @@ namespace expengine {
 namespace render {
 namespace webgpu {
 
+/* RGBA8Unorm seems to be deprecated for the swapchain (chrome debugger) */
+const wgpu::TextureFormat SWAPCHAIN_TEXTURE_FORMAT = wgpu::TextureFormat::BGRA8Unorm;
+
 class WebGpuRenderingContext final : public RenderingContext {
 public:
     WebGpuRenderingContext(
