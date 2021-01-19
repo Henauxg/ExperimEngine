@@ -68,8 +68,9 @@ public:
 
     FrameRenderBuffers& requestFrameRenderBuffers()
     {
-        return renderBuffers_.at(frameIndex_);
+        auto& frame = renderBuffers_.at(frameIndex_);
         frameIndex_ = (frameIndex_ + 1) % renderBuffers_.size();
+        return frame;
     }
 
     const vk::Pipeline pipeline() { return *uiGraphicsPipeline_; }
