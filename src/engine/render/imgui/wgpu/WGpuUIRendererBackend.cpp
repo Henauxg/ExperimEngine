@@ -472,7 +472,7 @@ void WebGpuUIRendererBackend::setupRenderState(
 
     if (drawData->TotalVtxCount > 0)
     {
-        encoder.SetVertexBuffer(0, frame.vertexBuffer, frame.vertexBufferSize);
+        encoder.SetVertexBuffer(0, frame.vertexBuffer, 0, frame.vertexBufferSize);
         encoder.SetIndexBuffer(
             frame.indexBuffer,
             sizeof(ImDrawIdx) == 2 ? wgpu::IndexFormat::Uint16
