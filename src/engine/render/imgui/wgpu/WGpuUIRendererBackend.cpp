@@ -40,9 +40,9 @@ namespace webgpu {
 
 struct FrameRenderBuffers {
     wgpu::Buffer vertexBuffer = nullptr;
-    uint32_t vertexBufferSize = 0;
+    uint32_t vertexDataSize = 0;
     wgpu::Buffer indexBuffer = nullptr;
-    uint32_t indexBufferSize = 0;
+    uint32_t indexDataSize = 0;
 };
 
 /** The backend-specific derived class stored in the void*
@@ -333,11 +333,14 @@ void WebGpuUIRendererBackend::uploadBuffersAndDraw(
          * mappedAtCreation is used here since ->map() seems to be an async call
          * only which is a pain.
          */
+        frame.vertexDataSize = drawData->TotalVtxCount * sizeof(ImDrawVert);
+        frame.indexDataSize = drawData->TotalIdxCount * sizeof(ImDrawIdx);
+
         const uint8_t BUFFER_SIZE_ALIGNMENT = 4;
-        size_t vertexSize = drawData->TotalVtxCount * sizeof(ImDrawVert);
-        size_t indexSize = drawData->TotalIdxCount * sizeof(ImDrawIdx);
-        vertexSize += BUFFER_SIZE_ALIGNMENT - (vertexSize % BUFFER_SIZE_ALIGNMENT);
-        indexSize += BUFFER_SIZE_ALIGNMENT - (indexSize % BUFFER_SIZE_ALIGNMENT);
+        size_t vertexBufferSize = frame.vertexDataSize + BUFFER_SIZE_ALIGNMENT
+            - (frame.vertexDataSize % BUFFER_SIZE_ALIGNMENT);
+        size_t indexBufferSize = frame.indexDataSize + BUFFER_SIZE_ALIGNMENT
+            - (frame.indexDataSize % BUFFER_SIZE_ALIGNMENT);
 
         /** Force buffers to be re-created : see
          * https://github.com/gfx-rs/wgpu-rs/issues/9
@@ -346,17 +349,15 @@ void WebGpuUIRendererBackend::uploadBuffersAndDraw(
          */
         wgpu::BufferDescriptor vertexBufferDesc {
             .usage = wgpu::BufferUsage::Vertex | wgpu::BufferUsage::CopySrc,
-            .size = vertexSize,
+            .size = vertexBufferSize,
             .mappedAtCreation = true};
         frame.vertexBuffer = device_.CreateBuffer(&vertexBufferDesc);
-        frame.vertexBufferSize = vertexSize;
 
         wgpu::BufferDescriptor indexBufferDesc {
             .usage = wgpu::BufferUsage::Index | wgpu::BufferUsage::CopySrc,
-            .size = indexSize,
+            .size = indexBufferSize,
             .mappedAtCreation = true};
         frame.indexBuffer = device_.CreateBuffer(&indexBufferDesc);
-        frame.indexBufferSize = indexSize;
 
         uint8_t* vertBufMapped
             = static_cast<uint8_t*>(frame.vertexBuffer.GetMappedRange());
@@ -469,13 +470,13 @@ void WebGpuUIRendererBackend::setupRenderState(
 
     if (drawData->TotalVtxCount > 0)
     {
-        encoder.SetVertexBuffer(0, frame.vertexBuffer, 0, frame.vertexBufferSize);
+        encoder.SetVertexBuffer(0, frame.vertexBuffer, 0, frame.vertexDataSize);
         encoder.SetIndexBuffer(
             frame.indexBuffer,
             sizeof(ImDrawIdx) == 2 ? wgpu::IndexFormat::Uint16
                                    : wgpu::IndexFormat::Uint32,
             0,
-            frame.indexBufferSize);
+            frame.indexDataSize);
     }
 
     /* Setup blend factor */
