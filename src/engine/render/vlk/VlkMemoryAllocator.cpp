@@ -137,7 +137,7 @@ std::unique_ptr<vlk::Buffer> MemoryAllocator::createBuffer(
         buffer->assertMap();
         buffer->copyData(dataToCopy, size);
         /* We can flush in everycase, call will be ignored if the memory is
-         * host_coherent/visilbe */
+         * host_coherent/visible */
         buffer->assertFlush();
         buffer->unmap();
     }
