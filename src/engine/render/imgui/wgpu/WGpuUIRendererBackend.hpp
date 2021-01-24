@@ -1,8 +1,6 @@
 #pragma once
 
-#ifdef __EMSCRIPTEN__
 #include <webgpu/webgpu_cpp.h>
-#endif
 
 #include <engine/render/imgui/UIRendererBackend.hpp>
 
@@ -15,7 +13,7 @@ namespace webgpu {
 
 class WebGpuRenderer;
 class Texture;
-class FrameRenderBuffers;
+struct FrameRenderBuffers;
 
 /** Custom back-end inspired by imgui_impl_vulkan. */
 class WebGpuUIRendererBackend final : public UIRendererBackend {

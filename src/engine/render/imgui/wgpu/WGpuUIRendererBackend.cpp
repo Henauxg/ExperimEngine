@@ -22,9 +22,7 @@ const bool BACKEND_HAS_VIEWPORTS = false;
 const bool BACKEND_HAS_VIEWPORTS = true;
 #endif
 
-/* TODO : Found no way to retrieve an image count from the swapchain. Is there such a
- * thing in WebGPU ?
- * Should there be any sync in order to reuse buffers (index/vertex) ?
+/* TODO : Should there be any sync in order to reuse buffers (index/vertex) ?
  */
 const uint32_t FAKE_SWAPCHAIN_IMAGE_COUNT = 3;
 
@@ -40,9 +38,13 @@ namespace webgpu {
 
 struct FrameRenderBuffers {
     wgpu::Buffer vertexBuffer = nullptr;
-    uint32_t vertexDataSize = 0;
+    size_t vertexBufferSize = 0;
     wgpu::Buffer indexBuffer = nullptr;
+    size_t indexBufferSize = 0;
+#if 0
+    uint32_t vertexDataSize = 0;
     uint32_t indexDataSize = 0;
+#endif
 };
 
 /** The backend-specific derived class stored in the void*
@@ -141,7 +143,7 @@ WebGpuUIRendererBackend::WebGpuUIRendererBackend(
         .type = wgpu::BindingType::SampledTexture};
 
     wgpu::BindGroupLayoutDescriptor commonBindGroupLayoutDesc {
-        .entryCount = commonBindGroupLayoutEntries.size(),
+        .entryCount = static_cast<uint32_t>(commonBindGroupLayoutEntries.size()),
         .entries = commonBindGroupLayoutEntries.data()};
 
     wgpu::BindGroupLayoutDescriptor textureBindGroupLayoutDesc {
@@ -180,7 +182,7 @@ WebGpuUIRendererBackend::WebGpuUIRendererBackend(
 
     /* Pipeline layout */
     wgpu::PipelineLayoutDescriptor pipelineLayoutDesc {
-        .bindGroupLayoutCount = bindGroupLayouts.size(),
+        .bindGroupLayoutCount = static_cast<uint32_t>(bindGroupLayouts.size()),
         .bindGroupLayouts = bindGroupLayouts.data()};
 
     wgpu::PipelineLayout pipelineLayout
@@ -198,7 +200,7 @@ WebGpuUIRendererBackend::WebGpuUIRendererBackend(
     wgpu::VertexBufferLayoutDescriptor vertBufferLayoutDesc
         = {.arrayStride = sizeof(ImDrawVert),
            .stepMode = wgpu::InputStepMode::Vertex,
-           .attributeCount = vertAttributesDesc.size(),
+           .attributeCount = static_cast<uint32_t>(vertAttributesDesc.size()),
            .attributes = vertAttributesDesc.data()};
 
     /* indexFormat : See issue https://github.com/gpuweb/gpuweb/issues/767 */
@@ -256,7 +258,7 @@ WebGpuUIRendererBackend::WebGpuUIRendererBackend(
 
     wgpu::BindGroupDescriptor commonBindGroupDesc {
         .layout = bindGroupLayouts[0],
-        .entryCount = bindGroupEntries.size(),
+        .entryCount = static_cast<uint32_t>(bindGroupEntries.size()),
         .entries = bindGroupEntries.data()};
     commonBindGroup_ = device_.CreateBindGroup(&commonBindGroupDesc);
 
@@ -327,6 +329,66 @@ void WebGpuUIRendererBackend::uploadBuffersAndDraw(
 
     if (drawData->TotalVtxCount > 0)
     {
+        /* Buffer size must be a multiple of 4
+         * See https://gpuweb.github.io/gpuweb/#dom-gpuqueue-writebuffer
+         */
+        size_t neededVertexDataSize = drawData->TotalVtxCount * sizeof(ImDrawVert);
+        size_t neededIndexDataSize = drawData->TotalIdxCount * sizeof(ImDrawIdx);
+        /* Deduce buffer size from needed size */
+        const uint8_t BUFFER_SIZE_ALIGNMENT = 4;
+        size_t vertexBufferSize = neededVertexDataSize + BUFFER_SIZE_ALIGNMENT
+            - (neededVertexDataSize % BUFFER_SIZE_ALIGNMENT);
+        size_t indexBufferSize = neededIndexDataSize + BUFFER_SIZE_ALIGNMENT
+            - (neededIndexDataSize % BUFFER_SIZE_ALIGNMENT);
+
+        if (frame.vertexBuffer == nullptr
+            || frame.vertexBufferSize < vertexBufferSize)
+        {
+            wgpu::BufferDescriptor vertexBufferDesc {
+                .usage = wgpu::BufferUsage::Vertex | wgpu::BufferUsage::CopyDst,
+                .size = vertexBufferSize,
+                .mappedAtCreation = false};
+            frame.vertexBuffer = device_.CreateBuffer(&vertexBufferDesc);
+            frame.vertexBufferSize = vertexBufferSize;
+        }
+
+        if (frame.indexBuffer == nullptr || frame.indexBufferSize < indexBufferSize)
+        {
+            wgpu::BufferDescriptor indexBufferDesc {
+                .usage = wgpu::BufferUsage::Index | wgpu::BufferUsage::CopyDst,
+                .size = indexBufferSize,
+                .mappedAtCreation = false};
+            frame.indexBuffer = device_.CreateBuffer(&indexBufferDesc);
+            frame.indexBufferSize = indexBufferSize;
+        }
+
+        auto localVtxBuff = std::make_unique<uint8_t[]>(vertexBufferSize);
+        auto localIdxBuff = std::make_unique<uint8_t[]>(indexBufferSize);
+
+        uint8_t* vtxPtr = localVtxBuff.get();
+        uint8_t* idxPtr = localIdxBuff.get();
+        for (int n = 0; n < drawData->CmdListsCount; n++)
+        {
+            const ImDrawList* cmdList = drawData->CmdLists[n];
+
+            size_t vtxSize = cmdList->VtxBuffer.Size * sizeof(ImDrawVert);
+            memcpy(vtxPtr, cmdList->VtxBuffer.Data, vtxSize);
+            vtxPtr = vtxPtr + vtxSize;
+
+            size_t idxSize = cmdList->IdxBuffer.Size * sizeof(ImDrawIdx);
+            memcpy(idxPtr, cmdList->IdxBuffer.Data, idxSize);
+            idxPtr = idxPtr + idxSize;
+        }
+
+        auto queue = device_.GetDefaultQueue();
+        queue.WriteBuffer(
+            frame.vertexBuffer, 0, localVtxBuff.get(), vertexBufferSize);
+        queue.WriteBuffer(frame.indexBuffer, 0, localIdxBuff.get(), indexBufferSize);
+    }
+    /* This is not working. Image flickering */
+#if 0
+        if (drawData->TotalVtxCount > 0)
+    {
         /* With mappedAtCreation to true, buffer size must be a multiple of 4
          * See
          * https://gpuweb.github.io/gpuweb/#dom-gpubufferdescriptor-mappedatcreation
@@ -335,7 +397,6 @@ void WebGpuUIRendererBackend::uploadBuffersAndDraw(
          */
         frame.vertexDataSize = drawData->TotalVtxCount * sizeof(ImDrawVert);
         frame.indexDataSize = drawData->TotalIdxCount * sizeof(ImDrawIdx);
-
         const uint8_t BUFFER_SIZE_ALIGNMENT = 4;
         size_t vertexBufferSize = frame.vertexDataSize + BUFFER_SIZE_ALIGNMENT
             - (frame.vertexDataSize % BUFFER_SIZE_ALIGNMENT);
@@ -378,8 +439,9 @@ void WebGpuUIRendererBackend::uploadBuffersAndDraw(
         }
 
         frame.vertexBuffer.Unmap();
-        frame.indexBuffer.Unmap();
+        frame.indexBuffer.Unmap();    
     }
+#endif
 
     auto passEncoder = wgpuRenderingContext.requestCommandBuffer();
 
@@ -440,10 +502,10 @@ void WebGpuUIRendererBackend::uploadBuffersAndDraw(
                         clipRect.y = 0.0f;
 
                     passEncoder.SetScissorRect(
-                        clipRect.x,
-                        clipRect.y,
-                        clipRect.z - clipRect.x,
-                        clipRect.w - clipRect.y);
+                        static_cast<uint32_t>(clipRect.x),
+                        static_cast<uint32_t>(clipRect.y),
+                        static_cast<uint32_t>(clipRect.z - clipRect.x),
+                        static_cast<uint32_t>(clipRect.w - clipRect.y));
                     passEncoder.DrawIndexed(
                         pcmd->ElemCount,
                         1,
@@ -470,13 +532,13 @@ void WebGpuUIRendererBackend::setupRenderState(
 
     if (drawData->TotalVtxCount > 0)
     {
-        encoder.SetVertexBuffer(0, frame.vertexBuffer, 0, frame.vertexDataSize);
+        encoder.SetVertexBuffer(0, frame.vertexBuffer, 0, frame.vertexBufferSize);
         encoder.SetIndexBuffer(
             frame.indexBuffer,
             sizeof(ImDrawIdx) == 2 ? wgpu::IndexFormat::Uint16
                                    : wgpu::IndexFormat::Uint32,
             0,
-            frame.indexDataSize);
+            frame.indexBufferSize);
     }
 
     /* Setup blend factor */
@@ -484,7 +546,8 @@ void WebGpuUIRendererBackend::setupRenderState(
     encoder.SetBlendColor(&blendColor);
 
     /* Viewport */
-    encoder.SetViewport(0, 0, fbWidth, fbHeight, 0, 1);
+    encoder.SetViewport(
+        0, 0, static_cast<float>(fbWidth), static_cast<float>(fbHeight), 0.0f, 1.0f);
 
     /* Setup scale and translation through an uniform :
      * The visible imgui space lies from draw_data->DisplayPos (top left) to
