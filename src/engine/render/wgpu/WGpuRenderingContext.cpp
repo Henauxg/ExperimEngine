@@ -91,7 +91,11 @@ void WebGpuRenderingContext::submitFrame()
         commandBuffers.push_back(encoders_.at(i).Finish());
     }
 
-    queue_.Submit(commandBuffers.size(), commandBuffers.data());
+    queue_.Submit(
+        static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+#ifndef __EMSCRIPTEN__
+    swapchain_.Present();
+#endif // !__EMSCRIPTEN__
 
     frameToSubmit_ = false;
 }

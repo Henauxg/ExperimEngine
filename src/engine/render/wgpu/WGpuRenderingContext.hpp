@@ -1,8 +1,6 @@
 #pragma once
 
-#ifdef __EMSCRIPTEN__
 #include <webgpu/webgpu_cpp.h>
-#endif
 
 #include <engine/render/RenderingContext.hpp>
 #include <engine/render/Window.hpp>

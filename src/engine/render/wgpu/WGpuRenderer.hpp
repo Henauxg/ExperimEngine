@@ -2,9 +2,7 @@
 
 #include <SDL2\SDL_events.h>
 
-#ifdef __EMSCRIPTEN__
 #include <webgpu/webgpu_cpp.h>
-#endif
 
 #include <engine/render/Renderer.hpp>
 #include <engine/render/Window.hpp>

@@ -39,7 +39,11 @@ WebGpuRenderer::WebGpuRenderer(
         SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
     /* Device */
+#ifdef __EMSCRIPTEN__
     device_ = wgpu::Device::Acquire(emscripten_webgpu_get_device());
+#else
+
+#endif
     device_.SetUncapturedErrorCallback(
         [](WGPUErrorType errorType, const char* message, void* pUserData) {
             auto logger = (spdlog::logger*) pUserData;

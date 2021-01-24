@@ -1,8 +1,6 @@
 #pragma once
 
-#ifdef __EMSCRIPTEN__
 #include <webgpu/webgpu_cpp.h>
-#endif
 
 namespace expengine {
 namespace render {
