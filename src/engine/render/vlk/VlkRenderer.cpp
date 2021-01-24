@@ -61,10 +61,13 @@ void VulkanRenderer::prepareFrame() { imguiBackend_->prepareFrame(); }
 
 void VulkanRenderer::renderFrame()
 {
-    mainRenderingContext_->beginFrame();
+    const auto minimized = mainWindow_->isMinimized();
+    if (!minimized)
+        mainRenderingContext_->beginFrame();
     imguiBackend_->renderFrame();
     /* TODO Main RC rendering here */
-    mainRenderingContext_->submitFrame();
+    if (!minimized)
+        mainRenderingContext_->submitFrame();
 }
 
 void VulkanRenderer::handleEvent(const SDL_Event& event)
