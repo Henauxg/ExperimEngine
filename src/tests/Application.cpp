@@ -3,10 +3,11 @@
 #include <iostream>
 
 #include <engine/Engine.hpp>
+#include <engine/log/ExpengineLog.hpp>
+#include <engine/render/imgui/lib/imgui.h>
 #include <engine/utils/Utils.hpp>
 
 #ifndef __EMSCRIPTEN__
-#include <engine/render/imgui/lib/imgui.h>
 #include <tests/lua/Quicktest.hpp>
 #endif // !__EMSCRIPTEN__
 
@@ -57,12 +58,12 @@ void Application::tick()
     if (show_demo_window)
         ImGui::ShowDemoWindow(&show_demo_window);
 #endif
-#if 0
+#if 1
     ImGui::Begin("SimpleWindow");
 
     ImGui::Text("Hello, world %d", 123);
     if (ImGui::Button("Log"))
-        SPDLOG_LOGGER_INFO(logger_, "Log");
+        SPDLOG_INFO("Log");
     static float f = 0;
     ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
 
