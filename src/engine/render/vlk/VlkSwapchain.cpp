@@ -153,7 +153,9 @@ vk::Result Swapchain::presentImage(
         .swapchainCount = 1,
         .pSwapchains = &swapchain_.get(),
         .pImageIndices = &imageIndex};
-    return presentQueue.presentKHR(presInfo);
+    /* Explicitly give a pointer to use the "non-enhanced" function. This enable
+     * custom error code handling. */
+    return presentQueue.presentKHR(&presInfo);
 }
 
 /* Based on
