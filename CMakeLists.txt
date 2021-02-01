@@ -53,6 +53,10 @@ if(WEB_TARGET)
 	# This is already defined by the toolchain,
 	# but redefined here so that Visual Studio/Intellisense can pick it up
 	add_compile_definitions(__EMSCRIPTEN__)
+else()
+	target_include_directories(ExperimEngine PUBLIC
+		${PROJECT_SOURCE_DIR}/includes/dawn
+	)
 endif()
 
 # Windows specific : linking
@@ -82,10 +86,12 @@ else()
 	# Link with libraries.
 	# TODO : x64/x86 flags
 	set(LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
-	target_link_libraries(ExperimEngine PRIVATE 
+	target_link_libraries(ExperimEngine PRIVATE
 		${LIBS_DIR}/lua/lua51.lib
 		${LIBS_DIR}/SDL2/x64/SDL2.lib
 		${LIBS_DIR}/SDL2/x64/SDL2main.lib
+		#${LIBS_DIR}/dawn/dawn_native.dll.lib
+		#${LIBS_DIR}/dawn/dawn_platform.dll.lib
 		# shaderc
 	)
 
