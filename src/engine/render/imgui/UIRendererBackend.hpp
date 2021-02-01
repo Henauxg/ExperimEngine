@@ -38,7 +38,8 @@ protected:
         ImGuiViewportRendererData* renderData,
         ImDrawData* drawData,
         uint32_t fbWidth,
-        uint32_t fbHeight) const = 0;
+        uint32_t fbHeight)
+        = 0;
 
     /* ImGui */
     const std::shared_ptr<ImGuiContextWrapper> imguiContext_;

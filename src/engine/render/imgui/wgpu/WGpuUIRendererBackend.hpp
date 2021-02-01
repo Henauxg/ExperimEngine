@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+
 #include <webgpu/webgpu_cpp.h>
 
 #include <engine/render/imgui/UIRendererBackend.hpp>
@@ -32,7 +34,7 @@ public:
         ImGuiViewportRendererData* rendererData,
         ImDrawData* drawData,
         uint32_t fbWidth,
-        uint32_t fbHeight) const override;
+        uint32_t fbHeight) override;
 
 private:
     /* References */
@@ -46,7 +48,8 @@ private:
     std::unique_ptr<Texture> fontTexture_;
     wgpu::BindGroup commonBindGroup_;
     wgpu::BindGroupLayout imageBindGroupLayout_;
-    wgpu::BindGroup imageBindGroup_;
+    wgpu::BindGroup fontImageBindGroup_;
+    std::unordered_map<ImTextureID, wgpu::BindGroup> imageBindGroupsStorage_;
 
     void setupRenderState(
         wgpu::RenderPassEncoder encoder,

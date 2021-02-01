@@ -6,6 +6,7 @@
 
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/imgui/ImGuiViewportPlatformData.hpp>
+#include <engine/render/imgui/lib/imgui_internal.h>
 #include <engine/render/imgui/wgpu/spirv/wgpu_imgui_shaders_spirv.h>
 #include <engine/render/wgpu/WGpuRenderer.hpp>
 #include <engine/render/wgpu/WGpuRenderingContext.hpp>
@@ -30,7 +31,6 @@ const uint32_t FAKE_SWAPCHAIN_IMAGE_COUNT = 3;
 
 } // namespace
 
-/* TODO : Custom texture handling */
 /* TODO : Vertex/Index buffers encapsulation */
 /* TODO : Error handling for WebGPU objects */
 
@@ -310,14 +310,17 @@ void WebGpuUIRendererBackend::uploadFonts()
         .layout = imageBindGroupLayout_,
         .entryCount = 1,
         .entries = &imageBindGroupEntry};
-    imageBindGroup_ = device_.CreateBindGroup(&imageBindGroupDesc);
+    fontImageBindGroup_ = device_.CreateBindGroup(&imageBindGroupDesc);
+    /* Store the font texture view handle as an ID and store a reference to its
+     * BindGroup */
+    imageBindGroupsStorage_.emplace(io.Fonts->TexID, fontImageBindGroup_);
 }
 
 void WebGpuUIRendererBackend::uploadBuffersAndDraw(
     ImGuiViewportRendererData* rendererData,
     ImDrawData* drawData,
     uint32_t fbWidth,
-    uint32_t fbHeight) const
+    uint32_t fbHeight)
 {
     auto wgpuViewportData
         = dynamic_cast<WGpuImGuiViewportRendererData*>(rendererData);
@@ -486,7 +489,31 @@ void WebGpuUIRendererBackend::uploadBuffersAndDraw(
             }
             else
             {
-                passEncoder.SetBindGroup(1, imageBindGroup_);
+                /* Custom texture binding : try to find the BindGroup associated to
+                 * the TexID */
+                auto bindGroup = imageBindGroupsStorage_.find(pcmd->TextureId);
+                if (bindGroup != imageBindGroupsStorage_.end())
+                {
+                    /* Use the existing BindGroup */
+                    passEncoder.SetBindGroup(1, bindGroup->second);
+                }
+                else
+                {
+                    /* Create a new BindGroupd for this texture and store it */
+                    wgpu::BindGroupEntry imageBindGroupEntry {
+                        .binding = 0,
+                        .textureView = (WGPUTextureView) pcmd->TextureId};
+                    wgpu::BindGroupDescriptor imageBindGroupDesc {
+                        .layout = imageBindGroupLayout_,
+                        .entryCount = 1,
+                        .entries = &imageBindGroupEntry};
+                    auto createdBindGroup
+                        = device_.CreateBindGroup(&imageBindGroupDesc);
+                    imageBindGroupsStorage_.emplace(
+                        pcmd->TextureId, createdBindGroup);
+
+                    passEncoder.SetBindGroup(1, createdBindGroup);
+                }
 
                 /* Project scissor/clipping rectangles into framebuffer space */
                 ImVec4 clipRect {

@@ -41,7 +41,7 @@ public:
         ImGuiViewportRendererData* renderData,
         ImDrawData* drawData,
         uint32_t fbWidth,
-        uint32_t fbHeight) const override;
+        uint32_t fbHeight) override;
 
 private:
     /* References */

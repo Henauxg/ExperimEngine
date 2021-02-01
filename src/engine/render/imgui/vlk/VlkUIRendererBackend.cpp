@@ -312,7 +312,7 @@ void VulkanUIRendererBackend::uploadBuffersAndDraw(
     ImGuiViewportRendererData* rendererData,
     ImDrawData* drawData,
     uint32_t fbWidth,
-    uint32_t fbHeight) const
+    uint32_t fbHeight)
 {
     auto vlkViewportData = dynamic_cast<VkImGuiViewportRendererData*>(rendererData);
     auto& vlkRenderingContext
