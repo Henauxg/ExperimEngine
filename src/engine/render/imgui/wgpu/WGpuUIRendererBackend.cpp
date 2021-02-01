@@ -220,8 +220,8 @@ WebGpuUIRendererBackend::WebGpuUIRendererBackend(
         .format = SWAPCHAIN_TEXTURE_FORMAT, .writeMask = wgpu::ColorWriteMask::All};
     colorState.alphaBlend
         = {.operation = wgpu::BlendOperation::Add,
-           .srcFactor = wgpu::BlendFactor::OneMinusSrcAlpha,
-           .dstFactor = wgpu::BlendFactor::Zero};
+           .srcFactor = wgpu::BlendFactor::One,
+           .dstFactor = wgpu::BlendFactor::OneMinusSrcAlpha};
     colorState.colorBlend
         = {.operation = wgpu::BlendOperation::Add,
            .srcFactor = wgpu::BlendFactor::SrcAlpha,
