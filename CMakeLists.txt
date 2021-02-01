@@ -73,7 +73,7 @@ endif()
 #  Web-target specific : linking and post-build commands
 if(WEB_TARGET)
 	# Preload runtime files to a virtual file system
-	set_target_properties(ExperimEngine PROPERTIES LINK_FLAGS "-s USE_SDL=2 -s USE_WEBGPU=1 --preload-file ${PROJECT_SOURCE_DIR}/data@/data") 
+	set_target_properties(ExperimEngine PROPERTIES LINK_FLAGS "-s USE_SDL=2 -s USE_WEBGPU=1 -s ALLOW_MEMORY_GROWTH=1 --preload-file ${PROJECT_SOURCE_DIR}/data@/data") 
 
 	set(TOOLS_DIR ${PROJECT_SOURCE_DIR}/tools)
 	add_custom_command(TARGET ExperimEngine POST_BUILD
