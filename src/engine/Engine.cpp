@@ -6,7 +6,6 @@
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
-#include <engine/render/wgpu/WGpuRenderer.hpp>
 #else
 #include <engine/render/vlk/VlkRenderer.hpp>
 #include <spdlog/sinks/rotating_file_sink.h>
@@ -15,6 +14,7 @@
 #include <ExperimEngineConfig.h>
 #include <engine/render/Renderer.hpp>
 #include <engine/render/Window.hpp>
+#include <engine/render/wgpu/WGpuRenderer.hpp>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace {
@@ -80,7 +80,7 @@ Engine::Engine(const std::string& appName, const uint32_t appVersion)
         DEFAULT_WINDOW_HEIGHT,
         engineParams_);
 #else
-    renderer_ = std::make_unique<render::vlk::VulkanRenderer>(
+     renderer_ = std::make_unique<render::vlk::VulkanRenderer>(
         appName,
         appVersion,
         DEFAULT_WINDOW_WIDTH,
