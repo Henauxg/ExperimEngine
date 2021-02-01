@@ -11,6 +11,8 @@
 #include <engine/render/wgpu/WGpuRenderingContext.hpp>
 #include <engine/render/wgpu/resources/WGpuTexture.hpp>
 
+// #define DISABLE_MAPPED_VTX_IDX_BUFFERS 1
+
 namespace {
 
 const std::string RENDERER_BACKEND_NAME = "ExperimEngine_WebGPU_Renderer";
@@ -38,10 +40,11 @@ namespace webgpu {
 
 struct FrameRenderBuffers {
     wgpu::Buffer vertexBuffer = nullptr;
-    size_t vertexBufferSize = 0;
     wgpu::Buffer indexBuffer = nullptr;
+#ifdef DISABLE_MAPPED_VTX_IDX_BUFFERS
+    size_t vertexBufferSize = 0;
     size_t indexBufferSize = 0;
-#if 0
+#else
     uint32_t vertexDataSize = 0;
     uint32_t indexDataSize = 0;
 #endif
@@ -327,6 +330,7 @@ void WebGpuUIRendererBackend::uploadBuffersAndDraw(
 
     auto& frame = wgpuViewportData->requestFrameRenderBuffers();
 
+#ifdef DISABLE_MAPPED_VTX_IDX_BUFFERS
     if (drawData->TotalVtxCount > 0)
     {
         /* Buffer size must be a multiple of 4
@@ -385,9 +389,8 @@ void WebGpuUIRendererBackend::uploadBuffersAndDraw(
             frame.vertexBuffer, 0, localVtxBuff.get(), vertexBufferSize);
         queue.WriteBuffer(frame.indexBuffer, 0, localIdxBuff.get(), indexBufferSize);
     }
-    /* This is not working. Image flickering */
-#if 0
-        if (drawData->TotalVtxCount > 0)
+#else
+    if (drawData->TotalVtxCount > 0)
     {
         /* With mappedAtCreation to true, buffer size must be a multiple of 4
          * See
@@ -439,7 +442,7 @@ void WebGpuUIRendererBackend::uploadBuffersAndDraw(
         }
 
         frame.vertexBuffer.Unmap();
-        frame.indexBuffer.Unmap();    
+        frame.indexBuffer.Unmap();
     }
 #endif
 
@@ -532,13 +535,20 @@ void WebGpuUIRendererBackend::setupRenderState(
 
     if (drawData->TotalVtxCount > 0)
     {
-        encoder.SetVertexBuffer(0, frame.vertexBuffer, 0, frame.vertexBufferSize);
+#ifdef DISABLE_MAPPED_VTX_IDX_BUFFERS
+        size_t vtxSize = frame.vertexBufferSize;
+        size_t idxSize = frame.vertexBufferSize;
+#else
+        size_t vtxSize = frame.vertexDataSize;
+        size_t idxSize = frame.indexDataSize;
+#endif
+        encoder.SetVertexBuffer(0, frame.vertexBuffer, 0, vtxSize);
         encoder.SetIndexBuffer(
             frame.indexBuffer,
             sizeof(ImDrawIdx) == 2 ? wgpu::IndexFormat::Uint16
                                    : wgpu::IndexFormat::Uint32,
             0,
-            frame.indexBufferSize);
+            idxSize);
     }
 
     /* Setup blend factor */
