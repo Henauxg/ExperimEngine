@@ -53,18 +53,38 @@ void Application::run()
 
 void Application::tick()
 {
-#ifndef __EMSCRIPTEN__
     static bool show_demo_window = true;
     if (show_demo_window)
         ImGui::ShowDemoWindow(&show_demo_window);
-#endif
+
 #if 1
-    ImGui::Begin("SimpleWindow");
+    ImGui::SetNextWindowBgAlpha(0.2f);
+    ImGui::Begin("SimpleWindow 0.2");
 
     ImGui::Text("Hello, world %d", 123);
     if (ImGui::Button("Log"))
         SPDLOG_INFO("Log");
     static float f = 0;
+    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+
+    ImGui::End();
+
+    ImGui::SetNextWindowBgAlpha(0.5f);
+    ImGui::Begin("SimpleWindow 0.5");
+
+    ImGui::Text("Hello, world %d", 123);
+    if (ImGui::Button("Log"))
+        SPDLOG_INFO("Log");
+    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+
+    ImGui::End();
+
+    ImGui::SetNextWindowBgAlpha(0.8f);
+    ImGui::Begin("SimpleWindow 0.8");
+
+    ImGui::Text("Hello, world %d", 123);
+    if (ImGui::Button("Log"))
+        SPDLOG_INFO("Log");
     ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
 
     ImGui::End();

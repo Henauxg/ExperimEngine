@@ -1,4 +1,4 @@
-target_sources(ExperimEngine
+target_sources(${ENGINE_BUILD_TARGET_NAME}
     PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/Flags.hpp
 		${CMAKE_CURRENT_SOURCE_DIR}/Utils.hpp

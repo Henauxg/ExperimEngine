@@ -6,12 +6,17 @@ project(ExperimEngine VERSION 0.0.1)
  set(CMAKE_CXX_STANDARD 20)
  set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Executable and header configuration
+# Header configuration
 configure_file(ExperimEngineConfig.h.in ExperimEngineConfig.h)
-add_executable(ExperimEngine "")
+# Build the engine library
+add_library(LibExperimEngine STATIC "")
+set(ENGINE_BUILD_TARGET_NAME LibExperimEngine)
+
+#####################
+# Engine sources
+#####################
 
 # Sources & headers inclusion
-add_subdirectory(src/tests)
 add_subdirectory(src/engine)
 add_subdirectory(src/engine/log)
 add_subdirectory(src/engine/render)
@@ -23,8 +28,6 @@ if(NOT WEB_TARGET)
 	add_subdirectory(src/engine/render/vlk)
 	add_subdirectory(src/engine/render/vlk/resources)
 	add_subdirectory(src/engine/render/imgui/vlk)
-	# Lua interpreter/jit not yet compiled to WASM
-	add_subdirectory(src/tests/lua)
 else()
 	add_subdirectory(src/engine/render/wgpu)
 	add_subdirectory(src/engine/render/wgpu/resources)
@@ -34,59 +37,51 @@ endif()
 # Here if needed : add external CMake build files :
 # add_subdirectory(external/shaderc)
 
+#####################
+# Includes
+#####################
+
 # Common includes
-target_include_directories(ExperimEngine PUBLIC
+target_include_directories(${ENGINE_BUILD_TARGET_NAME} PUBLIC
 	# For CMake generated headers
     ${PROJECT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/includes
 	${PROJECT_SOURCE_DIR}/includes/lua
 	${PROJECT_SOURCE_DIR}/src
 )
-# Web-target includes/compile definitions
+
+# Web-target
 if(WEB_TARGET)
-	# Unused as of now since a custom template is used
+	# Unused line below can be used to generate the emscripten html wrapper, since a custom template is used
 	# set(CMAKE_EXECUTABLE_SUFFIX ".html")
-	target_include_directories(ExperimEngine PUBLIC
+	target_include_directories(${ENGINE_BUILD_TARGET_NAME} PUBLIC
 		# Emscripten headers
 		"${EMSCRIPTEN_ROOT_PATH}/system/include"
 	)
 	# This is already defined by the toolchain,
 	# but redefined here so that Visual Studio/Intellisense can pick it up
 	add_compile_definitions(__EMSCRIPTEN__)
+
+# Native
 else()
-	target_include_directories(ExperimEngine PUBLIC
+	target_include_directories(${ENGINE_BUILD_TARGET_NAME} PUBLIC
 		${PROJECT_SOURCE_DIR}/includes/dawn
 	)
 endif()
 
-# Windows specific : linking
-if(WIN32)
-	if(CMAKE_BUILD_TYPE STREQUAL Release)
-		message("Console disabled in win32-release build")
-		set_target_properties(
-			ExperimEngine PROPERTIES
-			LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE"
-			LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-	endif()
-endif()
+#####################
+# Linking
+#####################
 
-#  Web-target specific : linking and post-build commands
+#  Web-target specific
 if(WEB_TARGET)
-	# Preload runtime files to a virtual file system
-	set_target_properties(ExperimEngine PROPERTIES LINK_FLAGS "-s USE_SDL=2 -s USE_WEBGPU=1 -s ALLOW_MEMORY_GROWTH=1 --preload-file ${PROJECT_SOURCE_DIR}/data@/data") 
 
-	set(TOOLS_DIR ${PROJECT_SOURCE_DIR}/tools)
-	add_custom_command(TARGET ExperimEngine POST_BUILD
-		# Web html template
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${TOOLS_DIR}/emscripten/index.html ${CMAKE_BINARY_DIR}
-	)
-
-# Native specific : linking and post-build commands
+# Native specific
 else()
 	# Link with libraries.
 	# TODO : x64/x86 flags
 	set(LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
-	target_link_libraries(ExperimEngine PRIVATE
+	target_link_libraries(${ENGINE_BUILD_TARGET_NAME} PRIVATE
 		${LIBS_DIR}/lua/lua51.lib
 		${LIBS_DIR}/SDL2/x64/SDL2.lib
 		${LIBS_DIR}/SDL2/x64/SDL2main.lib
@@ -94,9 +89,55 @@ else()
 		#${LIBS_DIR}/dawn/dawn_platform.dll.lib
 		# shaderc
 	)
+endif()
+
+#####################
+# Build an application
+#####################
+
+if(NOT DEFINED ENGINE_APP_BUILD_TARGET_NAME)
+	add_executable(ExperimEngineTest "")
+	set(ENGINE_APP_BUILD_TARGET_NAME ExperimEngineTest)
+
+	add_subdirectory(src/tests)
+	if(NOT WEB_TARGET)
+		# Lua interpreter/jit not yet compiled to WASM
+		add_subdirectory(src/tests/lua)
+	endif()
+endif()
+
+target_link_libraries(${ENGINE_APP_BUILD_TARGET_NAME} LibExperimEngine)
+
+#####################
+# Linking and post build commands
+#####################
+
+#  Web-target specific
+if(WEB_TARGET)
+	# Preload runtime files to a virtual file system
+	set_target_properties(${ENGINE_APP_BUILD_TARGET_NAME} PROPERTIES LINK_FLAGS "-s USE_SDL=2 -s USE_WEBGPU=1 -s ALLOW_MEMORY_GROWTH=1 --preload-file ${PROJECT_SOURCE_DIR}/data@/data") 
+
+	set(TOOLS_DIR ${PROJECT_SOURCE_DIR}/tools)
+	add_custom_command(TARGET ${ENGINE_APP_BUILD_TARGET_NAME} POST_BUILD
+		# Web html template
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${TOOLS_DIR}/emscripten/index.html ${CMAKE_BINARY_DIR}
+	)
+
+# Native specific
+else()
+	# Windows specific : linking
+	if(WIN32)
+		if(CMAKE_BUILD_TYPE STREQUAL Release)
+			message("Console disabled in win32-release build")
+			set_target_properties(
+				${ENGINE_APP_BUILD_TARGET_NAME} PROPERTIES
+				LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE"
+				LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+		endif()
+	endif()
 
 	# Commands after each non-web build
-	add_custom_command(TARGET ExperimEngine POST_BUILD
+	add_custom_command(TARGET ${ENGINE_APP_BUILD_TARGET_NAME} POST_BUILD
 		# Binaries
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBS_DIR}/lua/lua51.dll ${CMAKE_BINARY_DIR}
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBS_DIR}/SDL2/x64/SDL2.dll ${CMAKE_BINARY_DIR}
@@ -104,7 +145,7 @@ else()
 endif()
 
 # Common commands after build
-add_custom_command(TARGET ExperimEngine POST_BUILD
+add_custom_command(TARGET ${ENGINE_APP_BUILD_TARGET_NAME} POST_BUILD
 	# Data files
 	COMMAND ${CMAKE_COMMAND} -E copy_directory  ${PROJECT_SOURCE_DIR}/data ${CMAKE_BINARY_DIR}/data
 )
