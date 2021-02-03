@@ -96,17 +96,17 @@ endif()
 #####################
 
 if(NOT DEFINED ENGINE_APP_BUILD_TARGET_NAME)
-	add_executable(ExperimEngineTest "")
 	set(ENGINE_APP_BUILD_TARGET_NAME ExperimEngineTest)
+	add_executable(${ENGINE_APP_BUILD_TARGET_NAME} "")
 
 	add_subdirectory(src/tests)
 	if(NOT WEB_TARGET)
 		# Lua interpreter/jit not yet compiled to WASM
 		add_subdirectory(src/tests/lua)
 	endif()
+	
+	target_link_libraries(${ENGINE_APP_BUILD_TARGET_NAME} LibExperimEngine)
 endif()
-
-target_link_libraries(${ENGINE_APP_BUILD_TARGET_NAME} LibExperimEngine)
 
 #####################
 # Linking and post build commands
@@ -137,7 +137,7 @@ else()
 	endif()
 
 	# Commands after each non-web build
-	add_custom_command(TARGET ${ENGINE_APP_BUILD_TARGET_NAME} POST_BUILD
+	add_custom_command(TARGET ${ENGINE_BUILD_TARGET_NAME} POST_BUILD
 		# Binaries
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBS_DIR}/lua/lua51.dll ${CMAKE_BINARY_DIR}
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LIBS_DIR}/SDL2/x64/SDL2.dll ${CMAKE_BINARY_DIR}
@@ -145,7 +145,7 @@ else()
 endif()
 
 # Common commands after build
-add_custom_command(TARGET ${ENGINE_APP_BUILD_TARGET_NAME} POST_BUILD
+add_custom_command(TARGET ${ENGINE_BUILD_TARGET_NAME} POST_BUILD
 	# Data files
 	COMMAND ${CMAKE_COMMAND} -E copy_directory  ${PROJECT_SOURCE_DIR}/data ${CMAKE_BINARY_DIR}/data
 )
