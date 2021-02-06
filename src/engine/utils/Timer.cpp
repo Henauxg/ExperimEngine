@@ -4,7 +4,7 @@
 
 namespace experim {
 
-double Timer::getPercentage()
+double Timer::getPercentage() const
 {
     if (duration_.count() > 0)
     {
@@ -16,7 +16,7 @@ double Timer::getPercentage()
     }
 }
 
-bool Timer::isExpired() { return getTimeLeft() <= 0; }
+bool Timer::isExpired() const { return getTimeLeft() <= 0; }
 
 bool Timer::justExpiredFlag()
 {
