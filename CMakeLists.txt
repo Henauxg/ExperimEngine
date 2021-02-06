@@ -106,6 +106,7 @@ target_compile_definitions(${ENGINE_LIB_TARGET_NAME} PUBLIC __EXPERIMENGINE__)
 # argument 'engineTarget' should be the cmake target of the application
 # argument 'engineRootPath' should be the path to the engine directory
 function(add_experimengine_target engineTarget engineRootPath)
+	message("Added ExperimEngine target ${engineTarget}") 
 
 	# Include directories to access the engine API
 	target_include_directories(${engineTarget} PUBLIC
