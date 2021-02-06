@@ -56,8 +56,6 @@ if(WEB_TARGET)
 	target_include_directories(${ENGINE_LIB_TARGET_NAME} PUBLIC
 		"${EMSCRIPTEN_ROOT_PATH}/system/include" # Emscripten headers
 	)
-	# This is already defined by the toolchain, but redefined here so that Visual Studio/Intellisense can pick it up
-	target_compile_definitions(${ENGINE_LIB_TARGET_NAME} __EMSCRIPTEN__)
 
 # Native
 else()
@@ -86,6 +84,18 @@ if(NOT WEB_TARGET)
 endif()
 
 #####################
+# Compile definitions
+#####################
+
+if(WEB_TARGET)
+# This is already defined by the toolchain, but redefined here so that Visual Studio/Intellisense can pick it up
+target_compile_definitions(${ENGINE_LIB_TARGET_NAME} PUBLIC __EMSCRIPTEN__)
+
+endif()
+
+target_compile_definitions(${ENGINE_LIB_TARGET_NAME} PUBLIC __EXPERIMENGINE__)
+
+#####################
 # For engine applications
 #####################
 
@@ -104,14 +114,13 @@ function(add_experimengine_target engineTarget engineRootPath)
 		${CMAKE_CURRENT_SOURCE_DIR}/src
 	)
 
-	# Web-target linking and compile definitions
+	# Web-target properties
 	if(WEB_TARGET)
 		# Preload runtime files to a virtual file system
 		# TODO Expose files as an argument
 		set_target_properties(${engineTarget} PROPERTIES LINK_FLAGS "-s USE_SDL=2 -s USE_WEBGPU=1 -s ALLOW_MEMORY_GROWTH=1 --preload-file ${PROJECT_SOURCE_DIR}/data@/data")
-		target_compile_definitions(${engineTarget} __EMSCRIPTEN__)
 
-	# Native linking and compile definitions
+	# Native properties
 	else()
 		# Windows specific : linking
 		if(WIN32)
