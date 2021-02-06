@@ -17,7 +17,7 @@ public:
     /**
      * @brief Create a timer with the specified duration in DefaultResolution
      */
-    Timer(double duration)
+    Timer(double duration = 0)
         : start_(Clock::now())
         , duration_(std::chrono::duration<double, DefaultResolution>(duration))
         , expiredFlag_(false)
@@ -45,8 +45,7 @@ public:
     }
 
     /**
-     * @brief Return a percentage of completion. Scale from 0 to 1, can be more
-     * than 1.
+     * @brief Return a percentage of completion. Scale from 0 to 1.
      */
     double getPercentage();
 
