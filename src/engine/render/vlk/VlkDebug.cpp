@@ -4,8 +4,7 @@
 
 #include <engine/render/vlk/VlkInclude.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -113,5 +112,4 @@ bool hasValidationLayerSupport(const std::vector<const char*> validationLayers)
 }
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

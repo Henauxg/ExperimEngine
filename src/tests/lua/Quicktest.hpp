@@ -1,10 +1,10 @@
 #pragma once
 
-namespace expengine {
+namespace experim {
 namespace quicktest {
 
 void testLuaJit();
 void testSol();
 
 } // namespace quicktest
-} // namespace expengine
+} // namespace experim

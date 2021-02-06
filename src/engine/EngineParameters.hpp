@@ -2,7 +2,8 @@
 
 #include <cstdint>
 
-namespace expengine {
+namespace experim {
+
 struct GraphicSettings {
 };
 
@@ -34,4 +35,5 @@ struct EngineParameters {
     EngineStatistics statistics;
     EngineTimings timings;
 };
-} // namespace expengine
+
+} // namespace experim

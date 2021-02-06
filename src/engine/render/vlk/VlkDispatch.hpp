@@ -2,8 +2,7 @@
 
 #include <engine/render/vlk/VlkInclude.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 class Device;
@@ -24,5 +23,4 @@ void specializeDeviceDispatch(
     vk::DispatchLoaderDynamic& dispatchloader);
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

@@ -5,8 +5,7 @@
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 bool hasInstanceExtensionsSupport(std::vector<const char*> requiredExtensions)
@@ -311,5 +310,4 @@ PhysicalDeviceDetails ratePhysicalDeviceSuitability(
 }
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

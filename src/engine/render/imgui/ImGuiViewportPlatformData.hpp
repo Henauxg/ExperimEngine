@@ -4,8 +4,7 @@
 
 #include <engine/render/Window.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 
 /** Helper structure stored in the void* PlatformUserData field of each
  * ImGuiViewport to easily retrieve platfrom backend data. */
@@ -19,5 +18,4 @@ struct ImGuiViewportPlatformData {
     ~ImGuiViewportPlatformData() { }
 };
 
-} // namespace render
-} // namespace expengine
+} // namespace experim

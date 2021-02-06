@@ -3,8 +3,7 @@
 #include <engine/render/vlk/VlkDebug.hpp>
 #include <engine/render/vlk/VlkDevice.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 Image::Image(
@@ -196,5 +195,4 @@ void Image::transitionImageLayout(
 }
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

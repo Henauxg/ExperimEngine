@@ -21,8 +21,7 @@ const std::string RENDERER_BACKEND_NAME = "ExperimEngine_Vulkan_Renderer";
 
 } // namespace
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 struct FrameRenderBuffers {
@@ -488,5 +487,4 @@ void VulkanUIRendererBackend::setupRenderState(
 }
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

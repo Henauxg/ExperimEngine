@@ -10,7 +10,7 @@
 
 #include <spdlog/spdlog.h>
 
-namespace expengine {
+namespace experim {
 
 const std::string LOGGER_NAME = "expengine_main_logger";
 
@@ -30,4 +30,4 @@ const std::string LOG_FILE = LOG_DIRECTORY + "/expengine_log.txt";
         }                                                                           \
     } while (0)
 
-} // namespace expengine
+} // namespace experim

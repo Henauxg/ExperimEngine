@@ -6,6 +6,7 @@
 #include <engine/log/ExpengineLog.hpp>
 
 namespace experim {
+namespace render {
 
 Window::Window(int width, int height, const std::string& title, uint32_t flags)
 {
@@ -114,4 +115,5 @@ void* Window::getPlatformHandleRaw() const
     return (void*) sdlWindow_;
 }
 
-} // namespace experim
+} // namespace render
+} // namespace expeng

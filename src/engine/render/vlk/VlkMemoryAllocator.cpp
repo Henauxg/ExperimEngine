@@ -5,8 +5,7 @@
 #include <engine/render/vlk/resources/VlkBuffer.hpp>
 #include <engine/render/vlk/resources/VlkImage.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 MemoryAllocator::MemoryAllocator(
@@ -191,5 +190,4 @@ std::unique_ptr<vlk::Image> MemoryAllocator::createImage(
 }
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

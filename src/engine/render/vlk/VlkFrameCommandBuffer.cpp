@@ -7,8 +7,7 @@ namespace {
 
 } // namespace
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 FrameCommandBuffer::FrameCommandBuffer(
@@ -118,5 +117,4 @@ void FrameCommandBuffer::drawIndexed(
 }
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

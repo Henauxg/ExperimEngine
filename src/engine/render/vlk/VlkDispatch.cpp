@@ -12,8 +12,7 @@ vk::DynamicLoader g_dl;
 bool g_dispatchInitialized = false;
 } // namespace
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 vk::DispatchLoaderDynamic& initializeDispatch()
@@ -43,5 +42,4 @@ void specializeDeviceDispatch(
 }
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

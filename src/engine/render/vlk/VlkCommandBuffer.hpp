@@ -2,8 +2,7 @@
 
 #include <engine/render/vlk/VlkInclude.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 class Device;
@@ -35,5 +34,4 @@ protected:
 };
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

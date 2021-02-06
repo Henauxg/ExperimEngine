@@ -37,15 +37,15 @@ int main(int argc, char* argv[])
 Application::Application()
 {
     engine_
-        = std::make_unique<expengine::Engine>(APPLICATION_NAME, APPLICATION_VERSION);
+        = std::make_unique<experim::Engine>(APPLICATION_NAME, APPLICATION_VERSION);
     engine_->onTick(this);
 }
 
 void Application::run()
 {
 #ifndef __EMSCRIPTEN__
-    expengine::quicktest::testSol();
-    expengine::quicktest::testLuaJit();
+    experim::quicktest::testSol();
+    experim::quicktest::testLuaJit();
 #endif // !__EMSCRIPTEN__
 
     engine_->run();

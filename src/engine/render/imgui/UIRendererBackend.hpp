@@ -11,8 +11,7 @@ namespace spdlog {
 class logger;
 }
 
-namespace expengine {
-namespace render {
+namespace experim {
 
 class ImGuiContextWrapper;
 class RenderingContext;
@@ -48,5 +47,4 @@ protected:
     std::shared_ptr<spdlog::logger> logger_;
 };
 
-} // namespace render
-} // namespace expengine
+} // namespace experim

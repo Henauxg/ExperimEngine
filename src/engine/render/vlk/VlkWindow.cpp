@@ -4,8 +4,7 @@
 
 #include <engine/log/ExpengineLog.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 VulkanWindow::VulkanWindow(
@@ -85,5 +84,4 @@ std::pair<uint32_t, uint32_t> VulkanWindow::getDrawableSizeInPixels() const
 }
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

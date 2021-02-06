@@ -13,8 +13,7 @@ namespace spdlog {
 class logger;
 }
 
-namespace expengine {
-namespace render {
+namespace experim {
 
 class Window;
 class ImGuiContextWrapper;
@@ -56,5 +55,4 @@ private:
     void UpdateGamepads();
 };
 
-} // namespace render
-} // namespace expengine
+} // namespace experim

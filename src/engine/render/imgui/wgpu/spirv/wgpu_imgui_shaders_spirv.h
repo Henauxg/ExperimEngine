@@ -1,7 +1,6 @@
 #pragma once
 
-namespace expengine {
-namespace render {
+namespace experim {
 
 // glsl_shader.vert, compiled with:
 // # glslangValidator -V -x -o glsl_shader.vert.u32 glsl_shader.vert
@@ -127,5 +126,4 @@ const uint32_t __glsl_wgpu_shader_frag_spv[]
        0x00000020, 0x00050085, 0x00000007, 0x00000022, 0x00000012, 0x00000021,
        0x0003003e, 0x00000009, 0x00000022, 0x000100fd, 0x00010038};
 
-} // namespace render
-} // namespace expengine
+} // namespace experim

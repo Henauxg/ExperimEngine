@@ -4,8 +4,7 @@
 #include <engine/render/vlk/VlkInclude.hpp>
 #include <engine/render/vlk/resources/VlkImage.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 class Image;
@@ -45,5 +44,4 @@ private:
     vk::DescriptorImageInfo descriptorInfo_;
 };
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

@@ -6,12 +6,10 @@
 #include <engine/EngineParameters.hpp>
 #include <engine/log/ExpengineLog.hpp>
 
-namespace expengine {
+namespace experim {
 
-namespace render {
 class Renderer;
 class Window;
-} // namespace render
 
 class Engine {
 public:
@@ -27,8 +25,8 @@ public:
 
 private:
     /* Owned objects */
-    std::unique_ptr<render::Renderer> renderer_;
-    std::shared_ptr<render::Window> mainWindow_;
+    std::unique_ptr<Renderer> renderer_;
+    std::shared_ptr<Window> mainWindow_;
 
     EngineParameters engineParams_;
 
@@ -50,4 +48,4 @@ private:
 #endif
 };
 
-} // namespace expengine
+} // namespace experim

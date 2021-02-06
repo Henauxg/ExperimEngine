@@ -1,7 +1,6 @@
 #include "ImguiLog.hpp"
 
-namespace expengine {
-namespace render {
+namespace experim {
 
 ImguiLog::ImguiLog(int logCapacity)
     : logCapacity_(logCapacity)
@@ -170,5 +169,4 @@ void ImguiLog::draw()
     ImGui::EndChild();
 }
 
-} // namespace render
-} // namespace expengine
+} // namespace experim

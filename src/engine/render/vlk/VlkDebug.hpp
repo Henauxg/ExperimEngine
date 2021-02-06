@@ -5,8 +5,7 @@
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/vlk/VlkInclude.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 #if defined(__ANDROID__)
@@ -61,5 +60,4 @@ void destroyDebugUtilsMessengerEXT(
     vk::DebugUtilsMessengerEXT debugMessenger);
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

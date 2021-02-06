@@ -2,8 +2,7 @@
 
 #include <webgpu/webgpu_cpp.h>
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace webgpu {
 
 class Texture {
@@ -30,5 +29,4 @@ private:
 };
 
 } // namespace webgpu
-} // namespace render
-} // namespace expengine
+} // namespace experim

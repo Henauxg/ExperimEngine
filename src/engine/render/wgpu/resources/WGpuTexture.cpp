@@ -1,7 +1,6 @@
 #include "WGpuTexture.hpp"
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace webgpu {
 
 Texture::Texture(
@@ -59,5 +58,4 @@ Texture::Texture(
 }
 
 } // namespace webgpu
-} // namespace render
-} // namespace expengine
+} // namespace experim

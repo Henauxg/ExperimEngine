@@ -5,8 +5,7 @@
 
 struct SDL_Window;
 
-namespace expengine {
-namespace render {
+namespace experim {
 
 class Window {
 public:
@@ -45,5 +44,4 @@ protected:
     struct SDL_Window* sdlWindow_;
 };
 
-} // namespace render
-} // namespace expengine
+} // namespace experim

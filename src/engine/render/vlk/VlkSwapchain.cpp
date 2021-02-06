@@ -29,8 +29,7 @@ std::vector<vk::PresentModeKHR> PRESENT_MODE_PRIORITY_LIST
 
 } // namespace
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 Swapchain::Swapchain(
@@ -323,5 +322,4 @@ vk::Extent2D Swapchain::chooseSwapExtent(
 }
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

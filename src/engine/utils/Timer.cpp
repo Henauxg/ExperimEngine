@@ -1,6 +1,6 @@
 #include "timer.hpp"
 
-namespace expengine {
+namespace experim {
 
 double Timer::getPercentage()
 {
@@ -35,4 +35,4 @@ void Timer::reset()
     start_ = Clock::now();
 }
 
-} // namespace expengine
+} // namespace experim

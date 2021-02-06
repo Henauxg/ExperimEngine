@@ -17,8 +17,7 @@ namespace {
 }
 
 /* Inspired by https://github.com/kainino0x/webgpu-cross-platform-demo */
-namespace expengine {
-namespace render {
+namespace experim {
 namespace webgpu {
 
 WebGpuRenderer::WebGpuRenderer(
@@ -99,5 +98,4 @@ void WebGpuRenderer::waitIdle()
 std::shared_ptr<Window> WebGpuRenderer::getMainWindow() { return mainWindow_; }
 
 } // namespace webgpu
-} // namespace render
-} // namespace expengine
+} // namespace experim

@@ -11,8 +11,7 @@ namespace {
 
 } // namespace
 
-namespace expengine {
-namespace render {
+namespace experim {
 
 /* Delegates */
 static void ImGui_ImplExpengine_CreateWindow(ImGuiViewport* viewport);
@@ -158,5 +157,4 @@ static void ImGui_ImplExpengine_RenderWindow(
 
 static void ImGui_ImplExpengine_SwapBuffers(ImGuiViewport*, void*) { }
 
-} // namespace render
-} // namespace expengine
+} // namespace experim

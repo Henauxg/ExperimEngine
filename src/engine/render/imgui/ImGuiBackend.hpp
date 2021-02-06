@@ -9,8 +9,7 @@ namespace spdlog {
 class logger;
 }
 
-namespace expengine {
-namespace render {
+namespace experim {
 
 class RenderingContext;
 class Window;
@@ -46,5 +45,4 @@ private:
     std::shared_ptr<spdlog::logger> logger_;
 };
 
-} // namespace render
-} // namespace expengine
+} // namespace experim

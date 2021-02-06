@@ -6,8 +6,7 @@
 
 #include <engine/render/imgui/UIRendererBackend.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 
 class Renderer;
 
@@ -60,5 +59,4 @@ private:
 };
 
 } // namespace webgpu
-} // namespace render
-} // namespace expengine
+} // namespace experim

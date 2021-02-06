@@ -4,8 +4,7 @@
 
 #include <engine/render/RenderingContext.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 
 /** Abstract class. The renderer-specific derived class is stored in the void*
  * RenderUserData field of each ImGuiViewport to easily retrieve rendering backend
@@ -31,5 +30,4 @@ protected:
     virtual void onSurfaceChange() = 0;
 };
 
-} // namespace render
-} // namespace expengine
+} // namespace experim

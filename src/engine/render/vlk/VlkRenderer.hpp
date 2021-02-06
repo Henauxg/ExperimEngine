@@ -5,8 +5,7 @@
 #include <engine/render/Renderer.hpp>
 #include <engine/render/vlk/VlkDevice.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 
 class ImguiBackend;
 
@@ -61,5 +60,4 @@ private:
 };
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

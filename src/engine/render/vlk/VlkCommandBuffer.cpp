@@ -6,8 +6,7 @@ namespace {
 
 } // namespace
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 CommandBuffer::CommandBuffer(const vlk::Device& device, vk::CommandPool commandPool)
@@ -58,5 +57,4 @@ void CommandBuffer::copyBufferToImage(
 }
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

@@ -2,8 +2,7 @@
 
 #include <engine/render/imgui/lib/imgui.h>
 
-namespace expengine {
-namespace render {
+namespace experim {
 
 /** Inspired by ImGui log example in the demo window, but with a maximal
  * buffer capacity and double-buffered to keep recent history when max
@@ -38,5 +37,4 @@ private:
     ImGuiTextFilter filter_;
 };
 
-} // namespace render
-} // namespace expengine
+} // namespace experim

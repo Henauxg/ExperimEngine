@@ -12,8 +12,7 @@ namespace spdlog {
 class logger;
 }
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 class MemoryAllocator;
@@ -96,5 +95,4 @@ private:
     vk::UniqueDescriptorPool createDescriptorPool() const;
 };
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

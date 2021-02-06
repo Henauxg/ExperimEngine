@@ -2,7 +2,7 @@
 
 #include <memory>
 
-namespace expengine {
+namespace experim {
 class Engine;
 }
 
@@ -13,5 +13,5 @@ public:
     void tick();
 
 private:
-    std::unique_ptr<expengine::Engine> engine_;
+    std::unique_ptr<experim::Engine> engine_;
 };

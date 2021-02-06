@@ -12,8 +12,7 @@ namespace {
 const uint64_t FENCE_WAIT_TIMEOUT_NANOSEC = 15000000000;
 } // namespace
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 /* Vulkan objects per RenderingContext :
@@ -440,5 +439,4 @@ void VulkanRenderingContext::waitIdle()
 }
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

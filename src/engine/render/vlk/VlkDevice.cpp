@@ -10,8 +10,7 @@
 #include <engine/render/vlk/VlkDebug.hpp>
 #include <engine/render/vlk/VlkWindow.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 const std::vector<const char*> DEVICE_EXTENSIONS = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
@@ -254,5 +253,4 @@ uint32_t Device::findMemoryType(
 }
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

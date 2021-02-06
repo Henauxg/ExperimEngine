@@ -2,8 +2,7 @@
 
 #include <engine/log/ExpengineLog.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 
 RenderingContext::RenderingContext(std::function<void(void)> surfaceChangeCallback)
     : surfaceChangeCallback_(surfaceChangeCallback)
@@ -16,5 +15,4 @@ void RenderingContext::setSurfaceChangeCallback(
     surfaceChangeCallback_ = surfaceChangeCallback;
 }
 
-} // namespace render
-} // namespace expengine
+} // namespace experim

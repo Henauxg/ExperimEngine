@@ -7,7 +7,7 @@ using Milliseconds = std::ratio<1, 1000>;
 using Microseconds = std::ratio<1, 1000000>;
 using Nanoseconds = std::ratio<1, 1000000000>;
 
-namespace expengine {
+namespace experim {
 
 class Timer {
 public:
@@ -69,4 +69,4 @@ private:
     bool expiredFlag_;
 };
 
-} // namespace expengine
+} // namespace experim

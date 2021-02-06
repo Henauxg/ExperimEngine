@@ -14,8 +14,7 @@
 namespace {
 }
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 VulkanRenderer::VulkanRenderer(
@@ -157,5 +156,4 @@ vk::DebugUtilsMessengerEXT VulkanRenderer::setupDebugMessenger(
 }
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

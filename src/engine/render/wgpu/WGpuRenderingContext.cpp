@@ -10,8 +10,7 @@ namespace {
 
 } // namespace
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace webgpu {
 
 WebGpuRenderingContext::WebGpuRenderingContext(
@@ -136,5 +135,4 @@ void WebGpuRenderingContext::buildSwapchainObjects(
 }
 
 } // namespace webgpu
-} // namespace render
-} // namespace expengine
+} // namespace experim

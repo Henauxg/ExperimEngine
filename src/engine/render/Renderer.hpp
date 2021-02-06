@@ -8,11 +8,9 @@ namespace spdlog {
 class logger;
 }
 
-namespace expengine {
+namespace experim {
 
 struct EngineParameters;
-
-namespace render {
 
 /** Abstract class used to manipulate the rendering system. */
 class Renderer {
@@ -35,5 +33,4 @@ protected:
     std::shared_ptr<spdlog::logger> logger_;
 };
 
-} // namespace render
-} // namespace expengine
+} // namespace experim

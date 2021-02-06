@@ -3,8 +3,7 @@
 #include <engine/render/vlk/VlkDebug.hpp>
 #include <engine/render/vlk/VlkDevice.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 Buffer::Buffer(
@@ -172,5 +171,4 @@ void Buffer::assertInvalidate(vk::DeviceSize size, vk::DeviceSize offset)
 }
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

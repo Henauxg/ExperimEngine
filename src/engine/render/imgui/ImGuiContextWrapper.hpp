@@ -6,8 +6,7 @@
 #include <engine/render/imgui/lib/imgui.h>
 
 /* RAII wrapper for an ImGui context */
-namespace expengine {
-namespace render {
+namespace experim {
 
 /** Custom back-end */
 class ImGuiContextWrapper {
@@ -25,5 +24,4 @@ private:
     ImGuiContext* ctx_;
 };
 
-} // namespace render
-} // namespace expengine
+} // namespace experim

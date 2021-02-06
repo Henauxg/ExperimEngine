@@ -5,8 +5,7 @@
 #include <engine/render/RenderingContext.hpp>
 #include <engine/render/Window.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace webgpu {
 
 /* RGBA8Unorm seems to be deprecated for the swapchain (chrome debugger) */
@@ -64,5 +63,4 @@ private:
 };
 
 } // namespace webgpu
-} // namespace render
-} // namespace expengine
+} // namespace experim

@@ -3,12 +3,10 @@
 #include <engine/EngineParameters.hpp>
 #include <engine/log/ExpengineLog.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 
 Renderer::Renderer(EngineParameters& engineParams)
     : engineParams_(engineParams)
     , logger_(spdlog::get(LOGGER_NAME)) {};
 
-} // namespace render
-} // namespace expengine
+} // namespace experim

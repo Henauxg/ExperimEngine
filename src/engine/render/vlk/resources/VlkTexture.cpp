@@ -5,8 +5,7 @@
 #include <engine/render/vlk/VlkMemoryAllocator.hpp>
 #include <engine/render/vlk/resources/VlkImage.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 Texture::Texture(
@@ -22,7 +21,8 @@ Texture::Texture(
     : sampler_(sampler)
 {
     /* Upload texData to accessible device memory */
-    auto stagingBuffer = device.allocator().createStagingBuffer(texDataSize, texData);
+    auto stagingBuffer
+        = device.allocator().createStagingBuffer(texDataSize, texData);
 
     /* Create image (as a transfer dest) */
     image_ = device.allocator().createTextureImage(
@@ -82,5 +82,4 @@ Texture::Texture(
 }
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

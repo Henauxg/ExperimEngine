@@ -34,8 +34,7 @@ const uint32_t FAKE_SWAPCHAIN_IMAGE_COUNT = 3;
 /* TODO : Vertex/Index buffers encapsulation */
 /* TODO : Error handling for WebGPU objects */
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace webgpu {
 
 struct FrameRenderBuffers {
@@ -610,5 +609,4 @@ void WebGpuUIRendererBackend::setupRenderState(
 }
 
 } // namespace webgpu
-} // namespace render
-} // namespace expengine
+} // namespace experim

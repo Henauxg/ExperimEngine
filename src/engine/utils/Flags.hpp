@@ -6,7 +6,7 @@
 
 #endif // !__EMSCRIPTEN__
 
-namespace expengine {
+namespace experim {
 
 template <typename FlagBitsType> struct FlagTraits {
     enum
@@ -154,4 +154,4 @@ constexpr Flags<BitType> operator^(BitType bit, Flags<BitType> const& flags) noe
 {
     return flags ^ bit;
 }
-} // namespace expengine
+} // namespace experim

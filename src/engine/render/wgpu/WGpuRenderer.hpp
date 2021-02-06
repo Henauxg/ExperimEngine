@@ -7,8 +7,7 @@
 #include <engine/render/Renderer.hpp>
 #include <engine/render/Window.hpp>
 
-namespace expengine {
-namespace render {
+namespace experim {
 
 class ImguiBackend;
 
@@ -49,5 +48,4 @@ private:
 };
 
 } // namespace webgpu
-} // namespace render
-} // namespace expengine
+} // namespace experim

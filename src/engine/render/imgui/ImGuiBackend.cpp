@@ -20,8 +20,7 @@ const std::string OPEN_SANS_FONT = "./data/fonts/OpenSans/OpenSans-Regular.ttf";
 
 } // namespace
 
-namespace expengine {
-namespace render {
+namespace experim {
 
 ImguiBackend::ImguiBackend(
     const Renderer& renderer,
@@ -138,5 +137,4 @@ void ImguiBackend::renderFrame()
     }
 };
 
-} // namespace render
-} // namespace expengine
+} // namespace experim

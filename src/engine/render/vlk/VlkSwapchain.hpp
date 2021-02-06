@@ -8,8 +8,7 @@ namespace spdlog {
 class logger;
 }
 
-namespace expengine {
-namespace render {
+namespace experim {
 namespace vlk {
 
 class Device;
@@ -82,5 +81,4 @@ private:
 };
 
 } // namespace vlk
-} // namespace render
-} // namespace expengine
+} // namespace experim

@@ -19,8 +19,7 @@ const std::string PLATFORM_BACKEND_NAME = "ExperimEngine_SDL_Platform";
 
 } // namespace
 
-namespace expengine {
-namespace render {
+namespace experim {
 
 /* Delegates */
 static const char* ImGui_ImplExpengine_GetClipboardText(void*);
@@ -639,5 +638,4 @@ static bool ImGui_ImplExpengine_GetWindowMinimized(ImGuiViewport* viewport)
     return data->window_->isMinimized();
 }
 
-} // namespace render
-} // namespace expengine
+} // namespace experim

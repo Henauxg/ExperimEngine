@@ -11,7 +11,7 @@ namespace spdlog {
 class logger;
 }
 
-namespace expengine {
+namespace experim {
 
 enum class AttachmentsFlagBits : uint32_t
 {
@@ -27,8 +27,6 @@ template <> struct FlagTraits<AttachmentsFlagBits> {
             | uint32_t(AttachmentsFlagBits::eDepthAttachments)
     };
 };
-
-namespace render {
 
 class RenderingContext {
 public:
@@ -66,5 +64,4 @@ protected:
     std::shared_ptr<spdlog::logger> logger_;
 };
 
-} // namespace render
-} // namespace expengine
+} // namespace experim

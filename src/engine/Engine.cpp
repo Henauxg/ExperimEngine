@@ -25,7 +25,7 @@ const float ONE_SEC_IN_MILLI_F = 1000.0f;
 
 } // namespace
 
-namespace expengine {
+namespace experim {
 
 Engine::Engine(const std::string& appName, const uint32_t appVersion)
 {
@@ -73,14 +73,14 @@ Engine::Engine(const std::string& appName, const uint32_t appVersion)
     /* Initialize main window & renderer           */
     /* ------------------------------------------- */
 #ifdef __EMSCRIPTEN__
-    renderer_ = std::make_unique<render::webgpu::WebGpuRenderer>(
+    renderer_ = std::make_unique<webgpu::WebGpuRenderer>(
         appName,
         appVersion,
         DEFAULT_WINDOW_WIDTH,
         DEFAULT_WINDOW_HEIGHT,
         engineParams_);
 #else
-     renderer_ = std::make_unique<render::vlk::VulkanRenderer>(
+    renderer_ = std::make_unique<vlk::VulkanRenderer>(
         appName,
         appVersion,
         DEFAULT_WINDOW_WIDTH,
@@ -211,4 +211,4 @@ void Engine::renderFrame()
     }
 }
 
-} // namespace expengine
+} // namespace experim
