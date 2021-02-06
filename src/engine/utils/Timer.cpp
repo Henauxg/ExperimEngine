@@ -1,4 +1,6 @@
-#include "timer.hpp"
+#include "Timer.hpp"
+
+#include <algorithm>
 
 namespace experim {
 
