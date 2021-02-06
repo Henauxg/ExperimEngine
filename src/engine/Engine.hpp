@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <memory>
+#include <vector>
 
 #include <engine/EngineParameters.hpp>
 #include <engine/log/ExpengineLog.hpp>
@@ -29,6 +30,7 @@ private:
     std::shared_ptr<Window> mainWindow_;
 
     EngineParameters engineParams_;
+    Timer frameTimer;
 
     /* Logging */
     std::shared_ptr<spdlog::logger> logger_;

@@ -11,11 +11,13 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 #endif
 
+#include <spdlog/sinks/stdout_color_sinks.h>
+
 #include <ExperimEngineConfig.h>
 #include <engine/render/Renderer.hpp>
 #include <engine/render/Window.hpp>
 #include <engine/render/wgpu/WGpuRenderer.hpp>
-#include <spdlog/sinks/stdout_color_sinks.h>
+#include <engine/utils/Timer.hpp>
 
 namespace {
 
@@ -168,34 +170,23 @@ void Engine::generateUI() { }
 
 void Engine::renderFrame()
 {
-    auto timeStart = std::chrono::steady_clock::now();
+    frameTimer.reset();
+
     renderer_->renderFrame();
-    auto timeEnd = std::chrono::steady_clock::now();
 
     EngineTimings* timings = &engineParams_.timings;
-    timings->frameDuration
-        = (float) std::chrono::duration_cast<std::chrono::microseconds>(
-              timeEnd - timeStart)
-              .count()
-        / 1000.0F;
-    if (!timings->paused)
-    {
-        timings->timer += timings->timerSpeed * timings->frameDuration / 1000.0F;
-        if (timings->timer > 1.0)
-        {
-            timings->timer -= 1.0f;
-        }
-    }
+    timings->frameDuration = frameTimer.getElapsedTime<Milliseconds>();
 
     EngineStatistics* stats = &engineParams_.statistics;
     stats->frameCounter++;
-    stats->fpsTimer += timings->frameDuration;
-    if (stats->fpsTimer > stats->fpsRefreshPeriod)
+
+    if (stats->fpsTimer.isExpired())
     {
         stats->fpsValue = static_cast<uint32_t>(
             (float) stats->frameCounter
             * (ONE_SEC_IN_MILLI_F / stats->fpsRefreshPeriod)
-            * (stats->fpsTimer / stats->fpsRefreshPeriod));
+            * (stats->fpsTimer.getElapsedTime<Milliseconds>()
+               / stats->fpsRefreshPeriod));
 
         SPDLOG_LOGGER_INFO(
             logger_,
@@ -206,8 +197,8 @@ void Engine::renderFrame()
             timings->timer,
             timings->frameDuration);
 
-        stats->fpsTimer = 0.0f;
         stats->frameCounter = 0;
+        stats->fpsTimer.reset();
     }
 }
 
