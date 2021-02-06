@@ -27,14 +27,14 @@ public:
     /**
      * @brief Returns elapsed time in the specified unit
      */
-    template <typename T = DefaultResolution> double getElapsedTime()
+    template <typename T = DefaultResolution> double getElapsedTime() const
     {
         return std::chrono::duration<double, T>(Clock::now() - start_).count();
     }
     /**
      * @brief Returns time left in the specified unit
      */
-    template <typename T = DefaultResolution> double getTimeLeft()
+    template <typename T = DefaultResolution> double getTimeLeft() const
     {
         auto elapsed
             = std::chrono::duration<double, T>(Clock::now() - start_).count();
@@ -47,12 +47,12 @@ public:
     /**
      * @brief Return a percentage of completion. Scale from 0 to 1.
      */
-    double getPercentage();
+    double getPercentage() const;
 
     /**
      * @brief Returns true if more time than duration has elapsed
      */
-    bool isExpired();
+    bool isExpired() const;
     /**
      * @brief Returns true after isExpired is true only once when first called.
      */
