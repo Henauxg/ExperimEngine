@@ -151,6 +151,7 @@ Others:
 + [Simple DirectMedia Layer (SDL2)](https://www.libsdl.org/index.php) - [version](includes/SDL2/version.txt)
 + [Dear ImGui](https://github.com/ocornut/imgui) - Docking branch, [version](src/engine/render/imgui/lib/version.txt)
 + [spdlog](https://github.com/gabime/spdlog) - [version](includes/spdlog/version.h)
++ [stb_image](https://github.com/nothings/stb) - [version](includes/stb/stb_image.h)
 
 ### May be used in the future :
 + [Bullet Physics](https://github.com/bulletphysics/bullet3)
