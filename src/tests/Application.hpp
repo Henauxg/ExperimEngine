@@ -10,7 +10,7 @@ class Application {
 public:
     Application();
     void run();
-    void tick();
+    void tick(float deltaT);
 
 private:
     std::unique_ptr<experim::Engine> engine_;

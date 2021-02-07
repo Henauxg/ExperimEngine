@@ -19,7 +19,8 @@ public:
 
     template <class T> void onTick(T instance)
     {
-        std::function<void()> a = [&]() { instance->tick(); };
+        std::function<void(float deltaT)> a
+            = [&](float deltaT) { instance->tick(deltaT); };
         onTicks_.push_back(a);
     };
     void run();
@@ -30,13 +31,14 @@ private:
     std::shared_ptr<Window> mainWindow_;
 
     EngineParameters engineParams_;
-    Timer frameTimer;
+    Timer frameTimer_;
+    Timer tickTimer_;
 
     /* Logging */
     std::shared_ptr<spdlog::logger> logger_;
 
     /* User callbacks */
-    std::vector<std::function<void()>> onTicks_;
+    std::vector<std::function<void(float deltaT)>> onTicks_;
 
     void prepareFrame();
     void generateUI();

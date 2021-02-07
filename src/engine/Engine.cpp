@@ -154,9 +154,11 @@ bool Engine::tick()
     /* Updates */
     generateUI();
 
+    float deltaT = (float) (tickTimer_.getElapsedTime<Milliseconds>());
+    tickTimer_.reset();
     for (auto& tick : onTicks_)
     {
-        tick();
+        tick(deltaT);
     }
 
     renderFrame();
@@ -170,12 +172,12 @@ void Engine::generateUI() { }
 
 void Engine::renderFrame()
 {
-    frameTimer.reset();
+    frameTimer_.reset();
 
     renderer_->renderFrame();
 
     EngineTimings* timings = &engineParams_.timings;
-    timings->frameDuration = frameTimer.getElapsedTime<Milliseconds>();
+    timings->frameDuration = frameTimer_.getElapsedTime<Milliseconds>();
 
     EngineStatistics* stats = &engineParams_.statistics;
     stats->frameCounter++;

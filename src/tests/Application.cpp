@@ -51,7 +51,7 @@ void Application::run()
     engine_->run();
 }
 
-void Application::tick()
+void Application::tick(float deltaT)
 {
     static bool show_demo_window = true;
     if (show_demo_window)
