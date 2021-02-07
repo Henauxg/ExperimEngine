@@ -2,12 +2,12 @@
 
 #include <chrono>
 
+namespace experim {
+
 using Seconds = std::ratio<1>;
 using Milliseconds = std::ratio<1, 1000>;
 using Microseconds = std::ratio<1, 1000000>;
 using Nanoseconds = std::ratio<1, 1000000000>;
-
-namespace experim {
 
 class Timer {
 public:
