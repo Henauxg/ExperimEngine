@@ -142,22 +142,22 @@ function(add_experimengine_target engineTarget engineRootPath)
 	if(WEB_TARGET)
 		add_custom_command(TARGET ${engineTarget} POST_BUILD
 			# Web html template
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different ${engineRootPath}/tools/emscripten/index.html ${CMAKE_BINARY_DIR}
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different ${engineRootPath}/tools/emscripten/index.html $<TARGET_FILE_DIR:${engineTarget}>
 		)
 
 	# Native commands
 	else()
 		add_custom_command(TARGET ${engineTarget} POST_BUILD
 			# Binaries
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different ${engineRootPath}/libs/lua/lua51.dll ${CMAKE_BINARY_DIR}
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different ${engineRootPath}/libs/SDL2/x64/SDL2.dll ${CMAKE_BINARY_DIR}
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different ${engineRootPath}/libs/lua/lua51.dll $<TARGET_FILE_DIR:${engineTarget}>
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different ${engineRootPath}/libs/SDL2/x64/SDL2.dll $<TARGET_FILE_DIR:${engineTarget}>
 		)
 	endif()
 
 	# Common commands
 	add_custom_command(TARGET ${engineTarget} POST_BUILD
 		# Data files
-		COMMAND ${CMAKE_COMMAND} -E copy_directory  ${engineRootPath}/data ${CMAKE_BINARY_DIR}/data
+		COMMAND ${CMAKE_COMMAND} -E copy_directory  ${engineRootPath}/data $<TARGET_FILE_DIR:${engineTarget}>/data
 	)
 
 	target_link_libraries(${engineTarget} LibExperimEngine)
@@ -169,7 +169,7 @@ endfunction()
 #####################
 
 # If this is the main project, not if included through add_subdirectory
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+#if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 	message("Building sample application")
 
 	set(ENGINE_APP_BUILD_TARGET_NAME ExperimEngineTest)
@@ -182,4 +182,4 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 	endif()
 
 	add_experimengine_target(${ENGINE_APP_BUILD_TARGET_NAME} ${PROJECT_SOURCE_DIR})
-endif()
+#endif()
