@@ -13,44 +13,55 @@ Image::Image()
 {
 }
 
-Image::~Image() { stbi_image_free(data_); }
-
-std::optional<Image> Image::fromFile(const std::string& filepath)
+Image::~Image()
 {
-    int w, h = 0;
-    int channels;
-    auto pixels = stbi_load(filepath.c_str(), &w, &h, &channels, 4);
-    if (pixels == nullptr)
+    if (data_)
     {
-        return std::optional<Image>();
+        delete[] data_;
     }
-
-    Image image;
-    image.size_ = {w, h};
-    image.data_ = static_cast<uint8_t*>(pixels);
-    return std::optional<Image>(image);
 }
 
-std::optional<Image> Image::fromBuffer(const uint8_t* buffer, uint32_t bufferSize)
+std::pair<bool, std::unique_ptr<Image>> Image::fromFile(const std::string& filepath)
 {
     int w, h = 0;
     int channels;
-    auto pixels = stbi_load_from_memory(buffer, bufferSize, &w, &h, &channels, 4);
-    if (pixels == nullptr)
+    unsigned char* pData = stbi_load(filepath.c_str(), &w, &h, &channels, 4);
+
+    if (pData == nullptr)
     {
-        return std::optional<Image>();
+        return std::make_pair(false, nullptr);
     }
 
-    Image image;
-    image.size_ = {w, h};
-    image.data_ = static_cast<uint8_t*>(pixels);
-    return std::optional<Image>(image);
+    auto image = std::make_unique<Image>();
+    image->size_ = {w, h};
+    image->data_ = pData;
+    return std::make_pair(true, std::move(image));
+}
+
+std::pair<bool, std::unique_ptr<Image>> Image::fromBuffer(
+    const uint8_t* buffer,
+    uint32_t bufferSize)
+{
+    int w, h = 0;
+    int channels;
+    unsigned char* pData
+        = stbi_load_from_memory(buffer, bufferSize, &w, &h, &channels, 4);
+    if (pData == nullptr)
+    {
+        return std::make_pair(false, nullptr);
+    }
+
+    auto image = std::make_unique<Image>();
+    image->size_ = {w, h};
+    image->data_ = pData;
+    return std::make_pair(true, std::move(image));
 }
 
 const Color Image::getPixelColor(uint32_t x, uint32_t y) const
 {
     uint32_t index = x + y * size_.first;
-    EXPENGINE_DEBUG_ASSERT(index < size_.first * size_.second, "");
+    EXPENGINE_DEBUG_ASSERT(
+        index < size_.first * size_.second, "Requested pixel out of image");
 
     return Color(data_[index]);
 }

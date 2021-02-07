@@ -1,6 +1,6 @@
 #pragma once
 
-#include <optional>
+#include <memory>
 #include <string>
 
 #include <engine/render/Color.hpp>
@@ -15,8 +15,9 @@ public:
     Image();
     ~Image();
 
-    static std::optional<Image> fromFile(const std::string& filepath);
-    static std::optional<Image> fromBuffer(
+    static std::pair<bool, std::unique_ptr<Image>> fromFile(
+        const std::string& filepath);
+    static std::pair<bool, std::unique_ptr<Image>> fromBuffer(
         const uint8_t* buffer,
         uint32_t bufferSize);
 
@@ -25,7 +26,7 @@ public:
     const Color getPixelColor(uint32_t x, uint32_t y) const;
 
 private:
-    uint8_t* data_;
+    unsigned char* data_;
     std::pair<uint32_t, uint32_t> size_;
 };
 
