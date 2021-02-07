@@ -30,4 +30,12 @@ const std::string LOG_FILE = LOG_DIRECTORY + "/expengine_log.txt";
         }                                                                           \
     } while (0)
 
+#ifndef NDEBUG
+#define EXPENGINE_DEBUG_ASSERT(f, ...) EXPENGINE_ASSERT(f, __VA_ARGS__)
+#else
+#define EXPENGINE_DEBUG_ASSERT(f, ...)                                              \
+    do                                                                              \
+    {                                                                               \
+    } while (0)
+#endif
 } // namespace experim
