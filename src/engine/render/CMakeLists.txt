@@ -1,5 +1,7 @@
 target_sources(${ENGINE_LIB_TARGET_NAME}
     PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/Color.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Color.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Renderer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Renderer.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/RenderingContext.cpp
