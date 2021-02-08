@@ -28,7 +28,7 @@ public:
 
     inline const wgpu::Device& device() const { return device_; };
 
-    void handleEvent(const SDL_Event& event) override;
+    bool handleEvent(const SDL_Event& event) override;
     void prepareFrame() override;
     void renderFrame() override;
 

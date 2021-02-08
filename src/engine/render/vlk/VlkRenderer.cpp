@@ -69,7 +69,7 @@ void VulkanRenderer::renderFrame()
         mainRenderingContext_->submitFrame();
 }
 
-void VulkanRenderer::handleEvent(const SDL_Event& event)
+bool VulkanRenderer::handleEvent(const SDL_Event& event)
 {
     bool handled = imguiBackend_->handleEvent(event);
 
@@ -77,6 +77,8 @@ void VulkanRenderer::handleEvent(const SDL_Event& event)
     {
         /* TODO handle rendering events */
     }
+
+    return handled;
 }
 
 void VulkanRenderer::waitIdle() { vlkDevice_->waitIdle(); }

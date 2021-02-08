@@ -17,7 +17,7 @@ class Renderer {
 public:
     virtual ~Renderer() = default;
 
-    virtual void handleEvent(const SDL_Event& event) = 0;
+    virtual bool handleEvent(const SDL_Event& event) = 0;
     virtual void prepareFrame() = 0;
     virtual void renderFrame() = 0;
 

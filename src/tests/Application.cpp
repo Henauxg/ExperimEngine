@@ -5,6 +5,7 @@
 #include <engine/Engine.hpp>
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/imgui/lib/imgui.h>
+#include <engine/render/imgui/widgets/ImguiLog.hpp>
 #include <engine/utils/Utils.hpp>
 
 #ifndef __EMSCRIPTEN__
@@ -39,6 +40,9 @@ Application::Application()
     engine_
         = std::make_unique<experim::Engine>(APPLICATION_NAME, APPLICATION_VERSION);
     engine_->onTick(this);
+    engine_->onEvent(this);
+
+    uiLog_ = std::make_unique<experim::ImguiLog>();
 }
 
 void Application::run()
@@ -51,13 +55,28 @@ void Application::run()
     engine_->run();
 }
 
-void Application::tick(float deltaT)
+void Application::onEvent(SDL_Event event)
+{
+    if (event.type == SDL_KEYDOWN)
+    {
+        uiLog_->addLog(
+            "Keydown event on key %i in window %i\n",
+            event.key.keysym.scancode,
+            event.key.windowID);
+    }
+}
+
+void Application::onTick(float deltaT)
 {
     static bool show_demo_window = true;
     if (show_demo_window)
         ImGui::ShowDemoWindow(&show_demo_window);
 
-#if 1
+    ImGui::Begin("SimpleLogWindow");
+    uiLog_->draw();
+    ImGui::End();
+
+#if 0
     ImGui::SetNextWindowBgAlpha(0.2f);
     ImGui::Begin("SimpleWindow 0.2");
 

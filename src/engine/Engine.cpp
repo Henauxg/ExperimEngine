@@ -147,6 +147,11 @@ bool Engine::tick()
 
             shouldContinue = false;
         }
+
+        for (auto& eventHandler : onEvents_)
+        {
+            eventHandler(event);
+        }
     }
 
     prepareFrame();

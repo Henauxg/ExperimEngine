@@ -70,7 +70,7 @@ WebGpuRenderer::~WebGpuRenderer()
     SPDLOG_LOGGER_DEBUG(logger_, "WebGPU renderer destruction");
 }
 
-void WebGpuRenderer::handleEvent(const SDL_Event& event)
+bool WebGpuRenderer::handleEvent(const SDL_Event& event)
 {
     bool handled = imguiBackend_->handleEvent(event);
 
@@ -78,6 +78,8 @@ void WebGpuRenderer::handleEvent(const SDL_Event& event)
     {
         /* TODO handle rendering events */
     }
+
+    return handled;
 }
 
 void WebGpuRenderer::prepareFrame() { imguiBackend_->prepareFrame(); }
