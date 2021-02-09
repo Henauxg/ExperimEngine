@@ -15,7 +15,7 @@ namespace vlk {
 
 class Device;
 class Buffer;
-class Image;
+class VlkImage;
 
 class MemoryAllocator {
 public:
@@ -54,7 +54,7 @@ public:
         vk::BufferUsageFlags bufferUsage,
         void const* dataToCopy = nullptr) const;
 
-    std::unique_ptr<vlk::Image> createTextureImage(
+    std::unique_ptr<VlkImage> createTextureImage(
         vk::ImageUsageFlags imageUsageFlags,
         vk::Format format,
         uint32_t width,
@@ -62,7 +62,7 @@ public:
         uint32_t mipLevels = 1,
         uint32_t layerCount = 1) const;
 
-    std::unique_ptr<vlk::Image> createImage(
+    std::unique_ptr<VlkImage> createImage(
         VmaMemoryUsage memoryUsage,
         vk::ImageUsageFlags imageUsageFlags,
         vk::Format format,

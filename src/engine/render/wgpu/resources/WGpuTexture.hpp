@@ -5,10 +5,10 @@
 namespace experim {
 namespace webgpu {
 
-class Texture {
+class WgpuTexture {
 public:
     /** Create texture from data buffer */
-    Texture(
+    WgpuTexture(
         const wgpu::Device device,
         void* texData,
         size_t texDataSize,

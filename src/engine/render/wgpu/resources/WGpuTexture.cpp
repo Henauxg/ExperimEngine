@@ -3,7 +3,7 @@
 namespace experim {
 namespace webgpu {
 
-Texture::Texture(
+WgpuTexture::WgpuTexture(
     const wgpu::Device device,
     void* texData,
     size_t texDataSize,

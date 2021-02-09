@@ -11,7 +11,7 @@ namespace vlk {
 
 class Device;
 class VulkanRenderer;
-class Texture;
+class VlkTexture;
 class FrameCommandBuffer;
 struct FrameRenderBuffers;
 
@@ -48,7 +48,7 @@ private:
     const vlk::Device& device_;
 
     /* Vulkan objects shared by all the RenderingContext(s) */
-    std::unique_ptr<vlk::Texture> fontTexture_;
+    std::unique_ptr<VlkTexture> fontTexture_;
     vk::UniqueDescriptorSetLayout descriptorSetLayout_;
     /* Descriptor set is not unique since the pool owns it
      * (VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT not used)  */

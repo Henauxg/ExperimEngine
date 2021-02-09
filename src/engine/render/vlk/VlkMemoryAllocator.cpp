@@ -144,7 +144,7 @@ std::unique_ptr<vlk::Buffer> MemoryAllocator::createBuffer(
     return std::move(buffer);
 }
 
-std::unique_ptr<vlk::Image> MemoryAllocator::createTextureImage(
+std::unique_ptr<VlkImage> MemoryAllocator::createTextureImage(
     vk::ImageUsageFlags imageUsageFlags,
     vk::Format format,
     uint32_t width,
@@ -165,7 +165,7 @@ std::unique_ptr<vlk::Image> MemoryAllocator::createTextureImage(
     return std::move(image);
 }
 
-std::unique_ptr<vlk::Image> MemoryAllocator::createImage(
+std::unique_ptr<VlkImage> MemoryAllocator::createImage(
     VmaMemoryUsage memoryUsage,
     vk::ImageUsageFlags imageUsageFlags,
     vk::Format format,
@@ -175,7 +175,7 @@ std::unique_ptr<vlk::Image> MemoryAllocator::createImage(
     uint32_t layerCount) const
 {
     /* Create a vlk::Image object */
-    auto image = std::make_unique<vlk::Image>(
+    auto image = std::make_unique<VlkImage>(
         device_.deviceHandle(),
         allocator_,
         memoryUsage,

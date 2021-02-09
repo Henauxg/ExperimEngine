@@ -286,7 +286,7 @@ void VulkanUIRendererBackend::uploadFonts()
     size_t bufferSize = (size_t) width * (size_t) height * 4 * sizeof(char);
 
     /* Create GPU texture */
-    fontTexture_ = std::make_unique<Texture>(
+    fontTexture_ = std::make_unique<VlkTexture>(
         device_,
         pixelsBuffer,
         bufferSize,

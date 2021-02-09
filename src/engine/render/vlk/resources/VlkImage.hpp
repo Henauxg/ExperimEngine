@@ -10,9 +10,9 @@ class Device;
 
 /**
  * Vulkan Image wrapper using VMA */
-class Image {
+class VlkImage {
 public:
-    Image(
+    VlkImage(
         const vk::Device device,
         const VmaAllocator& allocator,
         VmaMemoryUsage memoryUsage,
@@ -22,7 +22,7 @@ public:
         uint32_t height,
         uint32_t mipLevels = 1,
         uint32_t layerCount = 1);
-    ~Image();
+    ~VlkImage();
 
     inline const vk::Image getHandle() { return image_.get(); };
     inline const vk::Extent3D getExtent() { return imgInfo_.extent; };

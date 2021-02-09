@@ -13,7 +13,7 @@ class Renderer;
 namespace webgpu {
 
 class WebGpuRenderer;
-class Texture;
+class WgpuTexture;
 struct FrameRenderBuffers;
 
 /** Custom back-end inspired by imgui_impl_vulkan. */
@@ -44,7 +44,7 @@ private:
     wgpu::Sampler fontSampler_;
     wgpu::RenderPipeline graphicsPipeline_;
     wgpu::Buffer uniformBuffer_;
-    std::unique_ptr<Texture> fontTexture_;
+    std::unique_ptr<WgpuTexture> fontTexture_;
     wgpu::BindGroup commonBindGroup_;
     wgpu::BindGroupLayout imageBindGroupLayout_;
     wgpu::BindGroup fontImageBindGroup_;

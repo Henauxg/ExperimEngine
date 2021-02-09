@@ -6,7 +6,7 @@
 namespace experim {
 namespace vlk {
 
-Image::Image(
+VlkImage::VlkImage(
     const vk::Device device,
     const VmaAllocator& allocator,
     VmaMemoryUsage memoryUsage,
@@ -49,7 +49,7 @@ Image::Image(
     image_ = vk::UniqueImage(vkImage, device);
 }
 
-Image::~Image()
+VlkImage::~VlkImage()
 {
     /* Image is released but we need to handle the VMA allocated memory manually */
     vmaFreeMemory(allocator_, allocation_);
@@ -59,7 +59,7 @@ Image::~Image()
 modified with vulkan-hpp :
 https://github.com/KhronosGroup/Vulkan-Samples/blob/master/framework/common/vk_common.cpp
 */
-void Image::transitionImageLayout(
+void VlkImage::transitionImageLayout(
     vk::CommandBuffer commandBuffer,
     vk::ImageLayout oldLayout,
     vk::ImageLayout newLayout,
@@ -178,7 +178,7 @@ void Image::transitionImageLayout(
     layout_ = newLayout;
 }
 
-void Image::transitionImageLayout(
+void VlkImage::transitionImageLayout(
     vk::CommandBuffer commandBuffer,
     vk::ImageLayout oldLayout,
     vk::ImageLayout newLayout,

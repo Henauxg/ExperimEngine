@@ -10,10 +10,10 @@ namespace vlk {
 class Image;
 class Device;
 
-class Texture {
+class VlkTexture {
 public:
     /** Create texture from data buffer */
-    Texture(
+    VlkTexture(
         const vlk::Device& device,
         void* texData,
         vk::DeviceSize texDataSize,
@@ -37,7 +37,7 @@ private:
     const vk::Sampler sampler_;
 
     /* Owned objects */
-    std::unique_ptr<Image> image_;
+    std::unique_ptr<VlkImage> image_;
     vk::UniqueImageView view_;
 
     /* Info */

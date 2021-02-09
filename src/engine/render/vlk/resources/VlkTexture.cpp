@@ -8,7 +8,7 @@
 namespace experim {
 namespace vlk {
 
-Texture::Texture(
+VlkTexture::VlkTexture(
     const vlk::Device& device,
     void* texData,
     vk::DeviceSize texDataSize,
