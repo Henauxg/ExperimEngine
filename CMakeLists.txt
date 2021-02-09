@@ -116,11 +116,17 @@ function(add_experimengine_target engineTarget engineRootPath)
 		${CMAKE_CURRENT_SOURCE_DIR}/src
 	)
 
+	# Common commands, pre-link for the virtual file system in web builds
+	add_custom_command(TARGET ${engineTarget} PRE_LINK
+		# Data files
+		COMMAND ${CMAKE_COMMAND} -E copy_directory  ${engineRootPath}/data $<TARGET_FILE_DIR:${engineTarget}>/data
+	)
+
 	# Web-target properties
 	if(WEB_TARGET)
 		# Preload runtime files to a virtual file system
 		# TODO Expose files as an argument
-		set_target_properties(${engineTarget} PROPERTIES LINK_FLAGS "-s USE_SDL=2 -s USE_WEBGPU=1 -s ALLOW_MEMORY_GROWTH=1 --preload-file ${PROJECT_SOURCE_DIR}/data@/data")
+		set_target_properties(${engineTarget} PROPERTIES LINK_FLAGS "-s USE_SDL=2 -s USE_WEBGPU=1 -s ALLOW_MEMORY_GROWTH=1 --preload-file ${CMAKE_CURRENT_BINARY_DIR}/data@/data")
 
 	# Native properties
 	else()
@@ -135,8 +141,6 @@ function(add_experimengine_target engineTarget engineRootPath)
 			endif()
 		endif()
 	endif()
-
-	# Post build commands
 
 	# Web-target commands
 	if(WEB_TARGET)
@@ -153,12 +157,6 @@ function(add_experimengine_target engineTarget engineRootPath)
 			COMMAND ${CMAKE_COMMAND} -E copy_if_different ${engineRootPath}/libs/SDL2/x64/SDL2.dll $<TARGET_FILE_DIR:${engineTarget}>
 		)
 	endif()
-
-	# Common commands
-	add_custom_command(TARGET ${engineTarget} POST_BUILD
-		# Data files
-		COMMAND ${CMAKE_COMMAND} -E copy_directory  ${engineRootPath}/data $<TARGET_FILE_DIR:${engineTarget}>/data
-	)
 
 	target_link_libraries(${engineTarget} LibExperimEngine)
 endfunction()
