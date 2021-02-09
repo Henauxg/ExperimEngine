@@ -8,6 +8,7 @@
 namespace experim {
 
 class ImguiBackend;
+class Texture;
 
 namespace vlk {
 
@@ -35,6 +36,9 @@ public:
     std::shared_ptr<Window> getMainWindow() override;
 
     inline const vlk::Device& getDevice() const { return *vlkDevice_; };
+
+    /* Implement IRendering */
+    std::unique_ptr<Texture> createTexture() override;
 
 private:
     /* Vulkan objects */

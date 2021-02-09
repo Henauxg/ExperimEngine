@@ -10,6 +10,7 @@
 namespace experim {
 
 class ImguiBackend;
+class Texture;
 
 namespace webgpu {
 
@@ -34,6 +35,9 @@ public:
 
     void waitIdle() override;
     std::shared_ptr<Window> getMainWindow() override;
+
+    /* Implement IRendering */
+    std::unique_ptr<Texture> createTexture() override;
 
 private:
     std::shared_ptr<Window> mainWindow_;

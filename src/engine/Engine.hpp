@@ -8,9 +8,11 @@
 
 #include <engine/EngineParameters.hpp>
 #include <engine/log/ExpengineLog.hpp>
+#include <engine/render/IRendering.hpp>
 
 namespace experim {
 
+/* Forward declarations */
 class Renderer;
 class Window;
 
@@ -32,6 +34,9 @@ public:
             [instance](SDL_Event event) { instance->onEvent(event); });
     };
     void run();
+
+    /* Subsystems */
+    const IRendering& graphics();
 
 private:
     /* Owned objects */

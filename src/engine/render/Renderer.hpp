@@ -2,6 +2,7 @@
 
 #include <SDL2\SDL_events.h>
 
+#include <engine/render/IRendering.hpp>
 #include <engine/render/Window.hpp>
 
 namespace spdlog {
@@ -13,7 +14,7 @@ namespace experim {
 struct EngineParameters;
 
 /** Abstract class used to manipulate the rendering system. */
-class Renderer {
+class Renderer : public IRendering {
 public:
     virtual ~Renderer() = default;
 

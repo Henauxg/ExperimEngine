@@ -10,6 +10,7 @@
 #include <ExperimEngineConfig.h>
 #include <engine/log/ExpengineLog.hpp>
 #include <engine/render/imgui/ImGuiBackend.hpp>
+#include <engine/render/resources/Texture.hpp>
 #include <engine/render/wgpu/WGpuRenderingContext.hpp>
 
 namespace {
@@ -98,6 +99,8 @@ void WebGpuRenderer::waitIdle()
 }
 
 std::shared_ptr<Window> WebGpuRenderer::getMainWindow() { return mainWindow_; }
+
+std::unique_ptr<Texture> WebGpuRenderer::createTexture() { return nullptr; }
 
 } // namespace webgpu
 } // namespace experim

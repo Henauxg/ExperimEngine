@@ -106,6 +106,8 @@ Engine::~Engine()
     SDL_Quit();
 }
 
+const IRendering& Engine::graphics() { return *renderer_; }
+
 #ifdef __EMSCRIPTEN__
 void emscriptenTick(Engine* engine) { engine->tick(); }
 #endif

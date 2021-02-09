@@ -5,6 +5,7 @@
 
 #include <ExperimEngineConfig.h>
 #include <engine/render/imgui/ImGuiBackend.hpp>
+#include <engine/render/resources/Texture.hpp>
 #include <engine/render/vlk/VlkCapabilities.hpp>
 #include <engine/render/vlk/VlkDebug.hpp>
 #include <engine/render/vlk/VlkDispatch.hpp>
@@ -87,6 +88,8 @@ std::shared_ptr<Window> VulkanRenderer::getMainWindow()
 {
     return std::static_pointer_cast<Window>(mainWindow_);
 }
+
+std::unique_ptr<Texture> VulkanRenderer::createTexture() { return nullptr; }
 
 vk::UniqueInstance VulkanRenderer::createVulkanInstance(
     const std::string& appName,
