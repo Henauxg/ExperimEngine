@@ -84,7 +84,7 @@ bool VulkanRenderer::handleEvent(const SDL_Event& event)
 
 void VulkanRenderer::waitIdle() { vlkDevice_->waitIdle(); }
 
-std::shared_ptr<Window> VulkanRenderer::getMainWindow()
+std::shared_ptr<Window> VulkanRenderer::getMainWindow() const
 {
     return std::static_pointer_cast<Window>(mainWindow_);
 }

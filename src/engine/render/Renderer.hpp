@@ -23,7 +23,7 @@ public:
     virtual void renderFrame() = 0;
 
     virtual void waitIdle() = 0;
-    virtual std::shared_ptr<Window> getMainWindow() = 0;
+    virtual std::shared_ptr<Window> getMainWindow() const = 0;
 
 protected:
     Renderer(EngineParameters& engineParams);

@@ -33,7 +33,7 @@ public:
     void renderFrame() override;
 
     void waitIdle() override;
-    std::shared_ptr<Window> getMainWindow() override;
+    std::shared_ptr<Window> getMainWindow() const override;
 
     inline const vlk::Device& getDevice() const { return *vlkDevice_; };
 

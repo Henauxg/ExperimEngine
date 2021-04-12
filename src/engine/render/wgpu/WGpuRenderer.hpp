@@ -34,7 +34,7 @@ public:
     void renderFrame() override;
 
     void waitIdle() override;
-    std::shared_ptr<Window> getMainWindow() override;
+    std::shared_ptr<Window> getMainWindow() const override;
 
     /* Implement IRendering */
     std::unique_ptr<Texture> createTexture() override;

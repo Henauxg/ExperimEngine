@@ -106,16 +106,25 @@ Engine::~Engine()
     SDL_Quit();
 }
 
-const IRendering& Engine::graphics() { return *renderer_; }
+const IRendering& Engine::graphics() const { return *renderer_; }
 
 #ifdef __EMSCRIPTEN__
 void emscriptenTick(Engine* engine) { engine->tick(); }
 #endif
 
+void Engine::setTickRateLimit(float updatesPerSecond)
+{
+    if (updatesPerSecond == UNLIMITED_TICK_RATE)
+        tickTimer_.reset(0);
+    else
+        tickTimer_.reset(Timer::DefaultResolution::den / updatesPerSecond);
+}
+
 void Engine::run()
 {
     SPDLOG_LOGGER_INFO(logger_, "ExperimEngine : execution start");
 
+    ticking_ = true;
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop_arg(
         (em_arg_callback_func) emscriptenTick, this, 0, true);
@@ -127,10 +136,10 @@ void Engine::run()
     SPDLOG_LOGGER_INFO(logger_, "ExperimEngine : execution ended");
 }
 
+void Engine::stop() { ticking_ = false; }
+
 bool Engine::tick()
 {
-    bool shouldContinue = true;
-
     /* Events */
     /* TODO : May wrap SDL event */
     SDL_Event event;
@@ -147,7 +156,7 @@ bool Engine::tick()
                 && event.window.windowID == mainWindow_->getWindowId()))
         {
 
-            shouldContinue = false;
+            ticking_ = false;
         }
 
         for (auto& eventHandler : onEvents_)
@@ -158,11 +167,12 @@ bool Engine::tick()
 
     prepareFrame();
 
+    float deltaT = (float) (tickTimer_.getElapsedTime<Milliseconds>());
+    tickTimer_.reset();
+
     /* Updates */
     generateUI();
 
-    float deltaT = (float) (tickTimer_.getElapsedTime<Milliseconds>());
-    tickTimer_.reset();
     for (auto& tick : onTicks_)
     {
         tick(deltaT);
@@ -170,7 +180,14 @@ bool Engine::tick()
 
     renderFrame();
 
-    return shouldContinue;
+    /* Limit framerate and updates */
+    if (!tickTimer_.isExpired())
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(
+            (long) tickTimer_.getTimeLeft<Milliseconds>()));
+    }
+
+    return ticking_;
 }
 
 void Engine::prepareFrame() { renderer_->prepareFrame(); }

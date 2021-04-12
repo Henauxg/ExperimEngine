@@ -98,7 +98,7 @@ void WebGpuRenderer::waitIdle()
     SPDLOG_LOGGER_DEBUG(logger_, "WebGPU waitIdle implementation : nothing to do");
 }
 
-std::shared_ptr<Window> WebGpuRenderer::getMainWindow() { return mainWindow_; }
+std::shared_ptr<Window> WebGpuRenderer::getMainWindow() const { return mainWindow_; }
 
 std::unique_ptr<Texture> WebGpuRenderer::createTexture() { return nullptr; }
 

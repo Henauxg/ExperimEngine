@@ -12,6 +12,8 @@
 
 namespace experim {
 
+const float UNLIMITED_TICK_RATE = 0;
+
 /* Forward declarations */
 class Renderer;
 class Window;
@@ -33,10 +35,16 @@ public:
         onEvents_.push_back(
             [instance](SDL_Event event) { instance->onEvent(event); });
     };
+
     void run();
+    void stop();
+    /* The default value UNLIMITED_TICK_RATE means unlimited tick rate. */
+    void setTickRateLimit(float ticksPerSecond = UNLIMITED_TICK_RATE);
+
+    inline std::shared_ptr<spdlog::logger> getLogger() const { return logger_; };
 
     /* Subsystems */
-    const IRendering& graphics();
+    IRendering& graphics() const;
 
 private:
     /* Owned objects */
@@ -46,6 +54,7 @@ private:
     EngineParameters engineParams_;
     Timer frameTimer_;
     Timer tickTimer_;
+    bool ticking_;
 
     /* Logging */
     std::shared_ptr<spdlog::logger> logger_;
