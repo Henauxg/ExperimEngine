@@ -37,4 +37,10 @@ void Timer::reset()
     start_ = Clock::now();
 }
 
+void Timer::reset(double duration)
+{
+    reset();
+    duration_ = std::chrono::duration<double, DefaultResolution>(duration);
+}
+
 } // namespace experim

@@ -17,12 +17,7 @@ public:
     /**
      * @brief Create a timer with the specified duration in DefaultResolution
      */
-    Timer(double duration = 0)
-        : start_(Clock::now())
-        , duration_(std::chrono::duration<double, DefaultResolution>(duration))
-        , expiredFlag_(false)
-    {
-    }
+    Timer(double duration = 0) { reset(duration); }
 
     /**
      * @brief Returns elapsed time in the specified unit
@@ -62,6 +57,11 @@ public:
      * @brief Restarts the timer.
      */
     void reset();
+
+    /**
+     * @brief Restarts the timer, with a different duration.
+     */
+    void reset(double duration);
 
 private:
     Clock::time_point start_;
